@@ -1,0 +1,9 @@
+{
+  "name": "Solo Leveling Fitness",
+  "short_name": "SYSTEM",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#050813",
+  "theme_color": "#050813",
+  "description": "Personal kettlebell quest tracker"
+}
