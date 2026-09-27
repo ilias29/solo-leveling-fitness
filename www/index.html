@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SYSTEM // Solo Fitness</title><meta name="theme-color" content="#050813"><link rel="manifest" href="manifest.webmanifest">
+<style>
+:root{--bg:#050813;--panel:#0b1225;--line:#244b87;--text:#eaf4ff;--muted:#8da5c6;--glow:#54b9ff;--violet:#8f6cff;--good:#67f0c2}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#101a38 0,#050813 42%);color:var(--text);font-family:system-ui,-apple-system,sans-serif;min-height:100vh}
+.app{max-width:620px;margin:auto;padding:24px 16px 80px}.top{display:flex;justify-content:space-between;align-items:center}.sys{letter-spacing:.22em;color:var(--glow);font-weight:900}.rank{border:1px solid var(--line);padding:6px 10px;border-radius:9px;color:#cfe8ff}
+.card{margin-top:16px;padding:18px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,rgba(18,32,68,.92),rgba(7,12,28,.95));box-shadow:0 0 30px #1262a52b}
+h1{font-size:24px;margin:5px 0}.muted{color:var(--muted)}.xpbar{height:10px;background:#111a30;border-radius:10px;overflow:hidden;margin:12px 0}.xp{height:100%;width:0;background:linear-gradient(90deg,var(--glow),var(--violet));transition:.3s}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.stat{text-align:center;background:#07101f;padding:10px 4px;border-radius:10px}.stat b{display:block;color:var(--glow);font-size:18px}
+.quest-title{display:flex;justify-content:space-between;align-items:end;margin:24px 2px 10px}.quest-title h2{margin:0;font-size:18px}.exercise{display:grid;grid-template-columns:1fr auto;gap:10px;padding:14px;margin:9px 0;border:1px solid #172d51;border-radius:14px;background:#080f20}.exercise.done{border-color:var(--good);opacity:.72}.exercise h3{margin:0 0 4px;font-size:16px}.dose{color:var(--glow);font-weight:800}.details{grid-column:1/-1;color:var(--muted);font-size:13px;line-height:1.45;display:none}.exercise.open .details{display:block}
+button{border:0;border-radius:11px;padding:10px 13px;font-weight:800}.check{background:#122646;color:#d9edff;min-width:50px}.done .check{background:#163e36;color:var(--good)}.primary{width:100%;margin-top:18px;padding:15px;background:linear-gradient(90deg,#197ad1,#7255db);color:white;font-size:15px}.reset{width:100%;margin-top:10px;background:transparent;color:var(--muted);border:1px solid #172d51}.boss{margin-top:20px}.bossline{display:flex;justify-content:space-between;font-size:13px}.notice{text-align:center;color:var(--good);font-weight:900;letter-spacing:.08em;margin-top:14px;min-height:22px}
+</style></head>
+<body><main class="app">
+<div class="top"><div class="sys">SYSTEM</div><div class="rank">RANK E</div></div>
+<section class="card"><div class="muted">HUNTER</div><h1>ILIAS · LEVEL <span id="level">1</span></h1><div class="muted"><span id="xpText">0</span> / 300 XP</div><div class="xpbar"><div class="xp" id="xpbar"></div></div>
+<div class="stats"><div class="stat"><b>1</b>STR</div><div class="stat"><b>1</b>END</div><div class="stat"><b>1</b>POSTURE</div><div class="stat"><b>1</b>BODY</div></div>
+<div class="boss"><div class="bossline"><span>BOSS: 82 kg</span><span>START: 85 kg</span></div><div class="muted" style="margin-top:5px">Secondary objective: waist &lt; 98 cm</div></div></section>
+
+<div class="quest-title"><h2>DAILY QUEST · FULL BODY</h2><span class="muted">8 KG</span></div>
+<div id="list"></div>
+<button class="primary" id="complete">COMPLETE QUEST · +50 XP</button>
+<button class="reset" id="reset">Reset σημερινών sets</button><div class="notice" id="notice"></div>
+</main>
+<script>
+const exercises=[
+["Goblet Squat","2 × 12","Κράτα το kettlebell στο στήθος. Ισχία πίσω και κάτω, γόνατα προς τα δάχτυλα. Νιώσε τετρακέφαλους και γλουτούς. Λάθος: γόνατα που κλείνουν προς τα μέσα."],
+["Rotational Woodchop","2 × 8 / πλευρά","Περιστροφή θώρακα και ισχίων μαζί, κορμός σφιχτός. Νιώσε πλάγιους κοιλιακούς και γλουτούς. Λάθος: απότομη περιστροφή μόνο από τη μέση."],
+["Split-Stance Row","2 × 10 / πλευρά","Μικρό hip hinge, ουδέτερη πλάτη, τράβα τον αγκώνα προς πλευρά/ισχίο. Νιώσε πλάτη. Λάθος: στρίψιμο κορμού ή σήκωμα ώμου."],
+["Standing Chest Press","2 × 10–12","Με δύο χέρια στο ύψος στήθους, πίεσε οριζόντια μπροστά και επέστρεψε αργά. Νιώσε στήθος, ώμους, τρικέφαλους. Λάθος: γέρνεις πίσω."],
+["Triceps Extension","2 × 10–12","Δύο χέρια, kettlebell πίσω από το κεφάλι, έκταση αγκώνων. Κορμός σταθερός. Νιώσε τρικέφαλους. Λάθος: υπερέκταση μέσης."],
+["Halo","2 × 6 / κατεύθυνση","Αργά και κοντά γύρω από το κεφάλι. Κορμός και κεφάλι σταθερά. Νιώσε ώμους, άνω πλάτη και core. Λάθος: μετακινείς κεφάλι/μέση για να περάσει το βάρος."],
+["Kettlebell Swing","2 × 12–15","Hip hinge, δυνατή έκταση ισχίων και σφίξιμο γλουτών. Τα χέρια απλώς οδηγούν. Νιώσε γλουτούς/οπίσθιους μηριαίους/core. Λάθος: squat ή σήκωμα με ώμους."]
+];
+let state=JSON.parse(localStorage.getItem("soloState")||'{"xp":0,"done":[]}');
+const list=document.getElementById("list");
+function render(){
+ list.innerHTML="";
+ exercises.forEach((e,i)=>{let d=document.createElement("div");d.className="exercise "+(state.done.includes(i)?"done":"");d.innerHTML='<div onclick="this.parentElement.classList.toggle(\'open\')"><h3>'+(i+1)+'. '+e[0]+'</h3><span class="dose">8 kg · '+e[1]+'</span></div><button class="check" data-i="'+i+'">'+(state.done.includes(i)?"✓":"SET")+'</button><div class="details">'+e[2]+'</div>';list.appendChild(d)});
+ document.querySelectorAll(".check").forEach(b=>b.onclick=()=>{let i=+b.dataset.i;state.done=state.done.includes(i)?state.done.filter(x=>x!==i):[...state.done,i];save();render()});
+ let level=Math.floor(state.xp/300)+1, rem=state.xp%300;document.getElementById("level").textContent=level;document.getElementById("xpText").textContent=rem;document.getElementById("xpbar").style.width=(rem/3)+"%";
+}
+function save(){localStorage.setItem("soloState",JSON.stringify(state))}
+document.getElementById("complete").onclick=()=>{if(state.done.length<exercises.length){document.getElementById("notice").textContent="QUEST INCOMPLETE";return} state.xp+=50;state.done=[];save();render();document.getElementById("notice").textContent="QUEST COMPLETE · +50 XP"};
+document.getElementById("reset").onclick=()=>{state.done=[];save();render();document.getElementById("notice").textContent=""};
+render();
+if("serviceWorker" in navigator){navigator.serviceWorker.register("./sw.js").catch(()=>{})}
+</script></body></html>
