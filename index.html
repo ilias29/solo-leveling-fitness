@@ -2,7 +2,7 @@
 <html lang="el">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>SYSTEM // Solo Fitness</title><meta name="theme-color" content="#050813">
+<title>SYSTEM // Solo Fitness</title><meta name="theme-color" content="#050813"><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icon-192.png"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
 <style>
 :root{--bg:#050813;--panel:#0b1225;--line:#244b87;--text:#eaf4ff;--muted:#8da5c6;--glow:#54b9ff;--violet:#8f6cff;--good:#67f0c2}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#101a38 0,#050813 42%);color:var(--text);font-family:system-ui,-apple-system,sans-serif;min-height:100vh}
@@ -31,7 +31,7 @@ button{border:0;border-radius:11px;padding:10px 13px;font-weight:800}.check{back
 <div class="quest-title"><h2>DAILY QUEST · FULL BODY</h2><span class="muted">8 KG</span></div>
 <div id="list"></div>
 <button class="primary" id="complete">COMPLETE QUEST · +50 XP</button>
-<button class="reset" id="reset">Reset σημερινών sets</button><div class="notice" id="notice"></div>
+<button class="reset" id="reset">Reset σημερινών sets</button><button class="primary" id="install" style="display:none;background:linear-gradient(90deg,#18a67d,#287bd7)">INSTALL APP</button><div class="notice" id="notice"></div>
 </main>
 <script>
 const exercises=[
@@ -89,7 +89,18 @@ function render(){
 document.getElementById("complete").onclick=()=>{if(state.done.length<exercises.length){document.getElementById("notice").textContent="QUEST INCOMPLETE";return}state.xp+=50;state.done=[];save();render();document.getElementById("notice").textContent="QUEST COMPLETE · +50 XP"};
 document.getElementById("reset").onclick=()=>{state.done=[];save();render();document.getElementById("notice").textContent=""};
 save();render();
-// Native app: remove old service worker/caches so an older UI cannot survive an update.
-if("serviceWorker" in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{})}
-if("caches" in window){caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))).catch(()=>{})}
+const isNative=!!(window.Capacitor&&typeof window.Capacitor.isNativePlatform==="function"&&window.Capacitor.isNativePlatform());
+if("serviceWorker" in navigator){
+  if(isNative){
+    navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{});
+  }else{
+    window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js",{scope:"./"}).catch(()=>{}));
+  }
+}
+if(isNative&&"caches" in window){caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))).catch(()=>{})}
+let installPrompt=null;
+const installBtn=document.getElementById("install");
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installPrompt=e;installBtn.style.display="block"});
+installBtn.addEventListener("click",async()=>{if(!installPrompt)return;installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;installBtn.style.display="none"});
+window.addEventListener("appinstalled",()=>{installBtn.style.display="none";document.getElementById("notice").textContent="APP INSTALLED"});
 </script></body></html>
