@@ -21,6 +21,11 @@ h1{font-size:24px;margin:5px 0}.muted{color:var(--muted)}.xpbar{height:10px;back
 .legend{font-size:10px;color:var(--muted);margin-bottom:4px}.legend b{color:var(--good)}
 svg{width:100%;display:block}.body{fill:#17243d;stroke:#27436f;stroke-width:1}.muscle{fill:#17243d;stroke:#27436f;stroke-width:.8}.active{fill:#67f0c2;stroke:#b7ffe8;stroke-width:1;filter:drop-shadow(0 0 4px rgba(103,240,194,.45))}.lab{fill:#8da5c6;font-weight:800;font-size:10px}
 button{border:0;border-radius:11px;padding:10px 13px;font-weight:800}.check{background:#122646;color:#d9edff;min-width:50px}.done .check{background:#163e36;color:var(--good)}.primary{width:100%;margin-top:18px;padding:15px;background:linear-gradient(90deg,#197ad1,#7255db);color:white;font-size:15px}.reset{width:100%;margin-top:10px;background:transparent;color:var(--muted);border:1px solid #172d51}.boss{margin-top:20px}.bossline{display:flex;justify-content:space-between;font-size:13px}.notice{text-align:center;color:var(--good);font-weight:900;letter-spacing:.08em;margin-top:14px;min-height:22px}
+
+.modebar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:20px}
+.mode{background:#0a1428;color:var(--muted);border:1px solid #1c355d;padding:12px 8px}
+.mode.active{color:white;border-color:var(--glow);background:linear-gradient(90deg,#12365f,#2b2d68);box-shadow:0 0 18px #318ed52b}
+.mode.wall.active{border-color:var(--good);background:linear-gradient(90deg,#123b36,#16365f)}
 </style></head>
 <body><main class="app">
 <div class="top"><div class="sys">SYSTEM</div><div class="rank">RANK E</div></div>
@@ -28,38 +33,66 @@ button{border:0;border-radius:11px;padding:10px 13px;font-weight:800}.check{back
 <div class="stats"><div class="stat"><b>1</b>STR</div><div class="stat"><b>1</b>END</div><div class="stat"><b>1</b>POSTURE</div><div class="stat"><b>1</b>BODY</div></div>
 <div class="boss"><div class="bossline"><span>BOSS: 82 kg</span><span>START: 85 kg</span></div><div class="muted" style="margin-top:5px">Secondary objective: waist &lt; 98 cm</div></div></section>
 
-<div class="quest-title"><h2>DAILY QUEST · FULL BODY</h2><span class="muted">8 KG</span></div>
+<div class="modebar"><button class="mode active" data-mode="kb">⚔ KETTLEBELL</button><button class="mode wall" data-mode="wall">▥ WALL / POSTURE</button></div><div class="quest-title"><h2 id="questTitle">DAILY QUEST · FULL BODY</h2><span class="muted" id="questMeta">8 KG</span></div>
 <div id="list"></div>
 <button class="primary" id="complete">COMPLETE QUEST · +50 XP</button>
 <button class="reset" id="reset">Reset σημερινών sets</button><button class="primary" id="install" style="display:none;background:linear-gradient(90deg,#18a67d,#287bd7)">INSTALL APP</button><div class="notice" id="notice"></div>
 </main>
 <script>
-const exercises=[
-{name:"Goblet Squat",sets:2,reps:12,suffix:"",muscles:["Τετρακέφαλοι","Γλουτοί","Κορμός"],targets:["quads","glutes","core"],cue:"Κράτα το kettlebell στο στήθος. Ισχία πίσω και κάτω, γόνατα προς τα δάχτυλα.",feel:"Τετρακέφαλοι, γλουτοί και κορμός.",mistake:"Γόνατα που κλείνουν προς τα μέσα."},
-{name:"Rotational Woodchop",sets:2,reps:8,suffix:" / πλευρά",muscles:["Πλάγιοι κοιλιακοί","Κορμός","Γλουτοί","Ώμοι"],targets:["obliques","core","glutes","shoulders"],cue:"Περιστροφή θώρακα και ισχίων μαζί, κορμός σφιχτός.",feel:"Πλάγιοι κοιλιακοί, γλουτοί και κορμός.",mistake:"Απότομη περιστροφή μόνο από τη μέση."},
-{name:"Split-Stance Row",sets:2,reps:10,suffix:" / πλευρά",muscles:["Πλάτη","Πλατύς ραχιαίος","Πίσω ώμος","Δικέφαλος"],targets:["lats","upperback","rearshoulders","biceps"],cue:"Μικρό hip hinge, ουδέτερη πλάτη, τράβα τον αγκώνα προς πλευρά/ισχίο.",feel:"Πλάτη και πίσω ώμος.",mistake:"Στρίψιμο κορμού ή σήκωμα ώμου."},
-{name:"Standing Chest Press",sets:2,reps:10,suffix:"",muscles:["Στήθος","Πρόσθιοι ώμοι","Τρικέφαλοι","Κορμός"],targets:["chest","frontshoulders","triceps","core"],cue:"Με δύο χέρια στο ύψος στήθους, πίεσε οριζόντια μπροστά και επέστρεψε αργά.",feel:"Στήθος, ώμοι και τρικέφαλοι.",mistake:"Γέρνεις προς τα πίσω."},
-{name:"Triceps Extension",sets:2,reps:10,suffix:"",muscles:["Τρικέφαλοι","Κορμός"],targets:["triceps","core"],cue:"Kettlebell πίσω από το κεφάλι, έκταση αγκώνων, κορμός σταθερός.",feel:"Τρικέφαλοι.",mistake:"Υπερέκταση μέσης."},
-{name:"Halo",sets:2,reps:6,suffix:" / κατεύθυνση",muscles:["Ώμοι","Άνω πλάτη","Κορμός"],targets:["shoulders","upperback","core"],cue:"Αργά και κοντά γύρω από το κεφάλι, κορμός και κεφάλι σταθερά.",feel:"Ώμοι, άνω πλάτη και κορμός.",mistake:"Μετακινείς κεφάλι ή μέση για να περάσει το βάρος."},
-{name:"Kettlebell Swing",sets:2,reps:12,suffix:"",muscles:["Γλουτοί","Οπίσθιοι μηριαίοι","Κορμός"],targets:["glutes","hamstrings","core"],cue:"Hip hinge, δυνατή έκταση ισχίων και σφίξιμο γλουτών. Τα χέρια απλώς οδηγούν.",feel:"Γλουτοί, οπίσθιοι μηριαίοι και κορμός.",mistake:"Squat ή σήκωμα με ώμους."}
-];
+const workouts={
+  kb:{
+    title:"DAILY QUEST · FULL BODY",meta:"8 KG",xp:50,
+    items:[
+      {name:"Goblet Squat",sets:2,value:12,suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"8 kg",muscles:["Τετρακέφαλοι","Γλουτοί","Κορμός"],targets:["quads","glutes","core"],cue:"Κράτα το kettlebell στο στήθος. Ισχία πίσω και κάτω, γόνατα προς τα δάχτυλα.",feel:"Τετρακέφαλοι, γλουτοί και κορμός.",mistake:"Γόνατα που κλείνουν προς τα μέσα."},
+      {name:"Rotational Woodchop",sets:2,value:8,suffix:" / πλευρά",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"8 kg",muscles:["Πλάγιοι κοιλιακοί","Κορμός","Γλουτοί","Ώμοι"],targets:["obliques","core","glutes","shoulders"],cue:"Περιστροφή θώρακα και ισχίων μαζί, κορμός σφιχτός.",feel:"Πλάγιοι κοιλιακοί, γλουτοί και κορμός.",mistake:"Απότομη περιστροφή μόνο από τη μέση."},
+      {name:"Split-Stance Row",sets:2,value:10,suffix:" / πλευρά",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"8 kg",muscles:["Πλάτη","Πλατύς ραχιαίος","Πίσω ώμος","Δικέφαλος"],targets:["lats","upperback","rearshoulders","biceps"],cue:"Μικρό hip hinge, ουδέτερη πλάτη, τράβα τον αγκώνα προς πλευρά/ισχίο.",feel:"Πλάτη και πίσω ώμος.",mistake:"Στρίψιμο κορμού ή σήκωμα ώμου."},
+      {name:"Standing Chest Press",sets:2,value:10,suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"8 kg",muscles:["Στήθος","Πρόσθιοι ώμοι","Τρικέφαλοι","Κορμός"],targets:["chest","frontshoulders","triceps","core"],cue:"Με δύο χέρια στο ύψος στήθους, πίεσε οριζόντια μπροστά και επέστρεψε αργά.",feel:"Στήθος, ώμοι και τρικέφαλοι.",mistake:"Γέρνεις προς τα πίσω."},
+      {name:"Triceps Extension",sets:2,value:10,suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"8 kg",muscles:["Τρικέφαλοι","Κορμός"],targets:["triceps","core"],cue:"Kettlebell πίσω από το κεφάλι, έκταση αγκώνων, κορμός σταθερός.",feel:"Τρικέφαλοι.",mistake:"Υπερέκταση μέσης."},
+      {name:"Halo",sets:2,value:6,suffix:" / κατεύθυνση",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"8 kg",muscles:["Ώμοι","Άνω πλάτη","Κορμός"],targets:["shoulders","upperback","core"],cue:"Αργά και κοντά γύρω από το κεφάλι, κορμός και κεφάλι σταθερά.",feel:"Ώμοι, άνω πλάτη και κορμός.",mistake:"Μετακινείς κεφάλι ή μέση για να περάσει το βάρος."},
+      {name:"Kettlebell Swing",sets:2,value:12,suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"8 kg",muscles:["Γλουτοί","Οπίσθιοι μηριαίοι","Κορμός"],targets:["glutes","hamstrings","core"],cue:"Hip hinge, δυνατή έκταση ισχίων και σφίξιμο γλουτών. Τα χέρια απλώς οδηγούν.",feel:"Γλουτοί, οπίσθιοι μηριαίοι και κορμός.",mistake:"Squat ή σήκωμα με ώμους."}
+    ]
+  },
+  wall:{
+    title:"EXTRA QUEST · WALL / POSTURE",meta:"BODYWEIGHT",xp:20,
+    items:[
+      {name:"Wall Sit",sets:2,value:30,suffix:" sec",control:"ΧΡΟΝΟΣ",step:5,load:"Τοίχος",muscles:["Τετρακέφαλοι","Γλουτοί","Κορμός"],targets:["quads","glutes","core"],cue:"Πλάτη και λεκάνη στον τοίχο, πόδια λίγο μπροστά. Κατέβα μέχρι άνετη θέση και κράτα.",feel:"Μπροστά μηροί, γλουτοί και σταθερός κορμός.",mistake:"Γόνατα προς τα μέσα ή θέση τόσο χαμηλή που προκαλεί πόνο."},
+      {name:"Wall Squat",sets:2,value:10,suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"Τοίχος",muscles:["Τετρακέφαλοι","Γλουτοί","Κορμός"],targets:["quads","glutes","core"],cue:"Πλάτη στον τοίχο, γλίστρησε ελεγχόμενα προς τα κάτω και ανέβα πιέζοντας από όλο το πέλμα.",feel:"Τετρακέφαλοι και γλουτοί.",mistake:"Γόνατα που κλείνουν ή απότομη κάθοδος."},
+      {name:"Wall-Supported Hip Abduction",sets:2,value:10,suffix:" / πλευρά",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"Σώμα",muscles:["Πλάγιοι γλουτοί","Ισχία","Κορμός"],targets:["glutes","core"],cue:"Στάσου δίπλα στον τοίχο για στήριξη. Σήκωσε το εξωτερικό πόδι λίγο στο πλάι χωρίς να γέρνεις τον κορμό.",feel:"Πλάγιο μέρος γλουτού του ποδιού που σηκώνεται.",mistake:"Γέρνεις στο πλάι ή γυρίζεις έντονα τα δάχτυλα προς τα έξω."},
+      {name:"Wall Hip Hinge",sets:2,value:10,suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"Τοίχος",muscles:["Γλουτοί","Οπίσθιοι μηριαίοι","Κορμός"],targets:["glutes","hamstrings","core"],cue:"Στάσου με πλάτη προς τον τοίχο περίπου 20–30 cm μακριά. Σπρώξε τα ισχία πίσω μέχρι να ακουμπήσουν τον τοίχο, με ουδέτερη πλάτη.",feel:"Γλουτοί και πίσω μηροί.",mistake:"Το μετατρέπεις σε squat ή στρογγυλεύεις τη μέση."},
+      {name:"Wall Slide",sets:2,value:8,suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"Τοίχος",muscles:["Άνω πλάτη","Ώμοι","Στάση σώματος"],targets:["upperback","shoulders","core"],cue:"Πλάτη στον τοίχο, πλευρά μαζεμένα. Σύρε χέρια προς τα πάνω όσο διατηρείς τον κορμό ελεγχόμενο.",feel:"Άνω πλάτη και ώμοι να δουλεύουν χωρίς ένταση στον αυχένα.",mistake:"Καμπουριάζεις ή ανοίγεις υπερβολικά τη μέση."},
+      {name:"Wall W Hold",sets:2,value:20,suffix:" sec",control:"ΧΡΟΝΟΣ",step:5,load:"Τοίχος",muscles:["Άνω πλάτη","Πίσω ώμοι","Στάση σώματος"],targets:["upperback","rearshoulders","core"],cue:"Πλάτη στον τοίχο, αγκώνες λυγισμένοι σαν W. Τράβα απαλά ωμοπλάτες κάτω και πίσω και κράτα.",feel:"Ανάμεσα στις ωμοπλάτες και πίσω ώμους.",mistake:"Σηκώνεις τους ώμους προς τα αυτιά ή πιέζεις με δύναμη τον αυχένα."},
+      {name:"Chin Tuck at Wall",sets:2,value:8,suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"Τοίχος",muscles:["Αυχένας","Άνω πλάτη","Στάση σώματος"],targets:["neck","upperback"],cue:"Πίσω μέρος κεφαλιού κοντά στον τοίχο. Τράβα το πηγούνι οριζόντια προς τα πίσω και κράτα 2–3 δευτερόλεπτα.",feel:"Ήπια ενεργοποίηση βαθιά μπροστά στον αυχένα, χωρίς πόνο.",mistake:"Κοιτάς προς τα κάτω αντί να μετακινείς το κεφάλι οριζόντια."}
+    ]
+  }
+};
 
 let state;try{state=JSON.parse(localStorage.getItem("soloState")||"{}")}catch(e){state={}}
-state.xp=Number.isFinite(state.xp)?state.xp:0;state.done=Array.isArray(state.done)?state.done:[];state.reps=state.reps||{};
-exercises.forEach((e,i)=>{if(!Number.isFinite(+state.reps[i]))state.reps[i]=e.reps});
+state.xp=Number.isFinite(state.xp)?state.xp:0;
+state.sessions=state.sessions||{};
+if(!state.sessions.kb) state.sessions.kb={done:Array.isArray(state.done)?state.done:[],values:state.reps||{}};
+if(!state.sessions.wall) state.sessions.wall={done:[],values:{}};
+state.activeMode=workouts[state.activeMode]?state.activeMode:"kb";
+
+for(const [mode,w] of Object.entries(workouts)){
+  const s=state.sessions[mode];
+  s.done=Array.isArray(s.done)?s.done:[];
+  s.values=s.values||{};
+  w.items.forEach((e,i)=>{if(!Number.isFinite(+s.values[i]))s.values[i]=e.value});
+}
+
 function save(){localStorage.setItem("soloState",JSON.stringify(state))}
 function cls(t,k){return t.includes(k)?"muscle active":"muscle"}
-function map(t){
+function muscleMap(t){
  return '<svg viewBox="0 0 430 250" aria-label="Muscle map">'+
  '<text x="91" y="16" class="lab">ΜΠΡΟΣΤΑ</text><text x="295" y="16" class="lab">ΠΙΣΩ</text>'+
- '<circle cx="120" cy="38" r="19" class="body"/><path d="M105 60 Q120 54 135 60 L147 106 Q143 126 138 139 L102 139 Q97 125 93 106 Z" class="body"/><rect x="77" y="66" width="17" height="59" rx="8" class="body"/><rect x="146" y="66" width="17" height="59" rx="8" class="body"/><rect x="103" y="139" width="15" height="72" rx="7" class="body"/><rect x="122" y="139" width="15" height="72" rx="7" class="body"/>'+
+ '<circle cx="120" cy="38" r="19" class="body"/><rect x="114" y="54" width="12" height="10" rx="4" class="'+cls(t,"neck")+'"/><path d="M105 60 Q120 54 135 60 L147 106 Q143 126 138 139 L102 139 Q97 125 93 106 Z" class="body"/><rect x="77" y="66" width="17" height="59" rx="8" class="body"/><rect x="146" y="66" width="17" height="59" rx="8" class="body"/><rect x="103" y="139" width="15" height="72" rx="7" class="body"/><rect x="122" y="139" width="15" height="72" rx="7" class="body"/>'+
  '<path d="M99 66 Q120 57 141 66 L137 86 Q120 92 103 86 Z" class="'+cls(t,"chest")+'"/>'+
  '<path d="M103 87 Q120 82 137 87 L136 116 Q120 122 104 116 Z" class="'+cls(t,"core")+'"/>'+
  '<path d="M96 87 Q101 92 104 116 L99 125 Q91 106 93 91 Z" class="'+cls(t,"obliques")+'"/><path d="M144 87 Q139 92 136 116 L141 125 Q149 106 147 91 Z" class="'+cls(t,"obliques")+'"/>'+
  '<ellipse cx="91" cy="72" rx="10" ry="12" class="'+(t.includes("shoulders")||t.includes("frontshoulders")?"muscle active":"muscle")+'"/><ellipse cx="149" cy="72" rx="10" ry="12" class="'+(t.includes("shoulders")||t.includes("frontshoulders")?"muscle active":"muscle")+'"/>'+
  '<path d="M79 81 Q89 77 93 87 L92 101 Q82 104 77 96 Z" class="'+cls(t,"biceps")+'"/><path d="M147 81 Q157 77 161 87 L163 101 Q153 104 148 96 Z" class="'+cls(t,"triceps")+'"/>'+
  '<path d="M102 141 Q111 136 119 141 L118 177 Q109 183 102 176 Z" class="'+cls(t,"quads")+'"/><path d="M121 141 Q130 136 138 141 L137 176 Q129 183 121 177 Z" class="'+cls(t,"quads")+'"/>'+
- '<circle cx="310" cy="38" r="19" class="body"/><path d="M295 60 Q310 54 325 60 L337 106 Q333 126 328 139 L292 139 Q287 125 283 106 Z" class="body"/><rect x="267" y="66" width="17" height="59" rx="8" class="body"/><rect x="336" y="66" width="17" height="59" rx="8" class="body"/><rect x="293" y="139" width="15" height="72" rx="7" class="body"/><rect x="312" y="139" width="15" height="72" rx="7" class="body"/>'+
+ '<circle cx="310" cy="38" r="19" class="body"/><rect x="304" y="54" width="12" height="10" rx="4" class="'+cls(t,"neck")+'"/><path d="M295 60 Q310 54 325 60 L337 106 Q333 126 328 139 L292 139 Q287 125 283 106 Z" class="body"/><rect x="267" y="66" width="17" height="59" rx="8" class="body"/><rect x="336" y="66" width="17" height="59" rx="8" class="body"/><rect x="293" y="139" width="15" height="72" rx="7" class="body"/><rect x="312" y="139" width="15" height="72" rx="7" class="body"/>'+
  '<path d="M291 66 Q310 58 329 66 L326 89 Q310 97 294 89 Z" class="'+cls(t,"upperback")+'"/>'+
  '<path d="M294 86 Q302 91 306 118 L292 126 Q284 105 286 86 Z" class="'+cls(t,"lats")+'"/><path d="M326 86 Q318 91 314 118 L328 126 Q336 105 334 86 Z" class="'+cls(t,"lats")+'"/>'+
  '<ellipse cx="281" cy="72" rx="10" ry="12" class="'+(t.includes("shoulders")||t.includes("rearshoulders")?"muscle active":"muscle")+'"/><ellipse cx="339" cy="72" rx="10" ry="12" class="'+(t.includes("shoulders")||t.includes("rearshoulders")?"muscle active":"muscle")+'"/>'+
@@ -68,38 +101,50 @@ function map(t){
  '<path d="M292 143 Q301 138 309 143 L308 181 Q300 188 293 180 Z" class="'+cls(t,"hamstrings")+'"/><path d="M311 143 Q320 138 328 143 L327 180 Q319 188 312 181 Z" class="'+cls(t,"hamstrings")+'"/>'+
  '<text x="72" y="232" class="lab">Πράσινο = βασικές περιοχές</text></svg>';
 }
-function reps(i){return Math.max(1,Math.min(50,parseInt(state.reps[i])||exercises[i].reps))}
-function setReps(i,v){state.reps[i]=Math.max(1,Math.min(50,parseInt(v)||1));save();render()}
+function current(){return workouts[state.activeMode]}
+function session(){return state.sessions[state.activeMode]}
+function val(i){
+ const item=current().items[i];
+ const max=item.control==="ΧΡΟΝΟΣ"?180:50;
+ return Math.max(1,Math.min(max,parseInt(session().values[i])||item.value))
+}
+function setVal(i,v){
+ const item=current().items[i],max=item.control==="ΧΡΟΝΟΣ"?180:50;
+ session().values[i]=Math.max(1,Math.min(max,parseInt(v)||1));save();render()
+}
 function render(){
- const list=document.getElementById("list");list.innerHTML="";
- exercises.forEach((e,i)=>{
-  const r=reps(i),d=document.createElement("div");d.className="exercise "+(state.done.includes(i)?"done":"");
-  d.innerHTML='<div class="ex-head"><div><h3>'+(i+1)+'. '+e.name+'</h3><span class="dose">8 kg · '+e.sets+' × '+r+e.suffix+'</span><div class="tags">'+e.muscles.map(m=>'<span class="tag">'+m+'</span>').join("")+'</div></div><button class="check" data-check="'+i+'">'+(state.done.includes(i)?"✓":"SET")+'</button></div>'+
-  '<div class="repbox"><span>ΕΠΑΝΑΛΗΨΕΙΣ</span><button class="repbtn" data-minus="'+i+'">−</button><input class="repinput" data-input="'+i+'" type="number" min="1" max="50" value="'+r+'"><button class="repbtn" data-plus="'+i+'">+</button></div>'+
-  '<div class="mapTitle">MUSCLE MAP</div><div class="mapWrap"><div class="legend"><b>Πράσινο</b> = τι δουλεύει περισσότερο</div>'+map(e.targets)+'</div>'+
+ const w=current(),s=session(),list=document.getElementById("list");
+ document.getElementById("questTitle").textContent=w.title;
+ document.getElementById("questMeta").textContent=w.meta;
+ document.getElementById("complete").textContent="COMPLETE QUEST · +"+w.xp+" XP";
+ document.querySelectorAll("[data-mode]").forEach(b=>b.classList.toggle("active",b.dataset.mode===state.activeMode));
+ list.innerHTML="";
+ w.items.forEach((e,i)=>{
+  const v=val(i),d=document.createElement("div");d.className="exercise "+(s.done.includes(i)?"done":"");
+  d.innerHTML='<div class="ex-head"><div><h3>'+(i+1)+'. '+e.name+'</h3><span class="dose">'+e.load+' · '+e.sets+' × '+v+e.suffix+'</span><div class="tags">'+e.muscles.map(m=>'<span class="tag">'+m+'</span>').join("")+'</div></div><button class="check" data-check="'+i+'">'+(s.done.includes(i)?"✓":"SET")+'</button></div>'+
+  '<div class="repbox"><span>'+e.control+'</span><button class="repbtn" data-minus="'+i+'">−</button><input class="repinput" data-input="'+i+'" type="number" min="1" value="'+v+'"><button class="repbtn" data-plus="'+i+'">+</button></div>'+
+  '<div class="mapTitle">MUSCLE MAP</div><div class="mapWrap"><div class="legend"><b>Πράσινο</b> = τι δουλεύει περισσότερο</div>'+muscleMap(e.targets)+'</div>'+
   '<div class="details"><div><b>Εκτέλεση:</b> '+e.cue+'</div><div><b>Να νιώθεις:</b> '+e.feel+'</div><div><b>Κύριο λάθος:</b> '+e.mistake+'</div></div>';
   list.appendChild(d)
  });
- document.querySelectorAll("[data-check]").forEach(b=>b.onclick=()=>{let i=+b.dataset.check;state.done=state.done.includes(i)?state.done.filter(x=>x!==i):[...state.done,i];save();render()});
- document.querySelectorAll("[data-minus]").forEach(b=>b.onclick=()=>setReps(+b.dataset.minus,reps(+b.dataset.minus)-1));
- document.querySelectorAll("[data-plus]").forEach(b=>b.onclick=()=>setReps(+b.dataset.plus,reps(+b.dataset.plus)+1));
- document.querySelectorAll("[data-input]").forEach(x=>x.onchange=()=>setReps(+x.dataset.input,x.value));
+ document.querySelectorAll("[data-check]").forEach(b=>b.onclick=()=>{let i=+b.dataset.check;s.done=s.done.includes(i)?s.done.filter(x=>x!==i):[...s.done,i];save();render()});
+ document.querySelectorAll("[data-minus]").forEach(b=>b.onclick=()=>{let i=+b.dataset.minus;setVal(i,val(i)-current().items[i].step)});
+ document.querySelectorAll("[data-plus]").forEach(b=>b.onclick=()=>{let i=+b.dataset.plus;setVal(i,val(i)+current().items[i].step)});
+ document.querySelectorAll("[data-input]").forEach(x=>x.onchange=()=>setVal(+x.dataset.input,x.value));
  let level=Math.floor(state.xp/300)+1,rem=state.xp%300;document.getElementById("level").textContent=level;document.getElementById("xpText").textContent=rem;document.getElementById("xpbar").style.width=(rem/3)+"%";
 }
-document.getElementById("complete").onclick=()=>{if(state.done.length<exercises.length){document.getElementById("notice").textContent="QUEST INCOMPLETE";return}state.xp+=50;state.done=[];save();render();document.getElementById("notice").textContent="QUEST COMPLETE · +50 XP"};
-document.getElementById("reset").onclick=()=>{state.done=[];save();render();document.getElementById("notice").textContent=""};
+document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{state.activeMode=b.dataset.mode;save();document.getElementById("notice").textContent="";render()});
+document.getElementById("complete").onclick=()=>{const w=current(),s=session();if(s.done.length<w.items.length){document.getElementById("notice").textContent="QUEST INCOMPLETE";return}state.xp+=w.xp;s.done=[];save();render();document.getElementById("notice").textContent="QUEST COMPLETE · +"+w.xp+" XP"};
+document.getElementById("reset").onclick=()=>{session().done=[];save();render();document.getElementById("notice").textContent=""};
 save();render();
+
 const isNative=!!(window.Capacitor&&typeof window.Capacitor.isNativePlatform==="function"&&window.Capacitor.isNativePlatform());
 if("serviceWorker" in navigator){
-  if(isNative){
-    navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{});
-  }else{
-    window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js",{scope:"./"}).catch(()=>{}));
-  }
+  if(isNative){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{})}
+  else{window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js",{scope:"./"}).catch(()=>{}))}
 }
 if(isNative&&"caches" in window){caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))).catch(()=>{})}
-let installPrompt=null;
-const installBtn=document.getElementById("install");
+let installPrompt=null;const installBtn=document.getElementById("install");
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installPrompt=e;installBtn.style.display="block"});
 installBtn.addEventListener("click",async()=>{if(!installPrompt)return;installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;installBtn.style.display="none"});
 window.addEventListener("appinstalled",()=>{installBtn.style.display="none";document.getElementById("notice").textContent="APP INSTALLED"});
