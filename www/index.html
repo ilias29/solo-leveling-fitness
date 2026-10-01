@@ -26,6 +26,7 @@ button{border:0;border-radius:11px;padding:10px 13px;font-weight:800}.check{back
 .mode{background:#0a1428;color:var(--muted);border:1px solid #1c355d;padding:12px 8px}
 .mode.active{color:white;border-color:var(--glow);background:linear-gradient(90deg,#12365f,#2b2d68);box-shadow:0 0 18px #318ed52b}
 .mode.wall.active{border-color:var(--good);background:linear-gradient(90deg,#123b36,#16365f)}
+.demo{margin:16px 0 0;padding:12px;background:#101e33;border:1px solid #315b72;border-radius:12px}.demo figcaption{font-size:16px;font-weight:800;color:var(--good);margin-bottom:10px}.demo img{display:block;width:100%;height:auto;border-radius:8px}.demo a{display:block}.demo a:focus-visible{outline:3px solid var(--good)}.demo ol{padding-left:23px;line-height:1.6;font-size:14px}.demo li+li{margin-top:8px}.demo-hint{font-size:12px;color:#b3c4dc;margin:8px 0 0}
 </style></head>
 <body><main class="app">
 <div class="top"><div class="sys">SYSTEM</div><div class="rank">RANK E</div></div>
@@ -112,6 +113,11 @@ function setVal(i,v){
  const item=current().items[i],max=item.control==="ΧΡΟΝΟΣ"?180:50;
  session().values[i]=Math.max(1,Math.min(max,parseInt(v)||1));save();render()
 }
+const wallGuides={"Wall Sit": {"image": "wall-sit", "title": "Κάθισμα με κράτημα", "steps": ["Ακούμπησε πλάτη στον τοίχο. Πριν κατέβεις, φέρε τα πέλματα μπροστά.", "Γλίστρησε σε άνετο βάθος, με πέλματα κάτω και γόνατα πάνω από αστραγάλους. Κράτα τη θέση 2."]}, "Wall Squat": {"image": "wall-squat", "title": "Κάθισμα με κίνηση", "steps": ["Ακούμπησε πλάτη στον τοίχο και βάλε τα πέλματα μπροστά πριν λυγίσεις τα γόνατα.", "Κατέβα αργά και ανέβα ξανά. Δεν χρειάζεται να φτάσεις τόσο χαμηλά όσο η εικόνα."]}, "Wall-Supported Hip Abduction": {"image": "hip-abduction", "title": "Άνοιγμα ποδιού στο πλάι", "steps": ["Στάσου πλάι στον τοίχο, στηρίξου ελαφρά με το κοντινό χέρι.", "Άνοιξε λίγο το εξωτερικό πόδι, με δάχτυλα μπροστά και κορμό όρθιο. Επέστρεψε και άλλαξε πλευρά."]}, "Wall Hip Hinge": {"image": "hip-hinge", "title": "Ισχία πίσω προς τον τοίχο", "steps": ["Στάσου περίπου 20–30 cm μπροστά από τον τοίχο, με πλάτη προς αυτόν και μαλακά γόνατα.", "Στείλε τους γλουτούς πίσω να αγγίξουν τον τοίχο. Ο κορμός γέρνει από τα ισχία, χωρίς καμπούρα. Ξαναστάσου όρθιος."]}, "Wall Slide": {"image": "wall-slide", "title": "Χέρια από W προς Y", "steps": ["Πλάτη στον τοίχο, αγκώνες λυγισμένοι, ώμοι χαλαροί.", "Σύρε τα χέρια προς τα πάνω μόνο όσο είναι άνετο. Μην ανοίγεις τη μέση για να κερδίσεις ύψος. Επέστρεψε."]}, "Wall W Hold": {"image": "wall-w-hold", "title": "Κράτημα χεριών σε W", "steps": ["Στάσου με την πλάτη στον τοίχο και χαλάρωσε τους ώμους.", "Σήκωσε χέρια σε W με λυγισμένους αγκώνες. Κράτα τη θέση 2, χωρίς να πιέζεις αυχένα ή καρπούς στον τοίχο."]}, "Chin Tuck at Wall": {"image": "chin-tuck", "title": "Πηγούνι οριζόντια πίσω", "steps": ["Κοίτα ευθεία. Κράτα τον κορμό ήρεμο, με το πίσω μέρος του κεφαλιού κοντά στον τοίχο.", "Μετακίνησε απαλά το κεφάλι οριζόντια πίσω, σαν μικρό διπλοσάγονο. Κράτα 2–3 δευτερόλεπτα. Μην κοιτάς κάτω."]}};
+function wallGuide(e){
+ const g=wallGuides[e.name];if(!g)return "";
+ return `<figure class="demo"><figcaption>${g.title}</figcaption><a href="./assets/wall/${g.image}.webp" target="_blank" rel="noopener" aria-label="Μεγέθυνση: ${g.title}"><img src="./assets/wall/${g.image}.webp" alt="${g.title}: 1 αρχική θέση, 2 κίνηση ή κράτημα" loading="lazy" decoding="async"></a><div class="demo-hint">Πάτησε την εικόνα για μεγέθυνση · Εικονογράφηση AI</div><ol>${g.steps.map(t=>`<li>${t}</li>`).join("")}</ol><p class="demo-hint">Κινήσου σε άνετο εύρος. Σταμάτα αν πονάς.</p></figure>`;
+}
 function render(){
  const w=current(),s=session(),list=document.getElementById("list");
  document.getElementById("questTitle").textContent=w.title;
@@ -123,6 +129,7 @@ function render(){
   const v=val(i),d=document.createElement("div");d.className="exercise "+(s.done.includes(i)?"done":"");
   d.innerHTML='<div class="ex-head"><div><h3>'+(i+1)+'. '+e.name+'</h3><span class="dose">'+e.load+' · '+e.sets+' × '+v+e.suffix+'</span><div class="tags">'+e.muscles.map(m=>'<span class="tag">'+m+'</span>').join("")+'</div></div><button class="check" data-check="'+i+'">'+(s.done.includes(i)?"✓":"SET")+'</button></div>'+
   '<div class="repbox"><span>'+e.control+'</span><button class="repbtn" data-minus="'+i+'">−</button><input class="repinput" data-input="'+i+'" type="number" min="1" value="'+v+'"><button class="repbtn" data-plus="'+i+'">+</button></div>'+
+  wallGuide(e)+
   '<div class="mapTitle">MUSCLE MAP</div><div class="mapWrap"><div class="legend"><b>Πράσινο</b> = τι δουλεύει περισσότερο</div>'+muscleMap(e.targets)+'</div>'+
   '<div class="details"><div><b>Εκτέλεση:</b> '+e.cue+'</div><div><b>Να νιώθεις:</b> '+e.feel+'</div><div><b>Κύριο λάθος:</b> '+e.mistake+'</div></div>';
   list.appendChild(d)
