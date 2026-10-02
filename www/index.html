@@ -13,7 +13,7 @@ h1{font-size:24px;margin:5px 0}.muted{color:var(--muted)}.xpbar{height:10px;back
 .quest-title{display:flex;justify-content:space-between;align-items:end;margin:24px 2px 10px}.quest-title h2{margin:0;font-size:18px}
 .exercise{padding:14px;margin:10px 0;border:1px solid #172d51;border-radius:14px;background:#080f20}.exercise.done{border-color:var(--good);opacity:.85}
 .ex-head{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start}.exercise h3{margin:0 0 4px;font-size:16px}.dose{color:var(--glow);font-weight:800}
-.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.tag{font-size:11px;padding:4px 7px;border-radius:999px;background:#0e1b33;border:1px solid #254a84;color:#cae6ff}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.tags-label{width:100%;font-size:12px;font-weight:800;color:#b8cbe5;margin-bottom:1px}.tag{font-size:11px;padding:4px 7px;border-radius:999px;background:#0e1b33;border:1px solid #254a84;color:#cae6ff}
 .repbox{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:12px}.repbox span{font-size:12px;color:var(--muted);font-weight:700}.repbtn{width:36px;height:36px;padding:0;background:#15335d;color:#fff;font-size:19px}
 .repinput{width:58px;height:36px;border:1px solid #315b9d;border-radius:9px;background:#07101f;color:white;text-align:center;font-size:16px;font-weight:900}
 .details{margin-top:12px;color:var(--muted);font-size:13px;line-height:1.45;border-top:1px solid #172d51;padding-top:12px}.details b{color:var(--good)}
@@ -127,7 +127,7 @@ function render(){
  list.innerHTML="";
  w.items.forEach((e,i)=>{
   const v=val(i),d=document.createElement("div");d.className="exercise "+(s.done.includes(i)?"done":"");
-  d.innerHTML='<div class="ex-head"><div><h3>'+(i+1)+'. '+e.name+'</h3><span class="dose">'+e.load+' · '+e.sets+' × '+v+e.suffix+'</span><div class="tags">'+e.muscles.map(m=>'<span class="tag">'+m+'</span>').join("")+'</div></div><button class="check" data-check="'+i+'">'+(s.done.includes(i)?"✓":"SET")+'</button></div>'+
+  d.innerHTML='<div class="ex-head"><div><h3>'+(i+1)+'. '+e.name+'</h3><span class="dose">'+e.load+' · '+e.sets+' × '+v+e.suffix+'</span><div class="tags"><span class="tags-label">Δουλεύουν κυρίως:</span>'+e.muscles.map(m=>'<span class="tag">'+m+'</span>').join("")+'</div></div><button class="check" data-check="'+i+'">'+(s.done.includes(i)?"✓":"SET")+'</button></div>'+
   '<div class="repbox"><span>'+e.control+'</span><button class="repbtn" data-minus="'+i+'">−</button><input class="repinput" data-input="'+i+'" type="number" min="1" value="'+v+'"><button class="repbtn" data-plus="'+i+'">+</button></div>'+
   wallGuide(e)+
   (state.activeMode==='wall'?'':'<div class="mapTitle">MUSCLE MAP</div><div class="mapWrap"><div class="legend"><b>Πράσινο</b> = τι δουλεύει περισσότερο</div>'+muscleMap(e.targets)+'</div>')+
