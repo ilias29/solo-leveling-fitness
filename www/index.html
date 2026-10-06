@@ -9,7 +9,7 @@
 .app{max-width:620px;margin:auto;padding:24px 16px 80px}.top{display:flex;justify-content:space-between;align-items:center}.sys{letter-spacing:.22em;color:var(--glow);font-weight:900}.rank{border:1px solid var(--line);padding:6px 10px;border-radius:9px;color:#cfe8ff}
 .card{margin-top:16px;padding:18px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,rgba(18,32,68,.92),rgba(7,12,28,.95));box-shadow:0 0 30px #1262a52b}
 h1{font-size:24px;margin:5px 0}.muted{color:var(--muted)}.xpbar{height:10px;background:#111a30;border-radius:10px;overflow:hidden;margin:12px 0}.xp{height:100%;width:0;background:linear-gradient(90deg,var(--glow),var(--violet));transition:.3s}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.stat{text-align:center;background:#07101f;padding:10px 4px;border-radius:10px}.stat b{display:block;color:var(--glow);font-size:18px}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px}.stat{text-align:center;background:#07101f;padding:10px 4px;border-radius:10px}.stat b{display:block;color:var(--glow);font-size:18px}
 .quest-title{display:flex;justify-content:space-between;align-items:end;margin:24px 2px 10px}.quest-title h2{margin:0;font-size:18px}
 .exercise{padding:14px;margin:10px 0;border:1px solid #172d51;border-radius:14px;background:#080f20}.exercise.done{border-color:var(--good);opacity:.85}
 .ex-head{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start}.exercise h3{margin:0 0 4px;font-size:16px}.dose{color:var(--glow);font-weight:800}
@@ -31,7 +31,7 @@ button{border:0;border-radius:11px;padding:10px 13px;font-weight:800}.check{back
 <body><main class="app">
 <div class="top"><div class="sys">SYSTEM</div><div class="rank">RANK E</div></div>
 <section class="card"><div class="muted">HUNTER</div><h1>ILIAS · LEVEL <span id="level">1</span></h1><div class="muted"><span id="xpText">0</span> / 300 XP</div><div class="xpbar"><div class="xp" id="xpbar"></div></div>
-<div class="stats"><div class="stat"><b>1</b>STR</div><div class="stat"><b>1</b>END</div><div class="stat"><b>1</b>POSTURE</div><div class="stat"><b>1</b>BODY</div></div>
+<div class="stats"><div class="stat"><b>1</b>STR</div><div class="stat"><b>1</b>END</div><div class="stat"><b>1</b>POSTURE</div><div class="stat"><b>1</b>BODY</div><div class="stat"><b id="dayCount">0/5</b>DAYS</div></div>
 <div class="boss"><div class="bossline"><span>BOSS: 82 kg</span><span>START: 85 kg</span></div><div class="muted" style="margin-top:5px">Secondary objective: waist &lt; 98 cm</div></div></section>
 
 <div class="modebar"><button class="mode active" data-mode="kb">⚔ KETTLEBELL</button><button class="mode wall" data-mode="wall">▥ WALL / POSTURE</button></div><div class="quest-title"><h2 id="questTitle">DAILY QUEST · FULL BODY</h2><span class="muted" id="questMeta">8 KG</span></div>
@@ -57,7 +57,7 @@ const workouts={
     title:"EXTRA QUEST · WALL / POSTURE",meta:"BODYWEIGHT",xp:20,
     items:[
       {name:"Wall Sit",sets:2,value:30,suffix:" sec",control:"ΧΡΟΝΟΣ",step:5,load:"Τοίχος",muscles:["Τετρακέφαλοι","Γλουτοί","Κορμός"],targets:["quads","glutes","core"],cue:"Πλάτη και λεκάνη στον τοίχο, πόδια λίγο μπροστά. Κατέβα μέχρι άνετη θέση και κράτα.",feel:"Μπροστά μηροί, γλουτοί και σταθερός κορμός.",mistake:"Γόνατα προς τα μέσα ή θέση τόσο χαμηλή που προκαλεί πόνο."},
-      {name:"Wall Squat",sets:2,value:10,suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"Τοίχος",muscles:["Τετρακέφαλοι","Γλουτοί","Κορμός"],targets:["quads","glutes","core"],cue:"Πλάτη στον τοίχο, γλίστρησε ελεγχόμενα προς τα κάτω και ανέβα πιέζοντας από όλο το πέλμα.",feel:"Τετρακέφαλοι και γλουτοί.",mistake:"Γόνατα που κλείνουν ή απότομη κάθοδος."},
+      {name:"Wall Push-Up",sets:2,value:10,suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"Τοίχος",muscles:["Στήθος","Τρικέφαλοι","Πρόσθιοι ώμοι","Κορμός"],targets:["chest","triceps","frontshoulders","core"],cue:"Παλάμες στον τοίχο λίγο πιο ανοιχτά από τους ώμους. Κράτα το σώμα σε ευθεία, λύγισε τους αγκώνες και φέρε ελεγχόμενα το στήθος προς τον τοίχο. Πίεσε πίσω.",feel:"Στήθος, τρικέφαλοι και μπροστινοί ώμοι.",mistake:"Λυγίζεις τη μέση ή ανοίγεις υπερβολικά τους αγκώνες."},
       {name:"Wall-Supported Hip Abduction",sets:2,value:10,suffix:" / πλευρά",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"Σώμα",muscles:["Πλάγιοι γλουτοί","Ισχία","Κορμός"],targets:["glutes","core"],cue:"Στάσου δίπλα στον τοίχο για στήριξη. Σήκωσε το εξωτερικό πόδι λίγο στο πλάι χωρίς να γέρνεις τον κορμό.",feel:"Πλάγιο μέρος γλουτού του ποδιού που σηκώνεται.",mistake:"Γέρνεις στο πλάι ή γυρίζεις έντονα τα δάχτυλα προς τα έξω."},
       {name:"Wall Hip Hinge",sets:2,value:10,suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"Τοίχος",muscles:["Γλουτοί","Οπίσθιοι μηριαίοι","Κορμός"],targets:["glutes","hamstrings","core"],cue:"Στάσου με πλάτη προς τον τοίχο περίπου 20–30 cm μακριά. Σπρώξε τα ισχία πίσω μέχρι να ακουμπήσουν τον τοίχο, με ουδέτερη πλάτη.",feel:"Γλουτοί και πίσω μηροί.",mistake:"Το μετατρέπεις σε squat ή στρογγυλεύεις τη μέση."},
       {name:"Wall Slide",sets:2,value:8,suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"Τοίχος",muscles:["Άνω πλάτη","Ώμοι","Στάση σώματος"],targets:["upperback","shoulders","core"],cue:"Πλάτη στον τοίχο, πλευρά μαζεμένα. Σύρε χέρια προς τα πάνω όσο διατηρείς τον κορμό ελεγχόμενο.",feel:"Άνω πλάτη και ώμοι να δουλεύουν χωρίς ένταση στον αυχένα.",mistake:"Καμπουριάζεις ή ανοίγεις υπερβολικά τη μέση."},
@@ -69,6 +69,7 @@ const workouts={
 
 let state;try{state=JSON.parse(localStorage.getItem("soloState")||"{}")}catch(e){state={}}
 state.xp=Number.isFinite(state.xp)?state.xp:0;
+state.questDays=Array.isArray(state.questDays)?state.questDays:[];
 state.sessions=state.sessions||{};
 if(!state.sessions.kb) state.sessions.kb={done:Array.isArray(state.done)?state.done:[],values:state.reps||{}};
 if(!state.sessions.wall) state.sessions.wall={done:[],values:{}};
@@ -138,10 +139,10 @@ function render(){
  document.querySelectorAll("[data-minus]").forEach(b=>b.onclick=()=>{let i=+b.dataset.minus;setVal(i,val(i)-current().items[i].step)});
  document.querySelectorAll("[data-plus]").forEach(b=>b.onclick=()=>{let i=+b.dataset.plus;setVal(i,val(i)+current().items[i].step)});
  document.querySelectorAll("[data-input]").forEach(x=>x.onchange=()=>setVal(+x.dataset.input,x.value));
- let level=Math.floor(state.xp/300)+1,rem=state.xp%300;document.getElementById("level").textContent=level;document.getElementById("xpText").textContent=rem;document.getElementById("xpbar").style.width=(rem/3)+"%";
+ let level=Math.floor(state.xp/300)+1,rem=state.xp%300;document.getElementById("level").textContent=level;document.getElementById("xpText").textContent=rem;document.getElementById("xpbar").style.width=(rem/3)+"%";document.getElementById("dayCount").textContent=Math.min(state.questDays.length,5)+"/5";
 }
 document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{state.activeMode=b.dataset.mode;save();document.getElementById("notice").textContent="";render()});
-document.getElementById("complete").onclick=()=>{const w=current(),s=session();if(s.done.length<w.items.length){document.getElementById("notice").textContent="QUEST INCOMPLETE";return}state.xp+=w.xp;s.done=[];save();render();document.getElementById("notice").textContent="QUEST COMPLETE · +"+w.xp+" XP"};
+document.getElementById("complete").onclick=()=>{const w=current(),s=session();if(s.done.length<w.items.length){document.getElementById("notice").textContent="QUEST INCOMPLETE";return}state.xp+=w.xp;const today=new Date().toLocaleDateString("en-CA");if(!state.questDays.includes(today))state.questDays.push(today);s.done=[];save();render();document.getElementById("notice").textContent="QUEST COMPLETE · +"+w.xp+" XP · DAYS "+Math.min(state.questDays.length,5)+"/5"};
 document.getElementById("reset").onclick=()=>{session().done=[];save();render();document.getElementById("notice").textContent=""};
 save();render();
 
