@@ -10,7 +10,7 @@
 .card{margin-top:16px;padding:18px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,rgba(18,32,68,.92),rgba(7,12,28,.95));box-shadow:0 0 30px #1262a52b}
 h1{font-size:24px;margin:5px 0}.muted{color:var(--muted)}.xpbar{height:10px;background:#111a30;border-radius:10px;overflow:hidden;margin:12px 0}.xp{height:100%;width:0;background:linear-gradient(90deg,var(--glow),var(--violet));transition:.3s}
 .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px}.stat{text-align:center;background:#07101f;padding:10px 4px;border-radius:10px}.stat b{display:block;color:var(--glow);font-size:18px}
-.quest-title{display:flex;justify-content:space-between;align-items:end;margin:24px 2px 10px}.quest-title h2{margin:0;font-size:18px}
+.quest-title{display:flex;justify-content:space-between;align-items:end;margin:24px 2px 10px}.quest-title h2{margin:0;font-size:18px}.quest-summary{margin:10px 0 16px;padding:14px;border:1px solid #244b87;border-radius:14px;background:linear-gradient(135deg,#09162d,#101638)}.quest-summary.wall{border-color:#326b62;background:linear-gradient(135deg,#09241f,#101b36)}.quest-rule{font-size:12px;color:#b9cce5;margin-top:8px}.day-track{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:10px}.day-dot{height:9px;border-radius:999px;background:#15243e;border:1px solid #2b4773}.day-dot.hit{background:var(--good);border-color:#a6ffe2;box-shadow:0 0 9px #67f0c266}.quest-count{font-weight:900;color:var(--good)}
 .exercise{padding:14px;margin:10px 0;border:1px solid #172d51;border-radius:14px;background:#080f20}.exercise.done{border-color:var(--good);opacity:.85}
 .ex-head{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start}.exercise h3{margin:0 0 4px;font-size:16px}.dose{color:var(--glow);font-weight:800}
 .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.tags-label{width:100%;font-size:12px;font-weight:800;color:#b8cbe5;margin-bottom:1px}.tag{font-size:11px;padding:4px 7px;border-radius:999px;background:#0e1b33;border:1px solid #254a84;color:#cae6ff}
@@ -34,7 +34,7 @@ button{border:0;border-radius:11px;padding:10px 13px;font-weight:800}.check{back
 <div class="stats"><div class="stat"><b>1</b>STR</div><div class="stat"><b>1</b>END</div><div class="stat"><b>1</b>POSTURE</div><div class="stat"><b>1</b>BODY</div><div class="stat"><b id="dayCount">0/5</b>DAYS</div></div>
 <div class="boss"><div class="bossline"><span>BOSS: 82 kg</span><span>START: 85 kg</span></div><div class="muted" style="margin-top:5px">Secondary objective: waist &lt; 98 cm</div></div></section>
 
-<div class="modebar"><button class="mode active" data-mode="kb">⚔ KETTLEBELL</button><button class="mode wall" data-mode="wall">▥ WALL / POSTURE</button></div><div class="quest-title"><h2 id="questTitle">DAILY QUEST · FULL BODY</h2><span class="muted" id="questMeta">8 KG</span></div>
+<div class="modebar"><button class="mode active" data-mode="kb">⚔ KETTLEBELL</button><button class="mode wall" data-mode="wall">▥ WALL / POSTURE</button></div><div class="quest-title"><h2 id="questTitle">DAILY QUEST · FULL BODY</h2><span class="muted" id="questMeta">8 KG</span></div><section class="quest-summary" id="questSummary"><div><b id="questModeLabel">⚔ KETTLEBELL QUEST</b> · <span class="quest-count" id="questProgress">0/7 ασκήσεις</span></div><div class="day-track" id="dayTrack"></div><div class="quest-rule">Ολοκλήρωσε ΟΛΟ το επιλεγμένο quest → XP + 1 DAY. Και τα δύο quests την ίδια μέρα δίνουν XP, αλλά η ημέρα μετρά μόνο μία φορά.</div></section>
 <div id="list"></div>
 <button class="primary" id="complete">COMPLETE QUEST · +50 XP</button>
 <button class="reset" id="reset">Reset σημερινών sets</button><button class="primary" id="install" style="display:none;background:linear-gradient(90deg,#18a67d,#287bd7)">INSTALL APP</button><div class="notice" id="notice"></div>
@@ -125,6 +125,7 @@ function render(){
  document.getElementById("questMeta").textContent=w.meta;
  document.getElementById("complete").textContent="COMPLETE QUEST · +"+w.xp+" XP";
  document.querySelectorAll("[data-mode]").forEach(b=>b.classList.toggle("active",b.dataset.mode===state.activeMode));
+ const summary=document.getElementById("questSummary");summary.classList.toggle("wall",state.activeMode==="wall");document.getElementById("questModeLabel").textContent=state.activeMode==="wall"?"▥ WALL / POSTURE QUEST":"⚔ KETTLEBELL QUEST";document.getElementById("questProgress").textContent=s.done.length+"/"+w.items.length+" ασκήσεις";document.getElementById("dayTrack").innerHTML=Array.from({length:5},(_,i)=>'<span class="day-dot '+(i<Math.min(state.questDays.length,5)?'hit':'')+'"></span>').join("");
  list.innerHTML="";
  w.items.forEach((e,i)=>{
   const v=val(i),d=document.createElement("div");d.className="exercise "+(s.done.includes(i)?"done":"");
