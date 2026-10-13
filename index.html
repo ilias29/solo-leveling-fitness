@@ -42,7 +42,7 @@ button{border:0;border-radius:11px;padding:10px 13px;font-weight:800}.check{back
 <script>
 const workouts={
   kb:{
-    title:"DAILY QUEST · FULL BODY",meta:"8 KG",xp:50,
+    title:"DAILY QUEST · FULL BODY",meta:"WEIGHTS",xp:50,
     items:[
       {name:"Goblet Squat",sets:2,value:12,suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"8 kg",muscles:["Τετρακέφαλοι","Γλουτοί","Κορμός"],targets:["quads","glutes","core"],cue:"Κράτα το kettlebell στο στήθος. Ισχία πίσω και κάτω, γόνατα προς τα δάχτυλα.",feel:"Τετρακέφαλοι, γλουτοί και κορμός.",mistake:"Γόνατα που κλείνουν προς τα μέσα."},
       {name:"Rotational Woodchop",sets:2,value:8,suffix:" / πλευρά",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"8 kg",muscles:["Πλάγιοι κοιλιακοί","Κορμός","Γλουτοί","Ώμοι"],targets:["obliques","core","glutes","shoulders"],cue:"Περιστροφή θώρακα και ισχίων μαζί, κορμός σφιχτός.",feel:"Πλάγιοι κοιλιακοί, γλουτοί και κορμός.",mistake:"Απότομη περιστροφή μόνο από τη μέση."},
@@ -78,7 +78,11 @@ for(const [mode,w] of Object.entries(workouts)){
   const s=state.sessions[mode];
   s.done=Array.isArray(s.done)?s.done:[];
   s.values=s.values||{};
-  w.items.forEach((e,i)=>{if(!Number.isFinite(+s.values[i]))s.values[i]=e.value});
+  s.weights=s.weights||{};
+  w.items.forEach((e,i)=>{
+    if(!Number.isFinite(+s.values[i]))s.values[i]=e.value;
+    if(mode==="kb"&&!Number.isFinite(+s.weights[i]))s.weights[i]=parseFloat(e.load)||8;
+  });
 }
 
 function save(){localStorage.setItem("soloState",JSON.stringify(state))}
@@ -113,6 +117,15 @@ function setVal(i,v){
  const item=current().items[i],max=item.control==="ΧΡΟΝΟΣ"?180:50;
  session().values[i]=Math.max(1,Math.min(max,parseInt(v)||1));save();render()
 }
+function weight(i){
+ if(state.activeMode!=="kb")return null;
+ return Math.max(0,Math.min(60,parseFloat(session().weights[i])||0))
+}
+function setWeight(i,v){
+ if(state.activeMode!=="kb")return;
+ const n=Math.max(0,Math.min(60,Math.round((parseFloat(v)||0)*2)/2));
+ session().weights[i]=n;save();render()
+}
 const wallGuides={"Wall Sit": {"image": "wall-sit", "title": "Κάθισμα με κράτημα", "steps": ["Ακούμπησε πλάτη στον τοίχο. Πριν κατέβεις, φέρε τα πέλματα μπροστά.", "Γλίστρησε σε άνετο βάθος, με πέλματα κάτω και γόνατα πάνω από αστραγάλους. Κράτα τη θέση 2."]}, "Wall Squat": {"image": "wall-squat", "title": "Κάθισμα με κίνηση", "steps": ["Ακούμπησε πλάτη στον τοίχο και βάλε τα πέλματα μπροστά πριν λυγίσεις τα γόνατα.", "Κατέβα αργά και ανέβα ξανά. Δεν χρειάζεται να φτάσεις τόσο χαμηλά όσο η εικόνα."]}, "Wall-Supported Hip Abduction": {"image": "hip-abduction", "title": "Άνοιγμα ποδιού στο πλάι", "steps": ["Στάσου πλάι στον τοίχο, στηρίξου ελαφρά με το κοντινό χέρι.", "Άνοιξε λίγο το εξωτερικό πόδι, με δάχτυλα μπροστά και κορμό όρθιο. Επέστρεψε και άλλαξε πλευρά."]}, "Wall Hip Hinge": {"image": "hip-hinge", "title": "Ισχία πίσω προς τον τοίχο", "steps": ["Στάσου περίπου 20–30 cm μπροστά από τον τοίχο, με πλάτη προς αυτόν και μαλακά γόνατα.", "Στείλε τους γλουτούς πίσω να αγγίξουν τον τοίχο. Ο κορμός γέρνει από τα ισχία, χωρίς καμπούρα. Ξαναστάσου όρθιος."]}, "Wall Slide": {"image": "wall-slide", "title": "Χέρια από W προς Y", "steps": ["Πλάτη στον τοίχο, αγκώνες λυγισμένοι, ώμοι χαλαροί.", "Σύρε τα χέρια προς τα πάνω μόνο όσο είναι άνετο. Μην ανοίγεις τη μέση για να κερδίσεις ύψος. Επέστρεψε."]}, "Wall W Hold": {"image": "wall-w-hold", "title": "Κράτημα χεριών σε W", "steps": ["Στάσου με την πλάτη στον τοίχο και χαλάρωσε τους ώμους.", "Σήκωσε χέρια σε W με λυγισμένους αγκώνες. Κράτα τη θέση 2, χωρίς να πιέζεις αυχένα ή καρπούς στον τοίχο."]}, "Chin Tuck at Wall": {"image": "chin-tuck", "title": "Πηγούνι οριζόντια πίσω", "steps": ["Κοίτα ευθεία. Κράτα τον κορμό ήρεμο, με το πίσω μέρος του κεφαλιού κοντά στον τοίχο.", "Μετακίνησε απαλά το κεφάλι οριζόντια πίσω, σαν μικρό διπλοσάγονο. Κράτα 2–3 δευτερόλεπτα. Μην κοιτάς κάτω."]}};
 function wallGuide(e){
  const g=wallGuides[e.name];if(!g)return "";
@@ -126,9 +139,11 @@ function render(){
  document.querySelectorAll("[data-mode]").forEach(b=>b.classList.toggle("active",b.dataset.mode===state.activeMode));
  list.innerHTML="";
  w.items.forEach((e,i)=>{
-  const v=val(i),d=document.createElement("div");d.className="exercise "+(s.done.includes(i)?"done":"");
-  d.innerHTML='<div class="ex-head"><div><h3>'+(i+1)+'. '+e.name+'</h3><span class="dose">'+e.load+' · '+e.sets+' × '+v+e.suffix+'</span><div class="tags"><span class="tags-label">Δουλεύουν κυρίως:</span>'+e.muscles.map(m=>'<span class="tag">'+m+'</span>').join("")+'</div></div><button class="check" data-check="'+i+'">'+(s.done.includes(i)?"✓":"SET")+'</button></div>'+
+  const v=val(i),wt=state.activeMode==="kb"?weight(i):null,d=document.createElement("div");d.className="exercise "+(s.done.includes(i)?"done":"");
+  const shownLoad=wt!==null?wt+" kg":e.load;
+  d.innerHTML='<div class="ex-head"><div><h3>'+(i+1)+'. '+e.name+'</h3><span class="dose">'+shownLoad+' · '+e.sets+' × '+v+e.suffix+'</span><div class="tags"><span class="tags-label">Δουλεύουν κυρίως:</span>'+e.muscles.map(m=>'<span class="tag">'+m+'</span>').join("")+'</div></div><button class="check" data-check="'+i+'">'+(s.done.includes(i)?"✓":"SET")+'</button></div>'+
   '<div class="repbox"><span>'+e.control+'</span><button class="repbtn" data-minus="'+i+'">−</button><input class="repinput" data-input="'+i+'" type="number" min="1" value="'+v+'"><button class="repbtn" data-plus="'+i+'">+</button></div>'+
+  (state.activeMode==="kb"?'<div class="repbox"><span>ΒΑΡΟΣ</span><button class="repbtn" data-wminus="'+i+'">−</button><input class="repinput" data-winput="'+i+'" type="number" min="0" max="60" step="0.5" value="'+wt+'"><button class="repbtn" data-wplus="'+i+'">+</button><span>kg</span></div>':'')+
   wallGuide(e)+
   (state.activeMode==='wall'?'':'<div class="mapTitle">MUSCLE MAP</div><div class="mapWrap"><div class="legend"><b>Πράσινο</b> = τι δουλεύει περισσότερο</div>'+muscleMap(e.targets)+'</div>')+
   '<div class="details"><div><b>Εκτέλεση:</b> '+e.cue+'</div><div><b>Να νιώθεις:</b> '+e.feel+'</div><div><b>Κύριο λάθος:</b> '+e.mistake+'</div></div>';
@@ -138,6 +153,9 @@ function render(){
  document.querySelectorAll("[data-minus]").forEach(b=>b.onclick=()=>{let i=+b.dataset.minus;setVal(i,val(i)-current().items[i].step)});
  document.querySelectorAll("[data-plus]").forEach(b=>b.onclick=()=>{let i=+b.dataset.plus;setVal(i,val(i)+current().items[i].step)});
  document.querySelectorAll("[data-input]").forEach(x=>x.onchange=()=>setVal(+x.dataset.input,x.value));
+ document.querySelectorAll("[data-wminus]").forEach(b=>b.onclick=()=>{let i=+b.dataset.wminus;setWeight(i,weight(i)-1)});
+ document.querySelectorAll("[data-wplus]").forEach(b=>b.onclick=()=>{let i=+b.dataset.wplus;setWeight(i,weight(i)+1)});
+ document.querySelectorAll("[data-winput]").forEach(x=>x.onchange=()=>setWeight(+x.dataset.winput,x.value));
  let level=Math.floor(state.xp/300)+1,rem=state.xp%300;document.getElementById("level").textContent=level;document.getElementById("xpText").textContent=rem;document.getElementById("xpbar").style.width=(rem/3)+"%";
 }
 document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{state.activeMode=b.dataset.mode;save();document.getElementById("notice").textContent="";render()});
