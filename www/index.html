@@ -49,6 +49,47 @@ body{background:radial-gradient(circle at 50% -10%,#162451 0,#070b19 35%,#030611
 .primary{min-height:52px;border:1px solid #58bfff55;box-shadow:0 0 22px #367bd13b;text-transform:uppercase;letter-spacing:.05em}
 .notice{padding-top:6px}.stats{gap:6px}.stat{border:1px solid #162d51}.stat:last-child{border-color:#346f67}.stat:last-child b{color:var(--good)}
 @media(min-width:700px){#list{display:grid;grid-template-columns:1fr 1fr;gap:12px}.exercise{margin:0}.quest-summary{margin-bottom:18px}}
+
+/* V8 VISUAL REDESIGN */
+body{background:
+ radial-gradient(circle at 10% -10%,rgba(37,122,255,.24),transparent 34%),
+ radial-gradient(circle at 90% 8%,rgba(132,79,255,.20),transparent 30%),
+ linear-gradient(180deg,#030611 0%,#050813 55%,#03050b 100%)}
+.app{max-width:760px;padding:20px 14px 92px}
+.top{padding:4px 4px 10px}.sys{font-size:13px;text-shadow:0 0 14px rgba(84,185,255,.55)}
+.card{border-color:#2d5793;background:linear-gradient(145deg,rgba(15,28,62,.96),rgba(6,11,25,.98));box-shadow:0 10px 40px rgba(0,0,0,.34),0 0 36px rgba(36,127,255,.10)}
+.modebar{position:sticky;top:0;z-index:8;padding:10px 0 8px;background:linear-gradient(180deg,rgba(5,8,19,.96) 75%,rgba(5,8,19,0));backdrop-filter:blur(8px)}
+.mode{font-size:13px;letter-spacing:.06em;border-radius:14px;min-height:48px}
+.quest-title{margin-top:16px}.quest-title h2{font-size:15px;letter-spacing:.08em}
+.exercise{position:relative;overflow:hidden;padding:0;margin:14px 0;border-radius:20px;border:1px solid #234674;background:linear-gradient(160deg,#0d1930 0%,#070d1b 62%,#050914 100%);box-shadow:0 10px 28px rgba(0,0,0,.28)}
+.exercise:before{content:"";display:block;height:2px;background:linear-gradient(90deg,transparent,var(--glow),var(--violet),transparent);opacity:.8}
+.exercise.done{border-color:var(--good);box-shadow:0 0 28px rgba(103,240,194,.10)}
+.ex-head{padding:16px 16px 10px}.exercise h3{font-size:20px;letter-spacing:.01em}.dose{display:inline-flex;margin-top:3px;padding:5px 9px;border-radius:999px;background:#0b2444;border:1px solid #2d609d;color:#bfe5ff;font-size:12px}
+.check{border:1px solid #2d5f9c;background:linear-gradient(180deg,#173b69,#0e2340);min-width:58px;height:42px}
+.done .check{border-color:#3b9c7d;background:linear-gradient(180deg,#174c3f,#0d2e27)}
+.visual-card{margin:2px 14px 12px;border:1px solid #274b7e;border-radius:16px;background:
+ radial-gradient(circle at 20% 20%,rgba(69,158,255,.18),transparent 28%),
+ radial-gradient(circle at 80% 80%,rgba(142,102,255,.16),transparent 30%),
+ #07101f;display:grid;grid-template-columns:minmax(150px,.9fr) minmax(170px,1.1fr);gap:12px;align-items:center;min-height:180px;overflow:hidden}
+.pose-wrap{display:grid;place-items:center;min-height:178px;padding:12px;background:linear-gradient(135deg,rgba(27,68,116,.30),rgba(14,18,39,.16))}
+.pose-wrap svg{max-height:158px;width:100%}.pose-line{stroke:#cdeaff;stroke-width:7;stroke-linecap:round;stroke-linejoin:round;fill:none;filter:drop-shadow(0 0 5px rgba(84,185,255,.35))}.pose-joint{fill:#dff4ff;stroke:#5cbcff;stroke-width:2}.pose-kb{fill:#141a29;stroke:#9b78ff;stroke-width:5;filter:drop-shadow(0 0 7px rgba(143,108,255,.55))}
+.visual-info{padding:14px 14px 14px 2px}.visual-kicker{font-size:10px;letter-spacing:.16em;color:#7aa7df;font-weight:900}.visual-name{font-size:18px;font-weight:900;margin-top:4px}.visual-note{font-size:12px;line-height:1.45;color:#94abc9;margin-top:8px}
+.tags{padding:0 16px 4px;margin-top:0}.tag{background:#0a1d35;border-color:#28578f}
+.control-panel{margin:10px 14px 14px;padding:12px;border:1px solid #203d67;border-radius:14px;background:rgba(5,12,25,.72)}
+.repbox{margin-top:0}.repbox+.repbox{margin-top:10px}.repbtn{background:linear-gradient(180deg,#184270,#102947);border:1px solid #2d609d}.repinput{background:#030a16;border-color:#2d609d}
+.weight-picker{display:grid;grid-template-columns:auto repeat(3,1fr);gap:7px;align-items:center;margin-top:10px}
+.weight-picker>span{font-size:12px;color:var(--muted);font-weight:800;margin-right:2px}
+.weight-chip{padding:10px 6px;border:1px solid #2a507f;background:#09172a;color:#9bb8db;border-radius:10px;font-size:12px}
+.weight-chip.active{color:white;border-color:#8f6cff;background:linear-gradient(180deg,#5e43b8,#33266f);box-shadow:0 0 16px rgba(143,108,255,.30)}
+.mapTitle{margin:14px 16px 0}.mapWrap{margin:7px 14px 0;background:#050c18;border-color:#203b63}
+.details{margin:14px 14px 16px;padding:13px;border:1px solid #1d365b;border-radius:13px;background:#06101e}
+.demo{margin:4px 14px 12px;background:#071322;border-color:#2a527e}
+.primary{border:1px solid #4a74c9;box-shadow:0 8px 20px rgba(31,105,222,.18)}
+@media(max-width:560px){
+ .visual-card{grid-template-columns:42% 58%;min-height:150px}
+ .pose-wrap{min-height:150px;padding:8px}.pose-wrap svg{max-height:132px}
+ .visual-info{padding:10px 10px 10px 0}.visual-name{font-size:15px}.visual-note{font-size:11px}
+}
 </style></head>
 <body><main class="app">
 <div class="top"><div class="sys">SYSTEM</div><div class="rank">RANK E</div></div>
@@ -140,19 +181,37 @@ function setVal(i,v){
  const item=current().items[i],max=item.control==="ΧΡΟΝΟΣ"?180:50;
  session().values[i]=Math.max(1,Math.min(max,parseInt(v)||1));save();render()
 }
+const allowedWeights=[8,16,32];
+function normalizeWeight(v){
+ const n=parseFloat(v);
+ if(!Number.isFinite(n))return 8;
+ return allowedWeights.reduce((a,b)=>Math.abs(b-n)<Math.abs(a-n)?b:a,8);
+}
 function weight(i){
  if(state.activeMode!=="kb")return null;
- return Math.max(0,Math.min(60,parseFloat(session().weights[i])||0))
+ return normalizeWeight(session().weights[i]);
 }
 function setWeight(i,v){
  if(state.activeMode!=="kb")return;
- const n=Math.max(0,Math.min(60,Math.round((parseFloat(v)||0)*2)/2));
- session().weights[i]=n;save();render()
+ session().weights[i]=allowedWeights.includes(+v)?+v:normalizeWeight(v);save();render()
 }
 const wallGuides={"Wall Sit": {"image": "wall-sit", "title": "Κάθισμα με κράτημα", "steps": ["Ακούμπησε πλάτη στον τοίχο. Πριν κατέβεις, φέρε τα πέλματα μπροστά.", "Γλίστρησε σε άνετο βάθος, με πέλματα κάτω και γόνατα πάνω από αστραγάλους. Κράτα τη θέση 2."]}, "Wall Squat": {"image": "wall-squat", "title": "Κάθισμα με κίνηση", "steps": ["Ακούμπησε πλάτη στον τοίχο και βάλε τα πέλματα μπροστά πριν λυγίσεις τα γόνατα.", "Κατέβα αργά και ανέβα ξανά. Δεν χρειάζεται να φτάσεις τόσο χαμηλά όσο η εικόνα."]}, "Wall-Supported Hip Abduction": {"image": "hip-abduction", "title": "Άνοιγμα ποδιού στο πλάι", "steps": ["Στάσου πλάι στον τοίχο, στηρίξου ελαφρά με το κοντινό χέρι.", "Άνοιξε λίγο το εξωτερικό πόδι, με δάχτυλα μπροστά και κορμό όρθιο. Επέστρεψε και άλλαξε πλευρά."]}, "Wall Hip Hinge": {"image": "hip-hinge", "title": "Ισχία πίσω προς τον τοίχο", "steps": ["Στάσου περίπου 20–30 cm μπροστά από τον τοίχο, με πλάτη προς αυτόν και μαλακά γόνατα.", "Στείλε τους γλουτούς πίσω να αγγίξουν τον τοίχο. Ο κορμός γέρνει από τα ισχία, χωρίς καμπούρα. Ξαναστάσου όρθιος."]}, "Wall Slide": {"image": "wall-slide", "title": "Χέρια από W προς Y", "steps": ["Πλάτη στον τοίχο, αγκώνες λυγισμένοι, ώμοι χαλαροί.", "Σύρε τα χέρια προς τα πάνω μόνο όσο είναι άνετο. Μην ανοίγεις τη μέση για να κερδίσεις ύψος. Επέστρεψε."]}, "Wall W Hold": {"image": "wall-w-hold", "title": "Κράτημα χεριών σε W", "steps": ["Στάσου με την πλάτη στον τοίχο και χαλάρωσε τους ώμους.", "Σήκωσε χέρια σε W με λυγισμένους αγκώνες. Κράτα τη θέση 2, χωρίς να πιέζεις αυχένα ή καρπούς στον τοίχο."]}, "Chin Tuck at Wall": {"image": "chin-tuck", "title": "Πηγούνι οριζόντια πίσω", "steps": ["Κοίτα ευθεία. Κράτα τον κορμό ήρεμο, με το πίσω μέρος του κεφαλιού κοντά στον τοίχο.", "Μετακίνησε απαλά το κεφάλι οριζόντια πίσω, σαν μικρό διπλοσάγονο. Κράτα 2–3 δευτερόλεπτα. Μην κοιτάς κάτω."]}};
 function wallGuide(e){
  const g=wallGuides[e.name];if(!g)return "";
  return `<figure class="demo"><figcaption>${g.title}</figcaption><a href="./assets/wall/${g.image}.webp" target="_blank" rel="noopener" aria-label="Μεγέθυνση: ${g.title}"><img src="./assets/wall/${g.image}.webp" alt="${g.title}: 1 αρχική θέση, 2 κίνηση ή κράτημα" loading="lazy" decoding="async"></a><div class="demo-hint">Πάτησε την εικόνα για μεγέθυνση · Εικονογράφηση AI</div><ol>${g.steps.map(t=>`<li>${t}</li>`).join("")}</ol><p class="demo-hint">Κινήσου σε άνετο εύρος. Σταμάτα αν πονάς.</p></figure>`;
+}
+
+function kbPose(i,e){
+ const poses=[
+ '<circle cx="100" cy="34" r="14" class="pose-joint"/><path d="M100 50 L100 92 M100 62 L72 86 M100 62 L128 86 M100 92 L78 124 M100 92 L124 124" class="pose-line"/><path d="M65 81 q7-13 14 0" class="pose-line"/><circle cx="72" cy="93" r="13" class="pose-kb"/>',
+ '<circle cx="86" cy="34" r="14" class="pose-joint"/><path d="M86 50 L94 91 M90 64 L132 42 M93 72 L135 66 M94 91 L73 128 M94 91 L121 125" class="pose-line"/><circle cx="140" cy="54" r="13" class="pose-kb"/>',
+ '<circle cx="82" cy="38" r="14" class="pose-joint"/><path d="M85 53 L111 82 M98 67 L138 80 M104 75 L124 108 M111 82 L89 123 M111 82 L135 119" class="pose-line"/><circle cx="147" cy="83" r="13" class="pose-kb"/>',
+ '<circle cx="76" cy="34" r="14" class="pose-joint"/><path d="M76 50 L76 96 M76 64 L119 64 M76 72 L120 72 M76 96 L59 132 M76 96 L95 132" class="pose-line"/><circle cx="133" cy="68" r="13" class="pose-kb"/>',
+ '<circle cx="100" cy="38" r="14" class="pose-joint"/><path d="M100 53 L100 99 M100 65 L83 36 M100 65 L117 36 M100 99 L82 134 M100 99 L118 134" class="pose-line"/><circle cx="100" cy="19" r="13" class="pose-kb"/>',
+ '<circle cx="100" cy="38" r="14" class="pose-joint"/><path d="M100 53 L100 99 M100 64 L69 45 M100 64 L131 45 M100 99 L82 134 M100 99 L118 134" class="pose-line"/><path d="M64 42 Q100 5 136 42" class="pose-line"/><circle cx="140" cy="45" r="13" class="pose-kb"/>',
+ '<circle cx="80" cy="38" r="14" class="pose-joint"/><path d="M84 52 L108 82 M99 71 L139 94 M108 82 L87 125 M108 82 L134 122" class="pose-line"/><circle cx="151" cy="101" r="14" class="pose-kb"/>'
+ ];
+ return '<div class="visual-card"><div class="pose-wrap"><svg viewBox="0 0 200 155" role="img" aria-label="Σχηματική θέση '+e.name+'">'+poses[i%poses.length]+'</svg></div><div class="visual-info"><div class="visual-kicker">VISUAL GUIDE</div><div class="visual-name">'+e.name+'</div><div class="visual-note">Σχηματική απεικόνιση για να θυμάσαι τη θέση. Οι οδηγίες από κάτω είναι το βασικό σημείο αναφοράς.</div></div></div>';
 }
 function render(){
  const w=current(),s=session(),list=document.getElementById("list");
@@ -165,10 +224,11 @@ function render(){
  w.items.forEach((e,i)=>{
   const v=val(i),wt=state.activeMode==="kb"?weight(i):null,d=document.createElement("div");d.className="exercise "+(s.done.includes(i)?"done":"");
   const shownLoad=wt!==null?wt+" kg":e.load;
-  d.innerHTML='<div class="ex-head"><div><h3>'+(i+1)+'. '+e.name+'</h3><span class="dose">'+shownLoad+' · '+e.sets+' × '+v+e.suffix+'</span><div class="tags"><span class="tags-label">Δουλεύουν κυρίως:</span>'+e.muscles.map(m=>'<span class="tag">'+m+'</span>').join("")+'</div></div><button class="check" data-check="'+i+'">'+(s.done.includes(i)?"✓":"SET")+'</button></div>'+
-  '<div class="repbox"><span>'+e.control+'</span><button class="repbtn" data-minus="'+i+'">−</button><input class="repinput" data-input="'+i+'" type="number" min="1" value="'+v+'"><button class="repbtn" data-plus="'+i+'">+</button></div>'+
-  (state.activeMode==="kb"?'<div class="repbox"><span>ΒΑΡΟΣ</span><button class="repbtn" data-wminus="'+i+'">−</button><input class="repinput" data-winput="'+i+'" type="number" min="0" max="60" step="0.5" value="'+wt+'"><button class="repbtn" data-wplus="'+i+'">+</button><span>kg</span></div>':'')+
-  wallGuide(e)+
+  d.innerHTML='<div class="ex-head"><div><h3>'+(i+1)+'. '+e.name+'</h3><span class="dose">'+shownLoad+' · '+e.sets+' × '+v+e.suffix+'</span></div><button class="check" data-check="'+i+'">'+(s.done.includes(i)?"✓":"SET")+'</button></div>'+
+  (state.activeMode==="kb"?kbPose(i,e):wallGuide(e))+
+  '<div class="tags"><span class="tags-label">Δουλεύουν κυρίως:</span>'+e.muscles.map(m=>'<span class="tag">'+m+'</span>').join("")+'</div>'+
+  '<div class="control-panel"><div class="repbox"><span>'+e.control+'</span><button class="repbtn" data-minus="'+i+'">−</button><input class="repinput" data-input="'+i+'" type="number" min="1" value="'+v+'"><button class="repbtn" data-plus="'+i+'">+</button></div>'+
+  (state.activeMode==="kb"?'<div class="weight-picker"><span>ΒΑΡΟΣ</span>'+allowedWeights.map(x=>'<button class="weight-chip '+(x===wt?'active':'')+'" data-weight="'+i+'" data-value="'+x+'">'+x+' KG</button>').join("")+'</div>':'')+'</div>'+
   (state.activeMode==='wall'?'':'<div class="mapTitle">MUSCLE MAP</div><div class="mapWrap"><div class="legend"><b>Πράσινο</b> = τι δουλεύει περισσότερο</div>'+muscleMap(e.targets)+'</div>')+
   '<div class="details"><div><b>Εκτέλεση:</b> '+e.cue+'</div><div><b>Να νιώθεις:</b> '+e.feel+'</div><div><b>Κύριο λάθος:</b> '+e.mistake+'</div></div>';
   list.appendChild(d)
@@ -177,9 +237,7 @@ function render(){
  document.querySelectorAll("[data-minus]").forEach(b=>b.onclick=()=>{let i=+b.dataset.minus;setVal(i,val(i)-current().items[i].step)});
  document.querySelectorAll("[data-plus]").forEach(b=>b.onclick=()=>{let i=+b.dataset.plus;setVal(i,val(i)+current().items[i].step)});
  document.querySelectorAll("[data-input]").forEach(x=>x.onchange=()=>setVal(+x.dataset.input,x.value));
- document.querySelectorAll("[data-wminus]").forEach(b=>b.onclick=()=>{let i=+b.dataset.wminus;setWeight(i,weight(i)-1)});
- document.querySelectorAll("[data-wplus]").forEach(b=>b.onclick=()=>{let i=+b.dataset.wplus;setWeight(i,weight(i)+1)});
- document.querySelectorAll("[data-winput]").forEach(x=>x.onchange=()=>setWeight(+x.dataset.winput,x.value));
+ document.querySelectorAll("[data-weight]").forEach(b=>b.onclick=()=>setWeight(+b.dataset.weight,+b.dataset.value));
  let level=Math.floor(state.xp/300)+1,rem=state.xp%300;document.getElementById("level").textContent=level;document.getElementById("xpText").textContent=rem;document.getElementById("xpbar").style.width=(rem/3)+"%";document.getElementById("dayCount").textContent=Math.min(state.questDays.length,5)+"/5";
 }
 document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{state.activeMode=b.dataset.mode;save();document.getElementById("notice").textContent="";render()});
