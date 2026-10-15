@@ -130,6 +130,17 @@ body{background:
 .alt-visual-name{font-size:16px;font-weight:900;margin-top:8px}
 .alt-visual-note{font-size:11px;color:#8da5c6;line-height:1.45;margin-top:7px}
 @media(max-width:480px){.survival{grid-template-columns:1fr 1fr}.hp-panel,.streak-panel{padding:9px}.hp-head,.streak-head{font-size:10px}.alt-picker{grid-template-columns:auto 1fr 1.25fr;gap:5px}.alt-chip{padding:9px 4px;font-size:10px}.alt-visual{grid-template-columns:44% 56%}}
+
+/* STRETCHING MODE V12 */
+.modebar{grid-template-columns:repeat(3,1fr)}
+.mode.stretch.active{border-color:#d7b4ff;background:linear-gradient(90deg,#3f255d,#243b67);box-shadow:0 0 20px rgba(182,124,255,.32),inset 0 0 16px rgba(182,124,255,.14)}
+.quest-summary.stretch{border-color:#8b61b7;background:linear-gradient(135deg,#1a1027,#101936);box-shadow:0 0 20px rgba(143,108,255,.22),inset 0 0 18px rgba(143,108,255,.12)}
+.stretch-card{margin:2px 14px 12px;display:grid;grid-template-columns:minmax(135px,.8fr) minmax(165px,1.2fr);gap:10px;border:1px solid #5b497b;border-radius:16px;overflow:hidden;background:linear-gradient(145deg,#120d21,#0a1326)}
+.stretch-copy{display:grid;place-items:center;text-align:center;padding:16px;background:radial-gradient(circle at center,rgba(177,121,255,.14),transparent 65%)}
+.stretch-kicker{font-size:10px;letter-spacing:.15em;color:#d8b7ff;font-weight:900}
+.stretch-name{font-size:16px;font-weight:900;margin-top:8px}
+.stretch-note{font-size:11px;color:#a79bbd;line-height:1.45;margin-top:7px}
+@media(max-width:500px){.mode{font-size:11px;padding:10px 5px}.stretch-card{grid-template-columns:44% 56%;gap:6px}}
 </style></head>
 <body><main class="app">
 <div class="top"><div class="sys">SYSTEM</div><div class="rank">RANK E</div></div>
@@ -143,7 +154,7 @@ body{background:
 </div>
 <div class="boss"><div class="bossline"><span>BOSS: 82 kg</span><span>START: 85 kg</span></div><div class="muted" style="margin-top:5px">Secondary objective: waist &lt; 98 cm</div></div></section>
 
-<div class="modebar"><button class="mode active" data-mode="kb">⚔ KETTLEBELL</button><button class="mode wall" data-mode="wall">▥ WALL / POSTURE</button></div><div class="quest-title"><h2 id="questTitle">DAILY QUEST · FULL BODY</h2><span class="muted" id="questMeta">8 / 16 / 32 KG</span></div><section class="quest-summary" id="questSummary"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><b id="questModeLabel">⚔ KETTLEBELL QUEST</b><span class="quest-count" id="questProgress">0/7</span></div><div class="day-track" id="dayTrack"></div><div class="quest-rule">Ολοκλήρωσε ΟΛΟ το επιλεγμένο quest → XP + 1 DAY. Και τα δύο quests την ίδια μέρα δίνουν XP, αλλά η ημέρα μετρά μόνο μία φορά.</div></section>
+<div class="modebar"><button class="mode active" data-mode="kb">⚔ KETTLEBELL</button><button class="mode wall" data-mode="wall">▥ WALL</button><button class="mode stretch" data-mode="stretch">◌ STRETCHING</button></div><div class="quest-title"><h2 id="questTitle">DAILY QUEST · FULL BODY</h2><span class="muted" id="questMeta">8 / 16 / 32 KG</span></div><section class="quest-summary" id="questSummary"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><b id="questModeLabel">⚔ KETTLEBELL QUEST</b><span class="quest-count" id="questProgress">0/7</span></div><div class="day-track" id="dayTrack"></div><div class="quest-rule">Ολοκλήρωσε ΟΛΟ το επιλεγμένο quest → XP + 1 DAY. Και τα δύο quests την ίδια μέρα δίνουν XP, αλλά η ημέρα μετρά μόνο μία φορά.</div></section>
 <div id="list"></div>
 <button class="primary" id="complete">COMPLETE QUEST · +50 XP</button>
 <button class="reset" id="reset">Reset σημερινών sets</button><button class="primary" id="install" style="display:none;background:linear-gradient(90deg,#18a67d,#287bd7)">INSTALL APP</button><div class="notice" id="notice"></div>
@@ -173,6 +184,18 @@ const workouts={
       {name:"Wall W Hold",sets:2,value:20,suffix:" sec",control:"ΧΡΟΝΟΣ",step:5,load:"Τοίχος",muscles:["Άνω πλάτη","Πίσω ώμοι","Στάση σώματος"],targets:["upperback","rearshoulders","core"],cue:"Πλάτη στον τοίχο, αγκώνες λυγισμένοι σαν W. Τράβα απαλά ωμοπλάτες κάτω και πίσω και κράτα.",feel:"Ανάμεσα στις ωμοπλάτες και πίσω ώμους.",mistake:"Σηκώνεις τους ώμους προς τα αυτιά ή πιέζεις με δύναμη τον αυχένα."},
       {name:"Chin Tuck at Wall",sets:2,value:8,suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"Τοίχος",muscles:["Αυχένας","Άνω πλάτη","Στάση σώματος"],targets:["neck","upperback"],cue:"Πίσω μέρος κεφαλιού κοντά στον τοίχο. Τράβα το πηγούνι οριζόντια προς τα πίσω και κράτα 2–3 δευτερόλεπτα.",feel:"Ήπια ενεργοποίηση βαθιά μπροστά στον αυχένα, χωρίς πόνο.",mistake:"Κοιτάς προς τα κάτω αντί να μετακινείς το κεφάλι οριζόντια."}
     ]
+  },
+  stretch:{
+    title:"RECOVERY QUEST · STRETCHING",meta:"MOBILITY",xp:15,
+    items:[
+      {name:"Cat-Cow",sets:1,value:45,suffix:" sec",control:"ΧΡΟΝΟΣ",step:5,load:"Σώμα",muscles:["Σπονδυλική στήλη","Άνω πλάτη","Κορμός"],targets:["upperback","core"],cue:"Στα τέσσερα. Εναλλάξ στρογγύλεψε απαλά την πλάτη και μετά άνοιξε το στήθος χωρίς να πιέζεις τη μέση.",feel:"Ήπια κινητικότητα σε όλη τη σπονδυλική στήλη.",mistake:"Βιάζεσαι ή πιέζεις αυχένα και μέση στα άκρα."},
+      {name:"Child's Pose",sets:1,value:30,suffix:" sec",control:"ΧΡΟΝΟΣ",step:5,load:"Σώμα",muscles:["Πλάτη","Πλατύς ραχιαίος","Ώμοι"],targets:["lats","upperback","shoulders"],cue:"Κάθισε προς τις φτέρνες και άπλωσε τα χέρια μπροστά. Άφησε το στήθος να χαμηλώσει όσο είναι άνετο.",feel:"Ήπιο τέντωμα σε πλάτη και ώμους.",mistake:"Πιέζεις γόνατα ή ώμους σε θέση που πονά."},
+      {name:"Hip Flexor Stretch",sets:1,value:30,suffix:" sec / πλευρά",control:"ΧΡΟΝΟΣ",step:5,load:"Σώμα",muscles:["Καμπτήρες ισχίου","Τετρακέφαλοι","Γλουτοί"],targets:["quads","glutes"],cue:"Από ημιγονάτισμα, σφίξε ελαφρά τον γλουτό του πίσω ποδιού και μετακίνησε τη λεκάνη λίγο μπροστά χωρίς να λυγίζεις τη μέση.",feel:"Μπροστά στο ισχίο του πίσω ποδιού.",mistake:"Κάνεις υπερέκταση στη μέση αντί να μετακινείς τη λεκάνη."},
+      {name:"Hamstring Stretch",sets:1,value:30,suffix:" sec / πλευρά",control:"ΧΡΟΝΟΣ",step:5,load:"Σώμα",muscles:["Οπίσθιοι μηριαίοι","Γλουτοί"],targets:["hamstrings","glutes"],cue:"Τέντωσε το ένα πόδι μπροστά με τη φτέρνα κάτω και λύγισε ελαφρά το άλλο. Γείρε από τα ισχία με ίσια πλάτη.",feel:"Πίσω μέρος του μηρού, χωρίς τσίμπημα πίσω από το γόνατο.",mistake:"Στρογγυλεύεις έντονα τη μέση για να φτάσεις χαμηλότερα."},
+      {name:"Figure-4 Glute Stretch",sets:1,value:30,suffix:" sec / πλευρά",control:"ΧΡΟΝΟΣ",step:5,load:"Σώμα",muscles:["Γλουτοί","Ισχία"],targets:["glutes"],cue:"Ξάπλωσε ανάσκελα, βάλε τον αστράγαλο πάνω από το αντίθετο γόνατο και τράβα απαλά το πόδι προς το στήθος.",feel:"Γλουτός και πίσω-πλάγια περιοχή ισχίου.",mistake:"Πιέζεις το γόνατο με δύναμη ή κρατάς την αναπνοή."},
+      {name:"Doorway Chest Stretch",sets:1,value:30,suffix:" sec / πλευρά",control:"ΧΡΟΝΟΣ",step:5,load:"Σώμα",muscles:["Στήθος","Πρόσθιοι ώμοι"],targets:["chest","frontshoulders"],cue:"Βάλε τον πήχη σε κάσα πόρτας και στρίψε απαλά τον κορμό μακριά μέχρι να νιώσεις άνοιγμα στο στήθος.",feel:"Στήθος και μπροστινό μέρος ώμου.",mistake:"Σηκώνεις τον ώμο ή στρίβεις απότομα."},
+      {name:"Supine Spinal Twist",sets:1,value:30,suffix:" sec / πλευρά",control:"ΧΡΟΝΟΣ",step:5,load:"Σώμα",muscles:["Μέση","Πλάγιοι κοιλιακοί","Άνω πλάτη"],targets:["obliques","upperback","core"],cue:"Ξάπλωσε ανάσκελα, φέρε ένα γόνατο προς το στήθος και άφησέ το να περάσει απαλά προς την αντίθετη πλευρά. Κράτα τους ώμους χαλαρούς.",feel:"Ήπιο τέντωμα σε κορμό, γλουτό και πλάτη.",mistake:"Πιέζεις το γόνατο προς το πάτωμα ενώ ο ώμος σηκώνεται ή υπάρχει πόνος."}
+    ]
   }
 };
 
@@ -186,6 +209,7 @@ state.questDays=[...new Set([...state.questDays,"2026-10-14","2026-10-15","2026-
 state.sessions=state.sessions||{};
 if(!state.sessions.kb) state.sessions.kb={done:Array.isArray(state.done)?state.done:[],values:state.reps||{}};
 if(!state.sessions.wall) state.sessions.wall={done:[],values:{}};
+if(!state.sessions.stretch) state.sessions.stretch={done:[],values:{}};
 state.activeMode=workouts[state.activeMode]?state.activeMode:"kb";
 
 for(const [mode,w] of Object.entries(workouts)){
@@ -300,6 +324,9 @@ function wallGuide(e){
  const g=wallGuides[e.name];if(!g)return "";
  return `<figure class="demo"><figcaption>${g.title}</figcaption><a href="./assets/wall/${g.image}.webp" target="_blank" rel="noopener" aria-label="Μεγέθυνση: ${g.title}"><img src="./assets/wall/${g.image}.webp" alt="${g.title}: 1 αρχική θέση, 2 κίνηση ή κράτημα" loading="lazy" decoding="async"></a><div class="demo-hint">Πάτησε την εικόνα για μεγέθυνση · Εικονογράφηση AI</div><ol>${g.steps.map(t=>`<li>${t}</li>`).join("")}</ol><p class="demo-hint">Κινήσου σε άνετο εύρος. Σταμάτα αν πονάς.</p></figure>`;
 }
+function stretchGuide(e){
+ return '<div class="stretch-card"><div class="stretch-copy"><div><div class="stretch-kicker">RECOVERY / MOBILITY</div><div class="stretch-name">'+e.name+'</div><div class="stretch-note">Ήπια ένταση, αργή αναπνοή, χωρίς πόνο ή αναπηδήσεις.</div></div></div><div class="kb-map"><div class="legend"><b>Πράσινο</b> = κύριες περιοχές</div>'+muscleMap(e.targets)+'</div></div>';
+}
 
 function kbPose(i,e){
  const poses=[
@@ -325,14 +352,14 @@ function render(){
  document.getElementById("questMeta").textContent=w.meta;
  document.getElementById("complete").textContent="COMPLETE QUEST · +"+w.xp+" XP";
  document.querySelectorAll("[data-mode]").forEach(b=>b.classList.toggle("active",b.dataset.mode===state.activeMode));
- const summary=document.getElementById("questSummary");summary.classList.toggle("wall",state.activeMode==="wall");document.getElementById("questModeLabel").textContent=state.activeMode==="wall"?"▥ WALL / POSTURE QUEST":"⚔ KETTLEBELL QUEST";document.getElementById("questProgress").textContent=s.done.length+"/"+w.items.length+" DONE";document.getElementById("dayTrack").innerHTML=Array.from({length:5},(_,i)=>'<span class="day-dot '+(i<Math.min(state.questDays.length,5)?'hit':'')+'"></span>').join("");
+ const summary=document.getElementById("questSummary");summary.classList.toggle("wall",state.activeMode==="wall");summary.classList.toggle("stretch",state.activeMode==="stretch");document.getElementById("questModeLabel").textContent=state.activeMode==="wall"?"▥ WALL / POSTURE QUEST":state.activeMode==="stretch"?"◌ STRETCHING QUEST":"⚔ KETTLEBELL QUEST";document.getElementById("questProgress").textContent=s.done.length+"/"+w.items.length+" DONE";document.getElementById("dayTrack").innerHTML=Array.from({length:5},(_,i)=>'<span class="day-dot '+(i<Math.min(state.questDays.length,5)?'hit':'')+'"></span>').join("");
  list.innerHTML="";
  w.items.forEach((base,i)=>{
   const isAlt=state.activeMode==="kb"&&altOn(i),e=selectedExercise(i,base);
   const v=val(i),wt=state.activeMode==="kb"?weight(i):null,sc=state.activeMode==="kb"?setCount(i):e.sets,d=document.createElement("div");d.className="exercise "+(s.done.includes(i)?"done":"");
   const shownLoad=wt!==null?wt+" kg":e.load;
   d.innerHTML='<div class="ex-head"><div><h3>'+(i+1)+'. '+e.name+'</h3><span class="dose">'+shownLoad+' · '+sc+' × '+v+e.suffix+'</span></div><button class="check" data-check="'+i+'">'+(s.done.includes(i)?"✓":"SET")+'</button></div>'+
-  (state.activeMode==="kb"?kbVisual(i,e,isAlt):wallGuide(e))+
+  (state.activeMode==="kb"?kbVisual(i,e,isAlt):state.activeMode==="stretch"?stretchGuide(e):wallGuide(e))+
   '<div class="tags"><span class="tags-label">Δουλεύουν κυρίως:</span>'+e.muscles.map(m=>'<span class="tag">'+m+'</span>').join("")+'</div>'+
   '<div class="control-panel">'+
   (state.activeMode==="kb"&&base.alt?'<div class="alt-picker"><span>ΑΣΚΗΣΗ</span><button class="alt-chip '+(!isAlt?'active':'')+'" data-alt="'+i+'" data-value="0">ΚΥΡΙΑ</button><button class="alt-chip '+(isAlt?'active':'')+'" data-alt="'+i+'" data-value="1">'+base.alt.name+'</button></div>':'')+
