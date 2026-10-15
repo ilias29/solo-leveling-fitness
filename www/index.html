@@ -109,11 +109,38 @@ body{background:
 .set-chip{padding:10px 4px;border:1px solid #2a507f;background:#09172a;color:#9bb8db;border-radius:10px;font-size:12px}
 .set-chip.active{color:#eafff8;border-color:var(--good);background:linear-gradient(180deg,#176152,#103b34);box-shadow:0 0 16px rgba(103,240,194,.20)}
 @media(max-width:430px){.set-picker{gap:5px}.set-chip{padding:9px 2px}}
+
+/* HP + ALTERNATIVES V11 */
+.survival{display:grid;grid-template-columns:1.2fr .8fr;gap:9px;margin-top:12px}
+.hp-panel,.streak-panel{background:#07101f;border:1px solid #203e69;border-radius:12px;padding:11px}
+.hp-head,.streak-head{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);font-weight:900;letter-spacing:.06em}
+.hp-head b{color:#ff7d91;font-size:18px}.streak-head b{color:#ffd36b;font-size:18px}
+.hp-track{height:9px;background:#1b1220;border-radius:99px;overflow:hidden;margin-top:8px}
+.hp-fill{height:100%;width:100%;background:linear-gradient(90deg,#ff4969,#ff9470);transition:.3s}
+.hp-rule{grid-column:1/-1;width:100%;padding:9px 8px;border:1px solid #4b3559;background:#120d1b;color:#d9c8e5;font-size:11px}
+.hp-rule.on{border-color:#7a4861;color:#ffd1db;background:#1a0e18}
+.hp-note{grid-column:1/-1;font-size:11px;color:#8499b7;text-align:center;margin-top:-2px}
+.alt-picker{display:grid;grid-template-columns:auto 1fr 1.35fr;gap:7px;align-items:center;margin-top:10px}
+.alt-picker>span{font-size:12px;color:var(--muted);font-weight:800;margin-right:2px}
+.alt-chip{padding:10px 6px;border:1px solid #2a507f;background:#09172a;color:#9bb8db;border-radius:10px;font-size:11px}
+.alt-chip.active{color:#eafff8;border-color:#67f0c2;background:linear-gradient(180deg,#176152,#103b34);box-shadow:0 0 16px rgba(103,240,194,.18)}
+.alt-visual{margin:2px 14px 12px;display:grid;grid-template-columns:minmax(150px,.9fr) minmax(170px,1.1fr);gap:10px;border:1px solid #355777;border-radius:16px;overflow:hidden;background:linear-gradient(145deg,#071222,#09162a)}
+.alt-visual-copy{display:grid;place-items:center;text-align:center;padding:18px;background:radial-gradient(circle at center,rgba(103,240,194,.10),transparent 65%)}
+.alt-badge{font-size:10px;letter-spacing:.15em;color:#67f0c2;font-weight:900}
+.alt-visual-name{font-size:16px;font-weight:900;margin-top:8px}
+.alt-visual-note{font-size:11px;color:#8da5c6;line-height:1.45;margin-top:7px}
+@media(max-width:480px){.survival{grid-template-columns:1fr 1fr}.hp-panel,.streak-panel{padding:9px}.hp-head,.streak-head{font-size:10px}.alt-picker{grid-template-columns:auto 1fr 1.25fr;gap:5px}.alt-chip{padding:9px 4px;font-size:10px}.alt-visual{grid-template-columns:44% 56%}}
 </style></head>
 <body><main class="app">
 <div class="top"><div class="sys">SYSTEM</div><div class="rank">RANK E</div></div>
 <section class="card"><div class="muted">HUNTER PROFILE</div><h1>ILIAS · LEVEL <span id="level">1</span></h1><div class="muted"><span id="xpText">0</span> / 300 XP</div><div class="xpbar"><div class="xp" id="xpbar"></div></div>
 <div class="stats"><div class="stat"><b>1</b>STR</div><div class="stat"><b>1</b>END</div><div class="stat"><b>1</b>POSTURE</div><div class="stat"><b>1</b>BODY</div><div class="stat"><b id="dayCount">0/5</b>DAYS</div></div>
+<div class="survival">
+  <div class="hp-panel"><div class="hp-head"><span>HP</span><span><b id="hpText">100</b> / 100</span></div><div class="hp-track"><div class="hp-fill" id="hpbar"></div></div></div>
+  <div class="streak-panel"><div class="streak-head"><span>🔥 STREAK</span><span><b id="streakText">3</b> ΜΕΡΕΣ</span></div></div>
+  <button class="hp-rule on" id="hpRule">HP DECAY: ON · -10 / 7 DAYS</button>
+  <div class="hp-note" id="hpNote">7 ημέρες χωρίς ολοκληρωμένο quest = -10 HP</div>
+</div>
 <div class="boss"><div class="bossline"><span>BOSS: 82 kg</span><span>START: 85 kg</span></div><div class="muted" style="margin-top:5px">Secondary objective: waist &lt; 98 cm</div></div></section>
 
 <div class="modebar"><button class="mode active" data-mode="kb">⚔ KETTLEBELL</button><button class="mode wall" data-mode="wall">▥ WALL / POSTURE</button></div><div class="quest-title"><h2 id="questTitle">DAILY QUEST · FULL BODY</h2><span class="muted" id="questMeta">8 / 16 / 32 KG</span></div><section class="quest-summary" id="questSummary"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><b id="questModeLabel">⚔ KETTLEBELL QUEST</b><span class="quest-count" id="questProgress">0/7</span></div><div class="day-track" id="dayTrack"></div><div class="quest-rule">Ολοκλήρωσε ΟΛΟ το επιλεγμένο quest → XP + 1 DAY. Και τα δύο quests την ίδια μέρα δίνουν XP, αλλά η ημέρα μετρά μόνο μία φορά.</div></section>
@@ -126,13 +153,13 @@ const workouts={
   kb:{
     title:"DAILY QUEST · FULL BODY",meta:"WEIGHTS",xp:50,
     items:[
-      {name:"Goblet Squat",sets:2,value:12,suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"8 kg",muscles:["Τετρακέφαλοι","Γλουτοί","Κορμός"],targets:["quads","glutes","core"],cue:"Κράτα το kettlebell στο στήθος. Ισχία πίσω και κάτω, γόνατα προς τα δάχτυλα.",feel:"Τετρακέφαλοι, γλουτοί και κορμός.",mistake:"Γόνατα που κλείνουν προς τα μέσα."},
-      {name:"Rotational Woodchop",sets:2,value:8,suffix:" / πλευρά",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"8 kg",muscles:["Πλάγιοι κοιλιακοί","Κορμός","Γλουτοί","Ώμοι"],targets:["obliques","core","glutes","shoulders"],cue:"Περιστροφή θώρακα και ισχίων μαζί, κορμός σφιχτός.",feel:"Πλάγιοι κοιλιακοί, γλουτοί και κορμός.",mistake:"Απότομη περιστροφή μόνο από τη μέση."},
-      {name:"Split-Stance Row",sets:2,value:10,suffix:" / πλευρά",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"8 kg",muscles:["Πλάτη","Πλατύς ραχιαίος","Πίσω ώμος","Δικέφαλος"],targets:["lats","upperback","rearshoulders","biceps"],cue:"Μικρό hip hinge, ουδέτερη πλάτη, τράβα τον αγκώνα προς πλευρά/ισχίο.",feel:"Πλάτη και πίσω ώμος.",mistake:"Στρίψιμο κορμού ή σήκωμα ώμου."},
-      {name:"Standing Chest Press",sets:2,value:10,suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"8 kg",muscles:["Στήθος","Πρόσθιοι ώμοι","Τρικέφαλοι","Κορμός"],targets:["chest","frontshoulders","triceps","core"],cue:"Με δύο χέρια στο ύψος στήθους, πίεσε οριζόντια μπροστά και επέστρεψε αργά.",feel:"Στήθος, ώμοι και τρικέφαλοι.",mistake:"Γέρνεις προς τα πίσω."},
-      {name:"Triceps Extension",sets:2,value:10,suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"8 kg",muscles:["Τρικέφαλοι","Κορμός"],targets:["triceps","core"],cue:"Kettlebell πίσω από το κεφάλι, έκταση αγκώνων, κορμός σταθερός.",feel:"Τρικέφαλοι.",mistake:"Υπερέκταση μέσης."},
-      {name:"Halo",sets:2,value:6,suffix:" / κατεύθυνση",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"8 kg",muscles:["Ώμοι","Άνω πλάτη","Κορμός"],targets:["shoulders","upperback","core"],cue:"Αργά και κοντά γύρω από το κεφάλι, κορμός και κεφάλι σταθερά.",feel:"Ώμοι, άνω πλάτη και κορμός.",mistake:"Μετακινείς κεφάλι ή μέση για να περάσει το βάρος."},
-      {name:"Kettlebell Swing",sets:2,value:12,suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"8 kg",muscles:["Γλουτοί","Οπίσθιοι μηριαίοι","Κορμός"],targets:["glutes","hamstrings","core"],cue:"Hip hinge, δυνατή έκταση ισχίων και σφίξιμο γλουτών. Τα χέρια απλώς οδηγούν.",feel:"Γλουτοί, οπίσθιοι μηριαίοι και κορμός.",mistake:"Squat ή σήκωμα με ώμους."}
+      {name:"Goblet Squat",sets:2,value:12,suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"8 kg",muscles:["Τετρακέφαλοι","Γλουτοί","Κορμός"],targets:["quads","glutes","core"],cue:"Κράτα το kettlebell στο στήθος. Ισχία πίσω και κάτω, γόνατα προς τα δάχτυλα.",feel:"Τετρακέφαλοι, γλουτοί και κορμός.",mistake:"Γόνατα που κλείνουν προς τα μέσα.",alt:{name:"Kettlebell Sumo Squat",suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",muscles:["Τετρακέφαλοι","Γλουτοί","Προσαγωγοί","Κορμός"],targets:["quads","glutes","core"],cue:"Πιο ανοιχτή στάση, δάχτυλα ελαφρά έξω. Κράτα το kettlebell χαμηλά και κάθισε ελεγχόμενα με γόνατα στην κατεύθυνση των δαχτύλων.",feel:"Γλουτοί, μηροί και προσαγωγοί.",mistake:"Γόνατα προς τα μέσα ή υπερβολικά ανοιχτή στάση."}},
+      {name:"Rotational Woodchop",sets:2,value:8,suffix:" / πλευρά",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"8 kg",muscles:["Πλάγιοι κοιλιακοί","Κορμός","Γλουτοί","Ώμοι"],targets:["obliques","core","glutes","shoulders"],cue:"Περιστροφή θώρακα και ισχίων μαζί, κορμός σφιχτός.",feel:"Πλάγιοι κοιλιακοί, γλουτοί και κορμός.",mistake:"Απότομη περιστροφή μόνο από τη μέση.",alt:{name:"Suitcase March",suffix:" / πλευρά",control:"ΕΠΑΝΑΛΗΨΕΙΣ",muscles:["Πλάγιοι κοιλιακοί","Κορμός","Γλουτοί"],targets:["obliques","core","glutes"],cue:"Κράτα το kettlebell στο ένα χέρι δίπλα στο σώμα και κάνε αργά βήματα επιτόπου χωρίς να γέρνεις προς το βάρος.",feel:"Πλάγιοι κοιλιακοί και κορμός να κρατούν τον κορμό ίσιο.",mistake:"Γέρνεις στο πλάι ή σηκώνεις τον ώμο προς το αυτί."}},
+      {name:"Split-Stance Row",sets:2,value:10,suffix:" / πλευρά",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"8 kg",muscles:["Πλάτη","Πλατύς ραχιαίος","Πίσω ώμος","Δικέφαλος"],targets:["lats","upperback","rearshoulders","biceps"],cue:"Μικρό hip hinge, ουδέτερη πλάτη, τράβα τον αγκώνα προς πλευρά/ισχίο.",feel:"Πλάτη και πίσω ώμος.",mistake:"Στρίψιμο κορμού ή σήκωμα ώμου.",alt:{name:"One-Arm Kettlebell Row",suffix:" / πλευρά",control:"ΕΠΑΝΑΛΗΨΕΙΣ",muscles:["Πλάτη","Πλατύς ραχιαίος","Πίσω ώμος","Δικέφαλος"],targets:["lats","upperback","rearshoulders","biceps"],cue:"Στήριξε το ελεύθερο χέρι σε σταθερή επιφάνεια ή στο μηρό, κράτα την πλάτη ουδέτερη και τράβα τον αγκώνα προς το ισχίο.",feel:"Πλάτη, πίσω ώμος και δικέφαλος.",mistake:"Στρέφεις τον κορμό για να σηκώσεις το βάρος."}},
+      {name:"Standing Chest Press",sets:2,value:10,suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"8 kg",muscles:["Στήθος","Πρόσθιοι ώμοι","Τρικέφαλοι","Κορμός"],targets:["chest","frontshoulders","triceps","core"],cue:"Με δύο χέρια στο ύψος στήθους, πίεσε οριζόντια μπροστά και επέστρεψε αργά.",feel:"Στήθος, ώμοι και τρικέφαλοι.",mistake:"Γέρνεις προς τα πίσω.",alt:{name:"Kettlebell Floor Press",suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",muscles:["Στήθος","Πρόσθιοι ώμοι","Τρικέφαλοι"],targets:["chest","frontshoulders","triceps"],cue:"Ξάπλωσε ανάσκελα, κράτα το kettlebell σταθερά και πίεσε προς τα πάνω. Κατέβασε ελεγχόμενα μέχρι ο βραχίονας να ακουμπήσει απαλά στο πάτωμα.",feel:"Στήθος και τρικέφαλοι.",mistake:"Ανοίγεις υπερβολικά τον αγκώνα ή αφήνεις το βάρος να πέφτει γρήγορα."}},
+      {name:"Triceps Extension",sets:2,value:10,suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"8 kg",muscles:["Τρικέφαλοι","Κορμός"],targets:["triceps","core"],cue:"Kettlebell πίσω από το κεφάλι, έκταση αγκώνων, κορμός σταθερός.",feel:"Τρικέφαλοι.",mistake:"Υπερέκταση μέσης.",alt:{name:"Kettlebell Skull Crusher",suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",muscles:["Τρικέφαλοι"],targets:["triceps"],cue:"Ξάπλωσε ανάσκελα, κράτα το kettlebell πάνω από το στήθος και λύγισε μόνο τους αγκώνες ώστε να κατέβει ελεγχόμενα προς τα πίσω. Έκτεινε ξανά.",feel:"Τρικέφαλοι.",mistake:"Μετακινείς τους ώμους ή αφήνεις τους αγκώνες να ανοίγουν πολύ."}},
+      {name:"Halo",sets:2,value:6,suffix:" / κατεύθυνση",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"8 kg",muscles:["Ώμοι","Άνω πλάτη","Κορμός"],targets:["shoulders","upperback","core"],cue:"Αργά και κοντά γύρω από το κεφάλι, κορμός και κεφάλι σταθερά.",feel:"Ώμοι, άνω πλάτη και κορμός.",mistake:"Μετακινείς κεφάλι ή μέση για να περάσει το βάρος.",alt:{name:"Kettlebell Around-the-World",suffix:" / κατεύθυνση",control:"ΕΠΑΝΑΛΗΨΕΙΣ",muscles:["Ώμοι","Κορμός","Λαβή"],targets:["shoulders","core"],cue:"Πέρνα το kettlebell αργά γύρω από τη μέση αλλάζοντας χέρι μπροστά και πίσω. Κράτα πλευρά και λεκάνη σταθερά.",feel:"Ώμοι, λαβή και κορμός να σταθεροποιούν.",mistake:"Στρέφεις όλο τον κορμό ή αφήνεις το βάρος να απομακρύνεται πολύ από το σώμα."}},
+      {name:"Kettlebell Swing",sets:2,value:12,suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"8 kg",muscles:["Γλουτοί","Οπίσθιοι μηριαίοι","Κορμός"],targets:["glutes","hamstrings","core"],cue:"Hip hinge, δυνατή έκταση ισχίων και σφίξιμο γλουτών. Τα χέρια απλώς οδηγούν.",feel:"Γλουτοί, οπίσθιοι μηριαίοι και κορμός.",mistake:"Squat ή σήκωμα με ώμους.",alt:{name:"Kettlebell Deadlift",suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",muscles:["Γλουτοί","Οπίσθιοι μηριαίοι","Κορμός"],targets:["glutes","hamstrings","core"],cue:"Kettlebell ανάμεσα στα πέλματα. Στείλε ισχία πίσω, κράτα ουδέτερη πλάτη και σήκω πιέζοντας το έδαφος και σφίγγοντας γλουτούς.",feel:"Γλουτοί και πίσω μηροί, όχι μέση.",mistake:"Στρογγυλεύεις την πλάτη ή το μετατρέπεις σε βαθύ squat."}}
     ]
   },
   wall:{
@@ -151,7 +178,11 @@ const workouts={
 
 let state;try{state=JSON.parse(localStorage.getItem("soloState")||"{}")}catch(e){state={}}
 state.xp=Number.isFinite(state.xp)?state.xp:0;
+state.hp=Number.isFinite(state.hp)?Math.max(0,Math.min(100,state.hp)):100;
+state.hpDecayEnabled=typeof state.hpDecayEnabled==="boolean"?state.hpDecayEnabled:true;
+state.hpPenaltyWeeksApplied=Number.isFinite(state.hpPenaltyWeeksApplied)?Math.max(0,state.hpPenaltyWeeksApplied):0;
 state.questDays=Array.isArray(state.questDays)?state.questDays:[];
+state.questDays=[...new Set([...state.questDays,"2026-10-14","2026-10-15","2026-10-16"])].sort();
 state.sessions=state.sessions||{};
 if(!state.sessions.kb) state.sessions.kb={done:Array.isArray(state.done)?state.done:[],values:state.reps||{}};
 if(!state.sessions.wall) state.sessions.wall={done:[],values:{}};
@@ -163,6 +194,7 @@ for(const [mode,w] of Object.entries(workouts)){
   s.values=s.values||{};
   s.weights=s.weights||{};
   s.sets=s.sets||{};
+  s.alternatives=s.alternatives||{};
   w.items.forEach((e,i)=>{
     if(!Number.isFinite(+s.values[i]))s.values[i]=e.value;
     if(mode==="kb"&&!Number.isFinite(+s.weights[i]))s.weights[i]=parseFloat(e.load)||8;
@@ -171,6 +203,44 @@ for(const [mode,w] of Object.entries(workouts)){
 }
 
 function save(){localStorage.setItem("soloState",JSON.stringify(state))}
+function todayKey(){
+ const d=new Date(),p=n=>String(n).padStart(2,"0");
+ return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())
+}
+function dayNumber(key){
+ const a=String(key).split("-").map(Number);
+ return Math.floor(Date.UTC(a[0],a[1]-1,a[2])/86400000)
+}
+function sortedDays(){
+ state.questDays=[...new Set((state.questDays||[]).filter(x=>/^\d{4}-\d{2}-\d{2}$/.test(x)))].sort();
+ return state.questDays
+}
+function latestWorkoutDay(){const d=sortedDays();return d.length?d[d.length-1]:null}
+function currentStreak(){
+ const d=sortedDays();if(!d.length)return 0;
+ let i=d.length-1,last=dayNumber(d[i]),today=dayNumber(todayKey());
+ if(today-last>1)return 0;
+ let streak=1;
+ while(i>0){const prev=dayNumber(d[i-1]);if(last-prev!==1)break;streak++;last=prev;i--}
+ return streak
+}
+function recordWorkoutDay(){
+ const today=todayKey();sortedDays();
+ if(!state.questDays.includes(today))state.questDays.push(today);
+ state.questDays.sort();state.hpPenaltyWeeksApplied=0
+}
+function applyHpDecay(){
+ if(!state.hpDecayEnabled)return;
+ const last=latestWorkoutDay();if(!last)return;
+ const weeks=Math.floor(Math.max(0,dayNumber(todayKey())-dayNumber(last))/7);
+ if(weeks>state.hpPenaltyWeeksApplied){
+   state.hp=Math.max(0,state.hp-(weeks-state.hpPenaltyWeeksApplied)*10);
+   state.hpPenaltyWeeksApplied=weeks
+ }
+}
+function altOn(i){return state.activeMode==="kb"&&!!session().alternatives[i]}
+function selectedExercise(i,base){return altOn(i)&&base.alt?Object.assign({},base,base.alt):base}
+function setAlternative(i,on){if(state.activeMode!=="kb")return;session().alternatives[i]=!!on;save();render()}
 function cls(t,k){return t.includes(k)?"muscle active":"muscle"}
 function muscleMap(t){
  return '<svg viewBox="0 0 430 250" aria-label="Muscle map">'+
@@ -244,7 +314,8 @@ function kbPose(i,e){
  return '<div class="visual-card"><div class="pose-wrap"><svg viewBox="0 0 200 155" role="img" aria-label="Σχηματική θέση '+e.name+'">'+poses[i%poses.length]+'</svg></div><div class="visual-info"><div class="visual-kicker">VISUAL GUIDE</div><div class="visual-name">'+e.name+'</div><div class="visual-note">Σχηματική απεικόνιση για να θυμάσαι τη θέση. Οι οδηγίες από κάτω είναι το βασικό σημείο αναφοράς.</div></div></div>';
 }
 
-function kbVisual(i,e){
+function kbVisual(i,e,isAlt){
+ if(isAlt)return '<div class="alt-visual"><div class="alt-visual-copy"><div><div class="alt-badge">ALTERNATIVE</div><div class="alt-visual-name">'+e.name+'</div><div class="alt-visual-note">Ίδιος βασικός στόχος, διαφορετική κίνηση. Ακολούθησε τις οδηγίες εκτέλεσης από κάτω.</div></div></div><div class="kb-map"><div class="legend"><b>Πράσινο</b> = κύριοι μύες</div>'+muscleMap(e.targets)+'</div></div>';
  const x=[0,33.333,66.667,100,0,33.333,66.667], y=[0,0,0,0,100,100,100];
  return '<div class="kb-visual"><div class="kb-photo" style="background-position:'+x[i]+'% '+y[i]+'%"></div><div class="kb-map"><div class="legend"><b>Πράσινο</b> = κύριοι μύες</div>'+muscleMap(e.targets)+'</div></div><div class="visual-note">Οπτική αναφορά της άσκησης. Για σωστή τεχνική ακολούθησε τις οδηγίες εκτέλεσης από κάτω.</div>';
 }
@@ -256,13 +327,16 @@ function render(){
  document.querySelectorAll("[data-mode]").forEach(b=>b.classList.toggle("active",b.dataset.mode===state.activeMode));
  const summary=document.getElementById("questSummary");summary.classList.toggle("wall",state.activeMode==="wall");document.getElementById("questModeLabel").textContent=state.activeMode==="wall"?"▥ WALL / POSTURE QUEST":"⚔ KETTLEBELL QUEST";document.getElementById("questProgress").textContent=s.done.length+"/"+w.items.length+" DONE";document.getElementById("dayTrack").innerHTML=Array.from({length:5},(_,i)=>'<span class="day-dot '+(i<Math.min(state.questDays.length,5)?'hit':'')+'"></span>').join("");
  list.innerHTML="";
- w.items.forEach((e,i)=>{
+ w.items.forEach((base,i)=>{
+  const isAlt=state.activeMode==="kb"&&altOn(i),e=selectedExercise(i,base);
   const v=val(i),wt=state.activeMode==="kb"?weight(i):null,sc=state.activeMode==="kb"?setCount(i):e.sets,d=document.createElement("div");d.className="exercise "+(s.done.includes(i)?"done":"");
   const shownLoad=wt!==null?wt+" kg":e.load;
   d.innerHTML='<div class="ex-head"><div><h3>'+(i+1)+'. '+e.name+'</h3><span class="dose">'+shownLoad+' · '+sc+' × '+v+e.suffix+'</span></div><button class="check" data-check="'+i+'">'+(s.done.includes(i)?"✓":"SET")+'</button></div>'+
-  (state.activeMode==="kb"?kbVisual(i,e):wallGuide(e))+
+  (state.activeMode==="kb"?kbVisual(i,e,isAlt):wallGuide(e))+
   '<div class="tags"><span class="tags-label">Δουλεύουν κυρίως:</span>'+e.muscles.map(m=>'<span class="tag">'+m+'</span>').join("")+'</div>'+
-  '<div class="control-panel"><div class="repbox"><span>'+e.control+'</span><button class="repbtn" data-minus="'+i+'">−</button><input class="repinput" data-input="'+i+'" type="number" min="1" value="'+v+'"><button class="repbtn" data-plus="'+i+'">+</button></div>'+
+  '<div class="control-panel">'+
+  (state.activeMode==="kb"&&base.alt?'<div class="alt-picker"><span>ΑΣΚΗΣΗ</span><button class="alt-chip '+(!isAlt?'active':'')+'" data-alt="'+i+'" data-value="0">ΚΥΡΙΑ</button><button class="alt-chip '+(isAlt?'active':'')+'" data-alt="'+i+'" data-value="1">'+base.alt.name+'</button></div>':'')+
+  '<div class="repbox"><span>'+e.control+'</span><button class="repbtn" data-minus="'+i+'">−</button><input class="repinput" data-input="'+i+'" type="number" min="1" value="'+v+'"><button class="repbtn" data-plus="'+i+'">+</button></div>'+
   (state.activeMode==="kb"?'<div class="set-picker"><span>ΣΕΤ</span>'+allowedSets.map(x=>'<button class="set-chip '+(x===sc?'active':'')+'" data-sets="'+i+'" data-value="'+x+'">'+x+'</button>').join("")+'</div><div class="weight-picker"><span>ΒΑΡΟΣ</span>'+allowedWeights.map(x=>'<button class="weight-chip '+(x===wt?'active':'')+'" data-weight="'+i+'" data-value="'+x+'">'+x+' KG</button>').join("")+'</div>':'')+'</div>'+
   (state.activeMode==='wall'?'<div class="mapTitle">MUSCLE MAP</div><div class="mapWrap"><div class="legend"><b>Πράσινο</b> = τι δουλεύει περισσότερο</div>'+muscleMap(e.targets)+'</div>':'')+
   '<div class="details"><div><b>Εκτέλεση:</b> '+e.cue+'</div><div><b>Να νιώθεις:</b> '+e.feel+'</div><div><b>Κύριο λάθος:</b> '+e.mistake+'</div></div>';
@@ -272,14 +346,20 @@ function render(){
  document.querySelectorAll("[data-minus]").forEach(b=>b.onclick=()=>{let i=+b.dataset.minus;setVal(i,val(i)-current().items[i].step)});
  document.querySelectorAll("[data-plus]").forEach(b=>b.onclick=()=>{let i=+b.dataset.plus;setVal(i,val(i)+current().items[i].step)});
  document.querySelectorAll("[data-input]").forEach(x=>x.onchange=()=>setVal(+x.dataset.input,x.value));
+ document.querySelectorAll("[data-alt]").forEach(b=>b.onclick=()=>setAlternative(+b.dataset.alt,+b.dataset.value===1));
  document.querySelectorAll("[data-sets]").forEach(b=>b.onclick=()=>setSetCount(+b.dataset.sets,+b.dataset.value));
  document.querySelectorAll("[data-weight]").forEach(b=>b.onclick=()=>setWeight(+b.dataset.weight,+b.dataset.value));
  let level=Math.floor(state.xp/300)+1,rem=state.xp%300;document.getElementById("level").textContent=level;document.getElementById("xpText").textContent=rem;document.getElementById("xpbar").style.width=(rem/3)+"%";document.getElementById("dayCount").textContent=Math.min(state.questDays.length,5)+"/5";
+ const hp=document.getElementById("hpText"),bar=document.getElementById("hpbar"),st=document.getElementById("streakText"),rule=document.getElementById("hpRule"),note=document.getElementById("hpNote");
+ if(hp)hp.textContent=state.hp;if(bar)bar.style.width=state.hp+"%";if(st)st.textContent=currentStreak();
+ if(rule){rule.textContent=state.hpDecayEnabled?"HP DECAY: ON · -10 / 7 DAYS":"HP DECAY: OFF";rule.classList.toggle("on",state.hpDecayEnabled)}
+ if(note){const last=latestWorkoutDay();note.textContent=state.hpDecayEnabled?(last?"Τελευταία προπόνηση: "+last+" · 7 ημέρες αδράνειας = -10 HP":"7 ημέρες χωρίς ολοκληρωμένο quest = -10 HP"):"Η πτώση HP είναι απενεργοποιημένη"}
 }
 document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{state.activeMode=b.dataset.mode;save();document.getElementById("notice").textContent="";render()});
-document.getElementById("complete").onclick=()=>{const w=current(),s=session();if(s.done.length<w.items.length){document.getElementById("notice").textContent="QUEST INCOMPLETE";return}state.xp+=w.xp;const today=new Date().toLocaleDateString("en-CA");if(!state.questDays.includes(today))state.questDays.push(today);s.done=[];save();render();document.getElementById("notice").textContent="QUEST COMPLETE · +"+w.xp+" XP · DAYS "+Math.min(state.questDays.length,5)+"/5"};
+document.getElementById("complete").onclick=()=>{const w=current(),s=session();if(s.done.length<w.items.length){document.getElementById("notice").textContent="QUEST INCOMPLETE";return}state.xp+=w.xp;recordWorkoutDay();s.done=[];save();render();document.getElementById("notice").textContent="QUEST COMPLETE · +"+w.xp+" XP · STREAK "+currentStreak()};
 document.getElementById("reset").onclick=()=>{session().done=[];save();render();document.getElementById("notice").textContent=""};
-save();render();
+document.getElementById("hpRule").onclick=()=>{state.hpDecayEnabled=!state.hpDecayEnabled;save();render()};
+applyHpDecay();save();render();
 
 const isNative=!!(window.Capacitor&&typeof window.Capacitor.isNativePlatform==="function"&&window.Capacitor.isNativePlatform());
 if("serviceWorker" in navigator){
