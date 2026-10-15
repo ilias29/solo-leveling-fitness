@@ -80,6 +80,13 @@ body{background:
 .control-panel{margin-top:8px}.weight-picker{grid-template-columns:auto repeat(3,1fr)}.weight-chip{min-height:42px;font-size:13px}.weight-chip.active{box-shadow:0 0 20px rgba(143,108,255,.35)}
 .details{background:linear-gradient(145deg,#071322,#06101d)}.details div+div{margin-top:5px}
 @media(max-width:430px){.kb-visual{grid-template-columns:48% 52%;gap:6px}.kb-photo{min-height:155px}.kb-map{padding:6px}.kb-map svg{max-height:140px}.exercise h3{font-size:17px}}
+
+/* SET SELECTOR V10 */
+.set-picker{display:grid;grid-template-columns:auto repeat(4,1fr);gap:7px;align-items:center;margin-top:10px}
+.set-picker>span{font-size:12px;color:var(--muted);font-weight:800;margin-right:2px}
+.set-chip{padding:10px 4px;border:1px solid #2a507f;background:#09172a;color:#9bb8db;border-radius:10px;font-size:12px}
+.set-chip.active{color:#eafff8;border-color:var(--good);background:linear-gradient(180deg,#176152,#103b34);box-shadow:0 0 16px rgba(103,240,194,.20)}
+@media(max-width:430px){.set-picker{gap:5px}.set-chip{padding:9px 2px}}
 </style></head>
 <body><main class="app">
 <div class="top"><div class="sys">SYSTEM</div><div class="rank">RANK E</div></div>
@@ -132,9 +139,11 @@ for(const [mode,w] of Object.entries(workouts)){
   s.done=Array.isArray(s.done)?s.done:[];
   s.values=s.values||{};
   s.weights=s.weights||{};
+  s.sets=s.sets||{};
   w.items.forEach((e,i)=>{
     if(!Number.isFinite(+s.values[i]))s.values[i]=e.value;
     if(mode==="kb"&&!Number.isFinite(+s.weights[i]))s.weights[i]=parseFloat(e.load)||8;
+    if(mode==="kb"&&!Number.isFinite(+s.sets[i]))s.sets[i]=Math.max(1,Math.min(4,parseInt(e.sets)||2));
   });
 }
 
@@ -184,6 +193,15 @@ function setWeight(i,v){
  if(state.activeMode!=="kb")return;
  session().weights[i]=allowedWeights.includes(+v)?+v:normalizeWeight(v);save();render()
 }
+const allowedSets=[1,2,3,4];
+function setCount(i){
+ if(state.activeMode!=="kb")return current().items[i].sets;
+ return Math.max(1,Math.min(4,parseInt(session().sets[i])||parseInt(current().items[i].sets)||2));
+}
+function setSetCount(i,v){
+ if(state.activeMode!=="kb")return;
+ session().sets[i]=Math.max(1,Math.min(4,parseInt(v)||1));save();render()
+}
 const wallGuides={"Wall Sit": {"image": "wall-sit", "title": "Κάθισμα με κράτημα", "steps": ["Ακούμπησε πλάτη στον τοίχο. Πριν κατέβεις, φέρε τα πέλματα μπροστά.", "Γλίστρησε σε άνετο βάθος, με πέλματα κάτω και γόνατα πάνω από αστραγάλους. Κράτα τη θέση 2."]}, "Wall Squat": {"image": "wall-squat", "title": "Κάθισμα με κίνηση", "steps": ["Ακούμπησε πλάτη στον τοίχο και βάλε τα πέλματα μπροστά πριν λυγίσεις τα γόνατα.", "Κατέβα αργά και ανέβα ξανά. Δεν χρειάζεται να φτάσεις τόσο χαμηλά όσο η εικόνα."]}, "Wall-Supported Hip Abduction": {"image": "hip-abduction", "title": "Άνοιγμα ποδιού στο πλάι", "steps": ["Στάσου πλάι στον τοίχο, στηρίξου ελαφρά με το κοντινό χέρι.", "Άνοιξε λίγο το εξωτερικό πόδι, με δάχτυλα μπροστά και κορμό όρθιο. Επέστρεψε και άλλαξε πλευρά."]}, "Wall Hip Hinge": {"image": "hip-hinge", "title": "Ισχία πίσω προς τον τοίχο", "steps": ["Στάσου περίπου 20–30 cm μπροστά από τον τοίχο, με πλάτη προς αυτόν και μαλακά γόνατα.", "Στείλε τους γλουτούς πίσω να αγγίξουν τον τοίχο. Ο κορμός γέρνει από τα ισχία, χωρίς καμπούρα. Ξαναστάσου όρθιος."]}, "Wall Slide": {"image": "wall-slide", "title": "Χέρια από W προς Y", "steps": ["Πλάτη στον τοίχο, αγκώνες λυγισμένοι, ώμοι χαλαροί.", "Σύρε τα χέρια προς τα πάνω μόνο όσο είναι άνετο. Μην ανοίγεις τη μέση για να κερδίσεις ύψος. Επέστρεψε."]}, "Wall W Hold": {"image": "wall-w-hold", "title": "Κράτημα χεριών σε W", "steps": ["Στάσου με την πλάτη στον τοίχο και χαλάρωσε τους ώμους.", "Σήκωσε χέρια σε W με λυγισμένους αγκώνες. Κράτα τη θέση 2, χωρίς να πιέζεις αυχένα ή καρπούς στον τοίχο."]}, "Chin Tuck at Wall": {"image": "chin-tuck", "title": "Πηγούνι οριζόντια πίσω", "steps": ["Κοίτα ευθεία. Κράτα τον κορμό ήρεμο, με το πίσω μέρος του κεφαλιού κοντά στον τοίχο.", "Μετακίνησε απαλά το κεφάλι οριζόντια πίσω, σαν μικρό διπλοσάγονο. Κράτα 2–3 δευτερόλεπτα. Μην κοιτάς κάτω."]}};
 function wallGuide(e){
  const g=wallGuides[e.name];if(!g)return "";
@@ -215,13 +233,13 @@ function render(){
  document.querySelectorAll("[data-mode]").forEach(b=>b.classList.toggle("active",b.dataset.mode===state.activeMode));
  list.innerHTML="";
  w.items.forEach((e,i)=>{
-  const v=val(i),wt=state.activeMode==="kb"?weight(i):null,d=document.createElement("div");d.className="exercise "+(s.done.includes(i)?"done":"");
+  const v=val(i),wt=state.activeMode==="kb"?weight(i):null,sc=state.activeMode==="kb"?setCount(i):e.sets,d=document.createElement("div");d.className="exercise "+(s.done.includes(i)?"done":"");
   const shownLoad=wt!==null?wt+" kg":e.load;
-  d.innerHTML='<div class="ex-head"><div><h3>'+(i+1)+'. '+e.name+'</h3><span class="dose">'+shownLoad+' · '+e.sets+' × '+v+e.suffix+'</span></div><button class="check" data-check="'+i+'">'+(s.done.includes(i)?"✓":"SET")+'</button></div>'+
+  d.innerHTML='<div class="ex-head"><div><h3>'+(i+1)+'. '+e.name+'</h3><span class="dose">'+shownLoad+' · '+sc+' × '+v+e.suffix+'</span></div><button class="check" data-check="'+i+'">'+(s.done.includes(i)?"✓":"SET")+'</button></div>'+
   (state.activeMode==="kb"?kbVisual(i,e):wallGuide(e))+
   '<div class="tags"><span class="tags-label">Δουλεύουν κυρίως:</span>'+e.muscles.map(m=>'<span class="tag">'+m+'</span>').join("")+'</div>'+
   '<div class="control-panel"><div class="repbox"><span>'+e.control+'</span><button class="repbtn" data-minus="'+i+'">−</button><input class="repinput" data-input="'+i+'" type="number" min="1" value="'+v+'"><button class="repbtn" data-plus="'+i+'">+</button></div>'+
-  (state.activeMode==="kb"?'<div class="weight-picker"><span>ΒΑΡΟΣ</span>'+allowedWeights.map(x=>'<button class="weight-chip '+(x===wt?'active':'')+'" data-weight="'+i+'" data-value="'+x+'">'+x+' KG</button>').join("")+'</div>':'')+'</div>'+
+  (state.activeMode==="kb"?'<div class="set-picker"><span>ΣΕΤ</span>'+allowedSets.map(x=>'<button class="set-chip '+(x===sc?'active':'')+'" data-sets="'+i+'" data-value="'+x+'">'+x+'</button>').join("")+'</div><div class="weight-picker"><span>ΒΑΡΟΣ</span>'+allowedWeights.map(x=>'<button class="weight-chip '+(x===wt?'active':'')+'" data-weight="'+i+'" data-value="'+x+'">'+x+' KG</button>').join("")+'</div>':'')+'</div>'+
   (state.activeMode==='wall'?'<div class="mapTitle">MUSCLE MAP</div><div class="mapWrap"><div class="legend"><b>Πράσινο</b> = τι δουλεύει περισσότερο</div>'+muscleMap(e.targets)+'</div>':'')+
   '<div class="details"><div><b>Εκτέλεση:</b> '+e.cue+'</div><div><b>Να νιώθεις:</b> '+e.feel+'</div><div><b>Κύριο λάθος:</b> '+e.mistake+'</div></div>';
   list.appendChild(d)
@@ -230,6 +248,7 @@ function render(){
  document.querySelectorAll("[data-minus]").forEach(b=>b.onclick=()=>{let i=+b.dataset.minus;setVal(i,val(i)-current().items[i].step)});
  document.querySelectorAll("[data-plus]").forEach(b=>b.onclick=()=>{let i=+b.dataset.plus;setVal(i,val(i)+current().items[i].step)});
  document.querySelectorAll("[data-input]").forEach(x=>x.onchange=()=>setVal(+x.dataset.input,x.value));
+ document.querySelectorAll("[data-sets]").forEach(b=>b.onclick=()=>setSetCount(+b.dataset.sets,+b.dataset.value));
  document.querySelectorAll("[data-weight]").forEach(b=>b.onclick=()=>setWeight(+b.dataset.weight,+b.dataset.value));
  let level=Math.floor(state.xp/300)+1,rem=state.xp%300;document.getElementById("level").textContent=level;document.getElementById("xpText").textContent=rem;document.getElementById("xpbar").style.width=(rem/3)+"%";
 }
