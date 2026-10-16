@@ -141,6 +141,11 @@ body{background:
 .stretch-name{font-size:16px;font-weight:900;margin-top:8px}
 .stretch-note{font-size:11px;color:#a79bbd;line-height:1.45;margin-top:7px}
 @media(max-width:500px){.mode{font-size:11px;padding:10px 5px}.stretch-card{grid-template-columns:44% 56%;gap:6px}}
+
+/* REAL SET TRACKING V14 */
+.check{min-width:78px}
+.set-picker>span{min-width:58px}
+.set-progress-note{font-size:10px;color:#8da5c6;margin-top:7px}
 </style></head>
 <body><main class="app">
 <div class="top"><div class="sys">SYSTEM</div><div class="rank">RANK E</div></div>
@@ -219,10 +224,16 @@ for(const [mode,w] of Object.entries(workouts)){
   s.weights=s.weights||{};
   s.sets=s.sets||{};
   s.alternatives=s.alternatives||{};
+  s.setProgress=s.setProgress||{};
   w.items.forEach((e,i)=>{
     if(!Number.isFinite(+s.values[i]))s.values[i]=e.value;
     if(mode==="kb"&&!Number.isFinite(+s.weights[i]))s.weights[i]=parseFloat(e.load)||8;
     if(!Number.isFinite(+s.sets[i]))s.sets[i]=Math.max(1,Math.min(4,parseInt(e.sets)||1));
+    const target=Math.max(1,Math.min(4,parseInt(s.sets[i])||parseInt(e.sets)||1));
+    if(!Number.isFinite(+s.setProgress[i]))s.setProgress[i]=s.done.includes(i)?target:0;
+    s.setProgress[i]=Math.max(0,Math.min(target,parseInt(s.setProgress[i])||0));
+    if(s.setProgress[i]>=target&&!s.done.includes(i))s.done.push(i);
+    if(s.setProgress[i]<target)s.done=s.done.filter(x=>x!==i);
   });
 }
 
@@ -314,8 +325,33 @@ const allowedSets=[1,2,3,4];
 function setCount(i){
  return Math.max(1,Math.min(4,parseInt(session().sets[i])||parseInt(current().items[i].sets)||1));
 }
+function setProgress(i){
+ const s=session(),target=setCount(i);
+ if(s.done.includes(i))return target;
+ return Math.max(0,Math.min(target,parseInt(s.setProgress[i])||0));
+}
 function setSetCount(i,v){
- session().sets[i]=Math.max(1,Math.min(4,parseInt(v)||1));save();render()
+ const s=session(),oldProgress=setProgress(i),target=Math.max(1,Math.min(4,parseInt(v)||1));
+ s.sets[i]=target;
+ s.setProgress[i]=Math.min(oldProgress,target);
+ if(s.setProgress[i]>=target){
+   if(!s.done.includes(i))s.done.push(i)
+ }else{
+   s.done=s.done.filter(x=>x!==i)
+ }
+ save();render()
+}
+function advanceSet(i){
+ const s=session(),target=setCount(i);
+ if(s.done.includes(i)){
+   s.done=s.done.filter(x=>x!==i);
+   s.setProgress[i]=0;
+ }else{
+   const next=Math.min(target,setProgress(i)+1);
+   s.setProgress[i]=next;
+   if(next>=target&&!s.done.includes(i))s.done.push(i);
+ }
+ save();render()
 }
 const wallGuides={"Wall Sit": {"image": "wall-sit", "title": "Κάθισμα με κράτημα", "steps": ["Ακούμπησε πλάτη στον τοίχο. Πριν κατέβεις, φέρε τα πέλματα μπροστά.", "Γλίστρησε σε άνετο βάθος, με πέλματα κάτω και γόνατα πάνω από αστραγάλους. Κράτα τη θέση 2."]}, "Wall Squat": {"image": "wall-squat", "title": "Κάθισμα με κίνηση", "steps": ["Ακούμπησε πλάτη στον τοίχο και βάλε τα πέλματα μπροστά πριν λυγίσεις τα γόνατα.", "Κατέβα αργά και ανέβα ξανά. Δεν χρειάζεται να φτάσεις τόσο χαμηλά όσο η εικόνα."]}, "Wall-Supported Hip Abduction": {"image": "hip-abduction", "title": "Άνοιγμα ποδιού στο πλάι", "steps": ["Στάσου πλάι στον τοίχο, στηρίξου ελαφρά με το κοντινό χέρι.", "Άνοιξε λίγο το εξωτερικό πόδι, με δάχτυλα μπροστά και κορμό όρθιο. Επέστρεψε και άλλαξε πλευρά."]}, "Wall Hip Hinge": {"image": "hip-hinge", "title": "Ισχία πίσω προς τον τοίχο", "steps": ["Στάσου περίπου 20–30 cm μπροστά από τον τοίχο, με πλάτη προς αυτόν και μαλακά γόνατα.", "Στείλε τους γλουτούς πίσω να αγγίξουν τον τοίχο. Ο κορμός γέρνει από τα ισχία, χωρίς καμπούρα. Ξαναστάσου όρθιος."]}, "Wall Slide": {"image": "wall-slide", "title": "Χέρια από W προς Y", "steps": ["Πλάτη στον τοίχο, αγκώνες λυγισμένοι, ώμοι χαλαροί.", "Σύρε τα χέρια προς τα πάνω μόνο όσο είναι άνετο. Μην ανοίγεις τη μέση για να κερδίσεις ύψος. Επέστρεψε."]}, "Wall W Hold": {"image": "wall-w-hold", "title": "Κράτημα χεριών σε W", "steps": ["Στάσου με την πλάτη στον τοίχο και χαλάρωσε τους ώμους.", "Σήκωσε χέρια σε W με λυγισμένους αγκώνες. Κράτα τη θέση 2, χωρίς να πιέζεις αυχένα ή καρπούς στον τοίχο."]}, "Chin Tuck at Wall": {"image": "chin-tuck", "title": "Πηγούνι οριζόντια πίσω", "steps": ["Κοίτα ευθεία. Κράτα τον κορμό ήρεμο, με το πίσω μέρος του κεφαλιού κοντά στον τοίχο.", "Μετακίνησε απαλά το κεφάλι οριζόντια πίσω, σαν μικρό διπλοσάγονο. Κράτα 2–3 δευτερόλεπτα. Μην κοιτάς κάτω."]}};
 function wallGuide(e){
@@ -354,21 +390,21 @@ function render(){
  list.innerHTML="";
  w.items.forEach((base,i)=>{
   const isAlt=state.activeMode==="kb"&&altOn(i),e=selectedExercise(i,base);
-  const v=val(i),wt=state.activeMode==="kb"?weight(i):null,sc=setCount(i),d=document.createElement("div");d.className="exercise "+(s.done.includes(i)?"done":"");
+  const v=val(i),wt=state.activeMode==="kb"?weight(i):null,sc=setCount(i),sp=setProgress(i),d=document.createElement("div");d.className="exercise "+(s.done.includes(i)?"done":"");
   const shownLoad=wt!==null?wt+" kg":e.load;
-  d.innerHTML='<div class="ex-head"><div><h3>'+(i+1)+'. '+e.name+'</h3><span class="dose">'+shownLoad+' · '+sc+' × '+v+e.suffix+'</span></div><button class="check" data-check="'+i+'">'+(s.done.includes(i)?"✓":"SET")+'</button></div>'+
+  d.innerHTML='<div class="ex-head"><div><h3>'+(i+1)+'. '+e.name+'</h3><span class="dose">'+shownLoad+' · '+sc+' × '+v+e.suffix+'</span></div><button class="check" data-check="'+i+'">'+(s.done.includes(i)?("✓ "+sp+"/"+sc):("SET "+sp+"/"+sc))+'</button></div>'+
   (state.activeMode==="kb"?kbVisual(i,e,isAlt):state.activeMode==="stretch"?stretchGuide(e):wallGuide(e))+
   '<div class="tags"><span class="tags-label">Δουλεύουν κυρίως:</span>'+e.muscles.map(m=>'<span class="tag">'+m+'</span>').join("")+'</div>'+
   '<div class="control-panel">'+
   (state.activeMode==="kb"&&base.alt?'<div class="alt-picker"><span>ΑΣΚΗΣΗ</span><button class="alt-chip '+(!isAlt?'active':'')+'" data-alt="'+i+'" data-value="0">ΚΥΡΙΑ</button><button class="alt-chip '+(isAlt?'active':'')+'" data-alt="'+i+'" data-value="1">'+base.alt.name+'</button></div>':'')+
   '<div class="repbox"><span>'+e.control+'</span><button class="repbtn" data-minus="'+i+'">−</button><input class="repinput" data-input="'+i+'" type="number" min="1" value="'+v+'"><button class="repbtn" data-plus="'+i+'">+</button></div>'+
-  '<div class="set-picker"><span>ΣΕΤ</span>'+allowedSets.map(x=>'<button class="set-chip '+(x===sc?'active':'')+'" data-sets="'+i+'" data-value="'+x+'">'+x+'</button>').join("")+'</div>'+
+  '<div class="set-picker"><span>ΦΟΡΕΣ</span>'+allowedSets.map(x=>'<button class="set-chip '+(x===sc?'active':'')+'" data-sets="'+i+'" data-value="'+x+'">'+x+'</button>').join("")+'</div><div class="set-progress-note">Ολοκλήρωση: '+sp+' / '+sc+' σετ</div>'+
   (state.activeMode==="kb"?'<div class="weight-picker"><span>ΒΑΡΟΣ</span>'+allowedWeights.map(x=>'<button class="weight-chip '+(x===wt?'active':'')+'" data-weight="'+i+'" data-value="'+x+'">'+x+' KG</button>').join("")+'</div>':'')+'</div>'+
   (state.activeMode==='wall'?'<div class="mapTitle">MUSCLE MAP</div><div class="mapWrap"><div class="legend"><b>Πράσινο</b> = τι δουλεύει περισσότερο</div>'+muscleMap(e.targets)+'</div>':'')+
   '<div class="details"><div><b>Εκτέλεση:</b> '+e.cue+'</div><div><b>Να νιώθεις:</b> '+e.feel+'</div><div><b>Κύριο λάθος:</b> '+e.mistake+'</div></div>';
   list.appendChild(d)
  });
- document.querySelectorAll("[data-check]").forEach(b=>b.onclick=()=>{let i=+b.dataset.check;s.done=s.done.includes(i)?s.done.filter(x=>x!==i):[...s.done,i];save();render()});
+ document.querySelectorAll("[data-check]").forEach(b=>b.onclick=()=>advanceSet(+b.dataset.check));
  document.querySelectorAll("[data-minus]").forEach(b=>b.onclick=()=>{let i=+b.dataset.minus;setVal(i,val(i)-current().items[i].step)});
  document.querySelectorAll("[data-plus]").forEach(b=>b.onclick=()=>{let i=+b.dataset.plus;setVal(i,val(i)+current().items[i].step)});
  document.querySelectorAll("[data-input]").forEach(x=>x.onchange=()=>setVal(+x.dataset.input,x.value));
@@ -382,8 +418,8 @@ function render(){
  if(note){const last=latestWorkoutDay();note.textContent=state.hpDecayEnabled?(last?"Τελευταία προπόνηση: "+last+" · 7 ημέρες αδράνειας = -10 HP":"7 ημέρες χωρίς ολοκληρωμένο quest = -10 HP"):"Η πτώση HP είναι απενεργοποιημένη"}
 }
 document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{state.activeMode=b.dataset.mode;save();document.getElementById("notice").textContent="";render()});
-document.getElementById("complete").onclick=()=>{const w=current(),s=session();if(s.done.length<w.items.length){document.getElementById("notice").textContent="QUEST INCOMPLETE";return}state.xp+=w.xp;recordWorkoutDay();s.done=[];save();render();document.getElementById("notice").textContent="QUEST COMPLETE · +"+w.xp+" XP · STREAK "+currentStreak()};
-document.getElementById("reset").onclick=()=>{session().done=[];save();render();document.getElementById("notice").textContent=""};
+document.getElementById("complete").onclick=()=>{const w=current(),s=session();if(s.done.length<w.items.length){document.getElementById("notice").textContent="QUEST INCOMPLETE";return}state.xp+=w.xp;recordWorkoutDay();s.done=[];s.setProgress={};save();render();document.getElementById("notice").textContent="QUEST COMPLETE · +"+w.xp+" XP · STREAK "+currentStreak()};
+document.getElementById("reset").onclick=()=>{session().done=[];session().setProgress={};save();render();document.getElementById("notice").textContent=""};
 document.getElementById("hpRule").onclick=()=>{state.hpDecayEnabled=!state.hpDecayEnabled;save();render()};
 applyHpDecay();save();render();
 
