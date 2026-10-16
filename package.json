@@ -2,9 +2,17 @@
   "name": "solo-leveling-fitness",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "Solo Leveling Fitness Android wrapper",
   "scripts": {
+    "test": "node --test \"tests/*.test.js\"",
+    "test:e2e": "playwright test",
+    "build:www": "node scripts/build-www.mjs",
+    "serve": "node scripts/serve.mjs",
     "android:add": "cap add android",
     "android:sync": "cap sync android"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.0"
   }
 }
