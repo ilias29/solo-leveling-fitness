@@ -69,6 +69,41 @@ test("import rejects invalid input", () => {
   assert.equal(parseImport('{"xp":"abc"}').ok, false);
 });
 
+test("restore from a defective backup file is rejected", () => {
+  const good = buildExport(prepareState(clone(legacy.v_current), workouts, TODAY));
+  const cases = {
+    truncated: good.slice(0, good.length / 2),
+    emptyFile: "   ",
+    binary: "\u0000\u0001PK\u0003\u0004",
+    wrongApp: JSON.stringify({ format: "other-app", data: { a: 1 } }),
+    backupWithoutState: JSON.stringify({ format: "solo-leveling-fitness-backup", version: 1, soloState: null }),
+    stateIsArray: JSON.stringify({ format: "solo-leveling-fitness-backup", version: 1, soloState: [1, 2] }),
+    badXp: JSON.stringify({ format: "solo-leveling-fitness-backup", version: 1, soloState: { xp: "lots" } }),
+    number: "42",
+    nullValue: "null"
+  };
+  for (const [name, text] of Object.entries(cases)) assert.equal(parseImport(text).ok, false, name);
+});
+
+test("a backup with damaged inner values imports into a clean, usable state", () => {
+  const text = JSON.stringify({ format: "solo-leveling-fitness-backup", version: 1, soloState: { xp: 310, hp: -5, questDays: "x", sessions: { kb: { values: { 0: "abc" }, weights: { 0: 999 } } } } });
+  const r = parseImport(text);
+  assert.ok(r.ok);
+  const s = prepareState(r.state, workouts, TODAY);
+  assert.equal(s.xp, 310);
+  assert.equal(s.hp, 0);
+  assert.ok(Array.isArray(s.questDays));
+  assert.equal(s.sessions.kb.values[0], 12);
+  assert.equal(s.sessions.kb.weights[0], 999, "kept as stored");
+});
+
+test("export of a fresh install can be imported back", () => {
+  const s = prepareState({}, workouts, TODAY);
+  const r = parseImport(buildExport(s));
+  assert.ok(r.ok);
+  assert.deepEqual(prepareState(r.state, workouts, TODAY), s);
+});
+
 test("current data is copied before an import replaces it", () => {
   const store = memoryStorage({ [STATE_KEY]: '{"xp":999}' });
   assert.ok(backupBeforeImport(store));

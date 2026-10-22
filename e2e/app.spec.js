@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { readFileSync } from "node:fs";
 import { legacy } from "../tests/fixtures.js";
 
 const at = d => new Date(d + "T10:00:00");
@@ -24,18 +25,29 @@ async function completeAll(page) {
   }
 }
 
-test("fresh install shows defaults, 3 seed days and DAYS of this week", async ({ page }) => {
-  await open(page, "2026-10-17", {});
+test("fresh install starts from zero, with full HP even weeks later", async ({ page }) => {
+  await page.clock.setFixedTime(at("2026-10-23"));
+  await page.goto("/");
+  await expect(page.locator("#list .exercise")).toHaveCount(7);
   await expect(page.locator("#level")).toHaveText("1");
   await expect(page.locator("#xpText")).toHaveText("0");
   await expect(page.locator("#hpText")).toHaveText("100");
+  await expect(page.locator("#streakText")).toHaveText("0");
+  await expect(page.locator("#dayCount")).toHaveText("0/5");
+  await page.clock.setFixedTime(at("2026-11-30"));
+  await page.reload();
+  await expect(page.locator("#hpText")).toHaveText("100");
+});
+
+test("existing data shows streak and DAYS of this week", async ({ page }) => {
+  await open(page, "2026-10-17", legacy.v_initial);
   await expect(page.locator("#streakText")).toHaveText("3");
   await expect(page.locator("#dayCount")).toHaveText("3/5");
   await expect(page.locator(".day-dot.hit")).toHaveCount(3);
 });
 
 test("DAYS resets on Monday, streak breaks after a missed day", async ({ page }) => {
-  await open(page, "2026-10-19", {});
+  await open(page, "2026-10-19", legacy.v_initial);
   await expect(page.locator("#dayCount")).toHaveText("0/5");
   await expect(page.locator("#streakText")).toHaveText("0");
 });
@@ -129,8 +141,8 @@ test("XP is granted once per day per mode", async ({ page }) => {
   await page.click("#complete");
   await expect(page.locator("#notice")).toContainText("+50 XP");
   await expect(page.locator("#xpText")).toHaveText("50");
-  await expect(page.locator("#streakText")).toHaveText("4");
-  await expect(page.locator("#dayCount")).toHaveText("4/5");
+  await expect(page.locator("#streakText")).toHaveText("1");
+  await expect(page.locator("#dayCount")).toHaveText("1/5");
   await expect(card(page, 0).locator("[data-check]")).toHaveText("SET 0/2");
 
   await completeAll(page);
@@ -146,7 +158,7 @@ test("XP is granted once per day per mode", async ({ page }) => {
   await completeAll(page);
   await page.click("#complete");
   await expect(page.locator("#xpText")).toHaveText("85");
-  await expect(page.locator("#dayCount")).toHaveText("4/5");
+  await expect(page.locator("#dayCount")).toHaveText("1/5");
 
   await page.clock.setFixedTime(at("2026-10-18"));
   await page.reload();
@@ -154,6 +166,65 @@ test("XP is granted once per day per mode", async ({ page }) => {
   await completeAll(page);
   await page.click("#complete");
   await expect(page.locator("#xpText")).toHaveText("135");
+  await expect(page.locator("#streakText")).toHaveText("2");
+  await expect(page.locator("#dayCount")).toHaveText("2/5");
+});
+
+test("streak and HP: workout restarts inactivity, -10 HP on the 7th day after", async ({ page }) => {
+  await open(page, "2026-10-17", {});
+  await completeAll(page);
+  await page.click("#complete");
+  await page.clock.setFixedTime(at("2026-10-23"));
+  await page.reload();
+  await expect(page.locator("#hpText")).toHaveText("100");
+  await expect(page.locator("#streakText")).toHaveText("0");
+  await page.clock.setFixedTime(at("2026-10-24"));
+  await page.reload();
+  await expect(page.locator("#hpText")).toHaveText("90");
+  await expect(page.locator("#hpbar")).toHaveAttribute("style", /width: 90%/);
+  await completeAll(page);
+  await page.click("#complete");
+  await page.clock.setFixedTime(at("2026-10-30"));
+  await page.reload();
+  await expect(page.locator("#hpText")).toHaveText("90");
+});
+
+test("every kettlebell exercise: alternative toggle and 8/16/32 kg", async ({ page }) => {
+  await open(page, "2026-10-17", {});
+  const alts = ["Kettlebell Sumo Squat", "Suitcase March", "One-Arm Kettlebell Row", "Kettlebell Floor Press", "Kettlebell Skull Crusher", "Kettlebell Around-the-World", "Kettlebell Deadlift"];
+  for (let i = 0; i < 7; i++) {
+    const c = card(page, i);
+    const main = await c.locator("h3").textContent();
+    await c.locator(`[data-alt="${i}"][data-value="1"]`).click();
+    await expect(c.locator("h3")).toHaveText(`${i + 1}. ${alts[i]}`);
+    await expect(c.locator(".alt-visual")).toHaveCount(1);
+    for (const w of [8, 16, 32]) {
+      await c.locator(`[data-weight="${i}"][data-value="${w}"]`).click();
+      await expect(c.locator(".weight-chip.active")).toHaveText(`${w} KG`);
+      await expect(c.locator(".dose")).toContainText(`${w} kg`);
+    }
+    await c.locator(`[data-alt="${i}"][data-value="0"]`).click();
+    await expect(c.locator("h3")).toHaveText(main);
+    await expect(c.locator(".weight-chip.active")).toHaveText("32 KG");
+  }
+  await page.reload();
+  for (let i = 0; i < 7; i++) await expect(card(page, i).locator(".weight-chip.active")).toHaveText("32 KG");
+});
+
+test("wall and stretching have no alternatives or weights, every exercise completes with its own set count", async ({ page }) => {
+  await open(page, "2026-10-17", {});
+  for (const m of ["wall", "stretch"]) {
+    await mode(page, m);
+    await expect(page.locator(".alt-picker")).toHaveCount(0);
+    await expect(page.locator(".weight-picker")).toHaveCount(0);
+    for (let i = 0; i < 7; i++) {
+      const n = (i % 4) + 1;
+      await card(page, i).locator(`[data-sets="${i}"][data-value="${n}"]`).click();
+      for (let k = 0; k < n; k++) await card(page, i).locator("[data-check]").click();
+      await expect(card(page, i).locator("[data-check]")).toHaveText(`✓ ${n}/${n}`);
+    }
+    await expect(page.locator("#questProgress")).toHaveText("7/7 DONE");
+  }
 });
 
 test("level up at 300 XP", async ({ page }) => {
@@ -189,7 +260,7 @@ test("resetting a completed exercise or all sets asks for confirmation", async (
 });
 
 test("new calendar day clears set progress but keeps settings and history", async ({ page }) => {
-  await open(page, "2026-10-17", {});
+  await open(page, "2026-10-17", { xp: 10, questDays: ["2026-10-16"], schemaVersion: 1 });
   const c = card(page, 0);
   await c.locator("[data-plus]").click();
   await c.locator('[data-sets="0"][data-value="3"]').click();
@@ -252,6 +323,88 @@ test("export, then import restores data and keeps a pre-import copy", async ({ p
   await page.click("#importBtn");
   await expect(page.locator("#xpText")).toHaveText("50");
   await expect(page.locator("#level")).toHaveText("3");
+});
+
+test("settings button opens Backup & Restore and shows the version", async ({ page }) => {
+  await open(page, "2026-10-17", {});
+  await expect(page.locator("#backup")).not.toHaveAttribute("open", "");
+  await page.click("#settingsBtn");
+  await expect(page.locator("#backup")).toHaveAttribute("open", "");
+  await expect(page.locator("#exportBtn")).toBeVisible();
+  await expect(page.locator("#appVersion")).toHaveText(/^Έκδοση \d+\.\d+\.\d+$/);
+});
+
+test("export file download, then restore from that file", async ({ page }) => {
+  await open(page, "2026-10-17", legacy.v_current);
+  await page.click("#settingsBtn");
+  const [download] = await Promise.all([page.waitForEvent("download"), page.click("#downloadBtn")]);
+  expect(download.suggestedFilename()).toBe("solo-leveling-backup-2026-10-17.json");
+  expect(await download.failure()).toBeNull();
+  // Windows antivirus may briefly lock freshly downloaded files.
+  const src = await download.path();
+  let fileText;
+  await expect.poll(() => { try { fileText = readFileSync(src, "utf8"); return true; } catch { return false; } }, { timeout: 10000 }).toBe(true);
+  expect(JSON.parse(fileText).soloState.xp).toBe(650);
+
+  await page.evaluate(() => { localStorage.removeItem("soloState"); });
+  await page.reload();
+  await expect(page.locator("#xpText")).toHaveText("0");
+
+  await page.click("#settingsBtn");
+  await page.setInputFiles("#importFile", { name: "backup.json", mimeType: "application/json", buffer: Buffer.from(fileText) });
+  await expect(page.locator("#backupStatus")).toContainText("XP 650");
+  page.once("dialog", d => d.accept());
+  await page.click("#importBtn");
+  await expect(page.locator("#level")).toHaveText("3");
+  await expect(page.locator("#xpText")).toHaveText("50");
+  await page.reload();
+  await expect(page.locator("#xpText")).toHaveText("50");
+  await expect(page.locator('[data-mode="stretch"]')).toHaveClass(/active/);
+});
+
+test("defective backup files are rejected and data stays untouched", async ({ page }) => {
+  await open(page, "2026-10-17", legacy.v_current);
+  await page.click("#settingsBtn");
+  const files = {
+    "truncated.json": '{"format":"solo-leveling-fitness-backup","version":1,"soloState":{"xp":9',
+    "photo.jpg": "\u00ff\u00d8\u00ff\u00e0 binary",
+    "other.json": '{"hello":"world"}',
+    "empty.json": ""
+  };
+  for (const [name, content] of Object.entries(files)) {
+    await page.setInputFiles("#importFile", { name, mimeType: "application/json", buffer: Buffer.from(content) });
+    await expect(page.locator("#backupStatus")).toContainText("✗");
+    await expect(page.locator("#importBtn")).toBeDisabled();
+  }
+  expect((await stored(page)).xp).toBe(650);
+  await page.reload();
+  await expect(page.locator("#xpText")).toHaveText("50");
+});
+
+test("Android: WebView storage loss is recovered from the native Preferences copy", async ({ page }) => {
+  await page.addInitScript(() => {
+    const prefs = JSON.parse(sessionStorage.getItem("fakePrefs") || "{}");
+    window.Capacitor = {
+      isNativePlatform: () => true,
+      nativePromise: (plugin, method, o) => {
+        if (plugin === "Preferences" && method === "get") return Promise.resolve({ value: prefs[o.key] ?? null });
+        if (plugin === "Preferences" && method === "set") { prefs[o.key] = o.value; sessionStorage.setItem("fakePrefs", JSON.stringify(prefs)); return Promise.resolve(); }
+        return Promise.reject(new Error("not implemented"));
+      }
+    };
+  });
+  await page.clock.setFixedTime(at("2026-10-17"));
+  await page.goto("/");
+  await completeAll(page);
+  await page.click("#complete");
+  await expect(page.locator("#xpText")).toHaveText("50");
+  await expect(page.locator("#appVersion")).toContainText("Android");
+  await expect(page.locator("#downloadBtn")).toHaveText("ΑΠΟΣΤΟΛΗ / ΑΠΟΘΗΚΕΥΣΗ");
+
+  await page.evaluate(() => localStorage.removeItem("soloState"));
+  await page.reload();
+  await expect(page.locator("#xpText")).toHaveText("50");
+  await expect(page.locator("#notice")).toContainText("ΕΠΑΝΑΦΕΡΘΗΚΑΝ");
 });
 
 test("invalid import is rejected without touching data", async ({ page }) => {

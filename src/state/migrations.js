@@ -34,19 +34,22 @@ function migrateLegacy(state) {
 const steps = {
   // v0 -> v1: adds schemaVersion, per-mode daily XP tracking and the session date.
   // Existing set progress is kept for the day of the migration.
-  1(state, today) {
+  // Existing (pre-schema) data also receives the seed workout days; a fresh install does not.
+  1(state, today, fresh) {
     state.lastXpDate = isObj(state.lastXpDate) ? state.lastXpDate : {};
     state.sessionDate = isDayKey(state.sessionDate) ? state.sessionDate : today;
+    if (!fresh) state.questDays = [...new Set([...state.questDays, ...SEED_DAYS])];
   }
 };
 
 export function migrate(input, today) {
   const state = isObj(input) ? input : {};
+  const fresh = Object.keys(state).length === 0;
   const from = Math.max(0, Math.floor(toNum(state.schemaVersion, 0)));
   migrateLegacy(state);
-  for (let v = from + 1; v <= SCHEMA_VERSION; v++) steps[v](state, today);
+  for (let v = from + 1; v <= SCHEMA_VERSION; v++) steps[v](state, today, fresh);
   state.schemaVersion = Math.max(from, SCHEMA_VERSION);
-  state.questDays = [...new Set([...state.questDays, ...SEED_DAYS])].sort();
+  state.questDays = [...new Set(state.questDays.filter(isDayKey))].sort();
   return state;
 }
 

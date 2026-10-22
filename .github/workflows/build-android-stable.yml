@@ -1,14 +1,27 @@
 name: Build Stable Signed Android APK
 
+# Every APK from this workflow is signed with the same permanent release key (GitHub Secrets),
+# keeps applicationId com.ilias.sololevelingfitness and gets a strictly increasing versionCode,
+# so it installs as an UPDATE over the previous stable APK and keeps the user's data.
+
 on:
   workflow_dispatch:
+  push:
+    tags: ["v*"]
 
 permissions:
   contents: write
 
+concurrency:
+  group: android-release
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      APP_ID: com.ilias.sololevelingfitness
+      APK: Solo-Leveling-Fitness.apk
 
     steps:
       - name: Checkout
@@ -18,6 +31,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
+          cache: npm
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -32,19 +46,42 @@ jobs:
           KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           KEY_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
-          if [ -z "$KEYSTORE_B64" ] || [ -z "$STORE_PASS" ] || [ -z "$KEY_ALIAS" ] || [ -z "$KEY_PASS" ]; then
-            echo "::error::Android signing secrets are missing."
+          missing=""
+          [ -z "$KEYSTORE_B64" ] && missing="$missing ANDROID_KEYSTORE_BASE64"
+          [ -z "$STORE_PASS" ] && missing="$missing ANDROID_KEYSTORE_PASSWORD"
+          [ -z "$KEY_ALIAS" ] && missing="$missing ANDROID_KEY_ALIAS"
+          [ -z "$KEY_PASS" ] && missing="$missing ANDROID_KEY_PASSWORD"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing Android signing secrets:$missing. Add them in Settings > Secrets and variables > Actions."
             exit 1
           fi
 
-      - name: Install Capacitor
-        run: npm install @capacitor/core@7 @capacitor/cli@7 @capacitor/android@7
+      - name: Install dependencies (pinned)
+        run: npm ci
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build web app
+        run: npm run build:www
+
+      - name: Version
+        run: |
+          VERSION_NAME=$(node -p "require('./package.json').version")
+          if [ "$GITHUB_REF_TYPE" = "tag" ] && [ "$GITHUB_REF_NAME" != "v$VERSION_NAME" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match package.json version $VERSION_NAME"
+            exit 1
+          fi
+          # Minutes since 1970: always increases, independent of workflow run numbers.
+          VERSION_CODE=$(( $(date +%s) / 60 ))
+          echo "VERSION_NAME=$VERSION_NAME" >> "$GITHUB_ENV"
+          echo "VERSION_CODE=$VERSION_CODE" >> "$GITHUB_ENV"
+          echo "versionName $VERSION_NAME, versionCode $VERSION_CODE"
 
       - name: Create Android project
-        run: npx cap add android
-
-      - name: Sync web app
-        run: npx cap sync android
+        run: |
+          npx cap add android
+          npx cap sync android
 
       - name: Restore permanent signing keystore
         env:
@@ -55,11 +92,14 @@ jobs:
 
       - name: Configure release signing and version
         run: |
-          sed -i "s/versionCode 1/versionCode ${GITHUB_RUN_NUMBER}/" android/app/build.gradle
-          sed -i "s/versionName \"1.0\"/versionName \"2.0.${GITHUB_RUN_NUMBER}\"/" android/app/build.gradle
           cat >> android/app/build.gradle <<'EOF'
 
           android {
+              defaultConfig {
+                  applicationId System.getenv("APP_ID")
+                  versionCode Integer.parseInt(System.getenv("VERSION_CODE"))
+                  versionName System.getenv("VERSION_NAME")
+              }
               signingConfigs {
                   release {
                       storeFile file("solo-leveling-release.jks")
@@ -85,27 +125,61 @@ jobs:
           cd android
           chmod +x gradlew
           ./gradlew assembleRelease
+          cp app/build/outputs/apk/release/app-release.apk "../$APK"
 
-      - name: Prepare APK
-        run: cp android/app/build/outputs/apk/release/app-release.apk Solo-Leveling-Fitness.apk
+      - name: Remove keystore from runner
+        if: always()
+        run: rm -f android/app/solo-leveling-release.jks
+
+      - name: Verify APK (package, version, signature)
+        env:
+          EXPECTED_CERT: ${{ vars.ANDROID_CERT_SHA256 }}
+        run: |
+          BT="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
+          BADGING=$("$BT/aapt2" dump badging "$APK" | head -1)
+          echo "$BADGING"
+          echo "$BADGING" | grep -q "name='$APP_ID'" || { echo "::error::Wrong applicationId"; exit 1; }
+          echo "$BADGING" | grep -q "versionCode='$VERSION_CODE'" || { echo "::error::Wrong versionCode"; exit 1; }
+          echo "$BADGING" | grep -q "versionName='$VERSION_NAME'" || { echo "::error::Wrong versionName"; exit 1; }
+          CERTS=$("$BT/apksigner" verify --print-certs "$APK")
+          echo "$CERTS"
+          echo "$CERTS" | grep -qi "CN=Android Debug" && { echo "::error::APK is signed with a debug key"; exit 1; }
+          SHA=$(echo "$CERTS" | grep -m1 "certificate SHA-256 digest" | awk '{print $NF}')
+          echo "CERT_SHA256=$SHA" >> "$GITHUB_ENV"
+          norm() { echo "$1" | tr -d ':' | tr 'A-F' 'a-f'; }
+          if [ -n "$EXPECTED_CERT" ] && [ "$(norm "$SHA")" != "$(norm "$EXPECTED_CERT")" ]; then
+            echo "::error::Signing certificate changed! Expected $EXPECTED_CERT, got $SHA. Updates would fail."
+            exit 1
+          fi
+          {
+            echo "### Solo Leveling Fitness $VERSION_NAME"
+            echo "- applicationId: \`$APP_ID\`"
+            echo "- versionCode: \`$VERSION_CODE\`"
+            echo "- signing certificate SHA-256: \`$SHA\`"
+            if [ -z "$EXPECTED_CERT" ]; then
+              echo "- Tip: save this SHA-256 as repository variable \`ANDROID_CERT_SHA256\` to block any future key change."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Solo-Leveling-Fitness-Stable-APK
-          path: Solo-Leveling-Fitness.apk
+          name: Solo-Leveling-Fitness-${{ env.VERSION_NAME }}-${{ env.VERSION_CODE }}
+          path: ${{ env.APK }}
           if-no-files-found: error
 
-      - name: Publish stable GitHub release
+      - name: Publish GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG="stable-${GITHUB_RUN_NUMBER}"
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then TAG="$GITHUB_REF_NAME"; else TAG="v$VERSION_NAME-$VERSION_CODE"; fi
+          NOTES="Stable signed Android release $VERSION_NAME (versionCode $VERSION_CODE).
+          Installs as an update over previous stable releases without losing data.
+          Signing certificate SHA-256: $CERT_SHA256"
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" Solo-Leveling-Fitness.apk --clobber
+            gh release upload "$TAG" "$APK" --clobber
           else
-            gh release create "$TAG" Solo-Leveling-Fitness.apk \
-              --title "Solo Leveling Fitness stable ${GITHUB_RUN_NUMBER}" \
-              --notes "Stable signed Android release. Future stable builds can update this app without uninstalling." \
-              --latest
+            gh release create "$TAG" "$APK" --target "$GITHUB_SHA" \
+              --title "Solo Leveling Fitness $VERSION_NAME ($VERSION_CODE)" \
+              --notes "$NOTES" --latest
           fi

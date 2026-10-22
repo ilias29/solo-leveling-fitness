@@ -79,13 +79,43 @@ test("numeric strings are coerced instead of being reset", () => {
   assert.equal(s.hpPenaltyWeeksApplied, 1);
 });
 
-test("fresh install starts with defaults and the seed days", () => {
+test("fresh install starts from zero (no seed days) and stays that way after reloads", () => {
   const s = prepareState({}, workouts, TODAY);
   assert.equal(s.xp, 0);
   assert.equal(s.hp, 100);
   assert.equal(s.activeMode, "kb");
-  assert.deepEqual(s.questDays, SEED_DAYS);
+  assert.deepEqual(s.questDays, []);
   assert.equal(s.sessions.kb.weights[0], 8);
+  const again = prepareState(clone(s), workouts, "2026-10-30");
+  assert.deepEqual(again.questDays, []);
+  assert.equal(again.hp, 100);
+});
+
+test("seed days are kept forever once present", () => {
+  const s = prepareState(clone(legacy.v_initial), workouts, TODAY);
+  s.questDays = s.questDays.filter(d => d !== "2026-10-14");
+  const again = prepareState(clone(s), workouts, TODAY);
+  assert.ok(!again.questDays.includes("2026-10-14"), "only added once, during the v0 -> v1 migration");
+  const v1 = prepareState(clone(legacy.v_current), workouts, TODAY);
+  for (const d of SEED_DAYS) assert.ok(prepareState(clone(v1), workouts, "2026-12-01").questDays.includes(d));
+});
+
+test("garbage values from a damaged backup are sanitised, not crashing", () => {
+  const s = prepareState({
+    xp: -40, hp: 999, hpPenaltyWeeksApplied: "x", questDays: ["2026-10-01", "bad", 5, null], activeMode: "boss",
+    sessions: { kb: { done: [0, 0, 99, "1", -1, "x"], values: "abc", weights: [1, 2], sets: null, alternatives: 7, setProgress: "q" }, wall: "nope", stretch: null }
+  }, workouts, TODAY);
+  assert.equal(s.xp, 0);
+  assert.equal(s.hp, 100);
+  assert.equal(s.hpPenaltyWeeksApplied, 0);
+  assert.equal(s.activeMode, "kb");
+  assert.ok(s.questDays.every(d => /^\d{4}-\d{2}-\d{2}$/.test(d)));
+  assert.ok(s.questDays.includes("2026-10-01"));
+  assert.deepEqual(s.sessions.kb.done, [0, 1]);
+  assert.equal(s.sessions.kb.values[0], 12);
+  assert.equal(s.sessions.kb.weights[0], 8);
+  assert.equal(s.sessions.kb.sets[0], 2);
+  for (const m of ["wall", "stretch"]) assert.equal(Object.keys(s.sessions[m].values).length, 7);
 });
 
 test("progress of a previous day is cleared, settings and history are kept", () => {

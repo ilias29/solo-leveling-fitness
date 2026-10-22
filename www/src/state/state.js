@@ -5,6 +5,7 @@ export const ALLOWED_WEIGHTS = [8, 16, 32];
 export const ALLOWED_SETS = [1, 2, 3, 4];
 
 const clampSets = v => Math.max(1, Math.min(4, parseInt(v) || 1));
+const isObj = v => !!v && typeof v === "object" && !Array.isArray(v);
 
 export function maxValue(item) {
   return item.control === "ΧΡΟΝΟΣ" ? 180 : 50;
@@ -19,15 +20,12 @@ export function normalizeWeight(v) {
 // Fills per-exercise defaults and keeps done/setProgress consistent.
 // Data is keyed by exercise index, exactly as stored by previous versions.
 export function normalizeSessions(state, workouts) {
-  if (!state.lastXpDate || typeof state.lastXpDate !== "object") state.lastXpDate = {};
+  if (!isObj(state.lastXpDate)) state.lastXpDate = {};
   for (const [mode, w] of Object.entries(workouts)) {
     const s = state.sessions[mode];
-    s.done = Array.isArray(s.done) ? s.done : [];
-    s.values = s.values || {};
-    s.weights = s.weights || {};
-    s.sets = s.sets || {};
-    s.alternatives = s.alternatives || {};
-    s.setProgress = s.setProgress || {};
+    const n = w.items.length;
+    s.done = Array.isArray(s.done) ? [...new Set(s.done.map(Number).filter(i => Number.isInteger(i) && i >= 0 && i < n))] : [];
+    for (const k of ["values", "weights", "sets", "alternatives", "setProgress"]) if (!isObj(s[k])) s[k] = {};
     w.items.forEach((e, i) => {
       if (!Number.isFinite(+s.values[i])) s.values[i] = e.value;
       if (mode === "kb" && !Number.isFinite(+s.weights[i])) s.weights[i] = parseFloat(e.load) || 8;

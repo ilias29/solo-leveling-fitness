@@ -153,9 +153,11 @@ body{background:
 .backup-btn.danger{border-color:#a8455a;color:#ffc2cc}.backup-btn:disabled{opacity:.4}
 .backup-text{width:100%;background:#030a16;color:#cfe3ff;border:1px solid #2d609d;border-radius:10px;padding:8px;font:11px/1.4 ui-monospace,monospace;resize:vertical}
 .backup-status{font-size:12px;color:var(--good);min-height:16px;word-break:break-word}
+.top-right{display:flex;gap:8px;align-items:center}.settings-btn{width:36px;height:36px;padding:0;border:1px solid var(--line);background:#080e20;color:#cfe8ff;font-size:18px;border-radius:9px}
+.app-version{margin-top:10px;font-size:11px;color:#6f86a8;text-align:right}
 </style></head>
 <body><main class="app">
-<div class="top"><div class="sys">SYSTEM</div><div class="rank">RANK E</div></div>
+<div class="top"><div class="sys">SYSTEM</div><div class="top-right"><div class="rank">RANK E</div><button class="settings-btn" id="settingsBtn" aria-label="Ρυθμίσεις">⚙</button></div></div>
 <section class="card"><div class="muted">HUNTER PROFILE</div><h1>ILIAS · LEVEL <span id="level">1</span></h1><div class="muted"><span id="xpText">0</span> / 300 XP</div><div class="xpbar"><div class="xp" id="xpbar"></div></div>
 <div class="stats"><div class="stat"><b>1</b>STR</div><div class="stat"><b>1</b>END</div><div class="stat"><b>1</b>POSTURE</div><div class="stat"><b>1</b>BODY</div><div class="stat"><b id="dayCount">0/5</b>DAYS</div></div>
 <div class="survival">
@@ -169,12 +171,13 @@ body{background:
 <div id="list"></div>
 <button class="primary" id="complete">COMPLETE QUEST · +50 XP</button>
 <button class="reset" id="reset">Reset σημερινών sets</button><button class="primary" id="install" style="display:none;background:linear-gradient(90deg,#18a67d,#287bd7)">INSTALL APP</button><div class="notice" id="notice"></div>
-<details class="card backup" id="backup"><summary>BACKUP · EXPORT / IMPORT</summary>
+<details class="card backup" id="backup"><summary>⚙ ΡΥΘΜΙΣΕΙΣ · BACKUP &amp; RESTORE</summary>
 <p class="backup-help">EXPORT: αντίγραφο όλων των δεδομένων (XP, HP, ιστορικό, ρυθμίσεις). IMPORT: επικόλληση backup ή επιλογή αρχείου. Πριν από κάθε Import κρατιέται αντίγραφο των τωρινών δεδομένων.</p>
 <div class="backup-actions"><button class="backup-btn" id="exportBtn">EXPORT</button><button class="backup-btn" id="copyBtn">ΑΝΤΙΓΡΑΦΗ</button><button class="backup-btn" id="downloadBtn">ΛΗΨΗ ΑΡΧΕΙΟΥ</button></div>
 <textarea id="backupText" class="backup-text" rows="6" spellcheck="false" placeholder="Εδώ εμφανίζεται το backup ή επικολλάς backup για Import"></textarea>
 <div class="backup-actions"><label class="backup-btn">ΑΡΧΕΙΟ…<input type="file" id="importFile" accept="application/json,.json,.txt" hidden></label><button class="backup-btn" id="checkBtn">ΕΛΕΓΧΟΣ</button><button class="backup-btn danger" id="importBtn" disabled>IMPORT</button></div>
 <div class="backup-status" id="backupStatus"></div>
+<div class="app-version" id="appVersion"></div>
 </details>
 </main>
 <script type="module" src="./src/ui/app.js"></script></body></html>

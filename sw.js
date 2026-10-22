@@ -1,6 +1,6 @@
-const CACHE="solo-fitness-v16";
+const CACHE="solo-fitness-v17";
 const ASSETS=["./","./index.html","./manifest.webmanifest","./icon-192.png","./icon-512.png","./assets/wall/wall-sit.webp","./assets/wall/wall-squat.webp","./assets/wall/hip-abduction.webp","./assets/wall/hip-hinge.webp","./assets/wall/wall-slide.webp","./assets/wall/wall-w-hold.webp","./assets/wall/chin-tuck.webp",
- "./src/ui/app.js","./src/data/workouts.js","./src/data/guides.js","./src/logic/dates.js","./src/logic/xp.js","./src/logic/hp.js","./src/logic/streak.js","./src/state/state.js","./src/state/migrations.js","./src/storage/storage.js","./src/backup/backup.js"];
+ "./src/ui/app.js","./src/data/workouts.js","./src/data/guides.js","./src/logic/dates.js","./src/logic/xp.js","./src/logic/hp.js","./src/logic/streak.js","./src/state/state.js","./src/state/migrations.js","./src/storage/storage.js","./src/backup/backup.js","./src/storage/native.js","./src/version.js"];
 self.addEventListener("install",e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS.map(u=>new Request(u,{cache:"reload"})))))});
 self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 // Network first so HTML and JS modules always stay in sync; cache is the offline fallback.

@@ -7,13 +7,16 @@ import { currentStreak, latestWorkoutDay, daysThisWeek, recordWorkoutDay, WEEKLY
 import * as S from "../state/state.js";
 import { loadRaw, saveState, backupBeforeImport, CORRUPT_KEY, PRE_IMPORT_KEY } from "../storage/storage.js";
 import { buildExport, parseImport, summarize } from "../backup/backup.js";
+import { isNative as nativePlatform, restoreFromNative, mirrorToNative, shareText } from "../storage/native.js";
+import { APP_VERSION } from "../version.js";
 
 const store=window.localStorage;
+const restored=await restoreFromNative(store);
 const loaded=loadRaw(store);
 let state=S.prepareState(loaded.data,workouts,todayKey());
 const allowedWeights=S.ALLOWED_WEIGHTS,allowedSets=S.ALLOWED_SETS;
 
-function save(){if(!saveState(store,state))notice("ΣΦΑΛΜΑ ΑΠΟΘΗΚΕΥΣΗΣ")}
+function save(){if(!saveState(store,state))notice("ΣΦΑΛΜΑ ΑΠΟΘΗΚΕΥΣΗΣ");mirrorToNative(JSON.stringify(state))}
 function notice(t){document.getElementById("notice").textContent=t}
 function current(){return workouts[state.activeMode]}
 function session(){return state.sessions[state.activeMode]}
@@ -123,10 +126,11 @@ document.getElementById("complete").onclick=()=>{
 document.getElementById("reset").onclick=()=>{if(!confirm("Μηδενισμός όλων των σημερινών sets σε αυτό το mode;"))return;S.clearProgress(session());save();render();notice("")};
 applyHpDecay(state,todayKey());save();render();
 if(loaded.corrupt)notice("ΤΑ ΑΠΟΘΗΚΕΥΜΕΝΑ ΔΕΔΟΜΕΝΑ ΔΕΝ ΔΙΑΒΑΖΟΝΤΑΝ · ΑΝΤΙΓΡΑΦΟ ΣΤΟ "+CORRUPT_KEY);
+else if(restored)notice("ΤΑ ΔΕΔΟΜΕΝΑ ΕΠΑΝΑΦΕΡΘΗΚΑΝ ΑΠΟ ΤΟ ΑΝΤΙΓΡΑΦΟ ΤΗΣ ΣΥΣΚΕΥΗΣ");
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")refreshDay()});
 setInterval(refreshDay,60000);
 
-const isNative=!!(window.Capacitor&&typeof window.Capacitor.isNativePlatform==="function"&&window.Capacitor.isNativePlatform());
+const isNative=nativePlatform();
 if("serviceWorker" in navigator){
   if(isNative){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{})}
   else{window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js",{scope:"./"}).catch(()=>{}))}
@@ -147,21 +151,34 @@ function checkImport(){
  pendingImport=r.state;importBtn.disabled=false;
  backupStatus.textContent="✓ Backup: "+describe(r.summary)+" · Πάτησε IMPORT για επαναφορά.";
 }
-if(isNative)downloadBtn.style.display="none";
+const settings=document.getElementById("backup");
+document.getElementById("appVersion").textContent="Έκδοση "+APP_VERSION+(isNative?" · Android":"");
+document.getElementById("settingsBtn").onclick=()=>{settings.open=true;settings.scrollIntoView({behavior:"smooth",block:"start"})};
+if(isNative)downloadBtn.textContent="ΑΠΟΣΤΟΛΗ / ΑΠΟΘΗΚΕΥΣΗ";
 document.getElementById("exportBtn").onclick=exportNow;
-document.getElementById("copyBtn").onclick=async()=>{
- if(!backupText.value.trim())exportNow();
+async function copyBackup(){
  try{await navigator.clipboard.writeText(backupText.value)}
  catch{backupText.focus();backupText.select();document.execCommand("copy")}
  backupStatus.textContent="Αντιγράφηκε · επικόλλησέ το κάπου ασφαλές (π.χ. σημειώσεις ή email)";
-};
-downloadBtn.onclick=()=>{
+}
+document.getElementById("copyBtn").onclick=async()=>{if(!backupText.value.trim())exportNow();await copyBackup()};
+downloadBtn.onclick=async()=>{
  if(!backupText.value.trim())exportNow();
+ if(isNative){
+   if(await shareText("Solo Leveling backup "+todayKey(),backupText.value))backupStatus.textContent="Επίλεξε Drive, Gmail ή Σημειώσεις για να κρατήσεις το backup";
+   else await copyBackup();
+   return;
+ }
  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([backupText.value],{type:"application/json"}));
  a.download="solo-leveling-backup-"+todayKey()+".json";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 };
 backupText.oninput=clearPending;
-document.getElementById("importFile").onchange=async e=>{const f=e.target.files[0];if(!f)return;backupText.value=await f.text();e.target.value="";checkImport()};
+document.getElementById("importFile").onchange=async e=>{
+ const f=e.target.files[0];e.target.value="";if(!f)return;
+ if(f.size>2000000){clearPending();backupStatus.textContent="✗ Το αρχείο είναι πολύ μεγάλο για backup";return}
+ try{backupText.value=await f.text()}catch{clearPending();backupStatus.textContent="✗ Το αρχείο δεν διαβάζεται";return}
+ checkImport();
+};
 document.getElementById("checkBtn").onclick=checkImport;
 importBtn.onclick=()=>{
  if(!pendingImport)return;
