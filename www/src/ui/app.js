@@ -73,7 +73,7 @@ function stretchGuide(e){
 }
 
 function kbVisual(i,e,isAlt){
- if(isAlt)return '<div class="alt-visual"><div class="alt-visual-copy"><div><div class="alt-badge">ALTERNATIVE</div><div class="alt-visual-name">'+e.name+'</div><div class="alt-visual-note">Ίδιος βασικός στόχος, διαφορετική κίνηση. Ακολούθησε τις οδηγίες εκτέλεσης από κάτω.</div></div></div><div class="kb-map"><div class="legend"><b>Πράσινο</b> = κύριοι μύες</div>'+muscleMap(e.targets)+'</div></div>';
+ if(isAlt)return '<div class="alt-visual"><div class="alt-visual-copy"><div><div class="alt-badge">ALTERNATIVE</div><div class="alt-visual-name">'+e.name+'</div><div class="alt-visual-note">Ίδιος βασικός στόχος, διαφορετική κίνηση. Ακολούθησε τις οδηγίες εκτέλεσης από κάτω.</div></div></div><div class="alt-demo"><img src="./assets/kettlebell/'+['sumo-squat','suitcase-march','one-arm-row','floor-press','skull-crusher','around-the-world','deadlift'][i]+'.svg" alt="'+e.name+': αρχική και τελική θέση" loading="lazy"></div><div class="kb-map"><div class="legend"><b>Πράσινο</b> = κύριοι μύες</div>'+muscleMap(e.targets)+'</div></div>';
  const x=[0,33.333,66.667,100,0,33.333,66.667], y=[0,0,0,0,100,100,100];
  return '<div class="kb-visual"><div class="kb-photo" style="background-position:'+x[i]+'% '+y[i]+'%"></div><div class="kb-map"><div class="legend"><b>Πράσινο</b> = κύριοι μύες</div>'+muscleMap(e.targets)+'</div></div><div class="visual-note">Οπτική αναφορά της άσκησης. Για σωστή τεχνική ακολούθησε τις οδηγίες εκτέλεσης από κάτω.</div>';
 }
