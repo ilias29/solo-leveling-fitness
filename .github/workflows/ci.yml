@@ -1,0 +1,108 @@
+name: CI
+
+on:
+  push:
+    branches: ["develop"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Unit tests
+        run: npm test
+
+      - name: www/ is in sync with the web app
+        run: |
+          npm run build:www
+          git add -A www
+          git diff --cached --exit-code --stat www || (echo "::error::www/ is out of date. Run npm run build:www and commit." && exit 1)
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Browser tests
+        run: npm run test:e2e
+
+  android-build-check:
+    # Builds the Capacitor Android project without the release key to verify packaging,
+    # applicationId, version injection and native plugins. Not an installable update.
+    runs-on: ubuntu-latest
+    env:
+      APP_ID: com.ilias.sololevelingfitness
+      VERSION_CODE: "123456"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Build Android project
+        run: |
+          npm ci
+          npm run build:www
+          echo "VERSION_NAME=$(node -p "require('./package.json').version")" >> "$GITHUB_ENV"
+          npx cap add android
+          npx cap sync android
+
+      - name: Inject version (same block as the stable workflow, without signing)
+        run: |
+          cat >> android/app/build.gradle <<'EOF'
+
+          android {
+              defaultConfig {
+                  applicationId System.getenv("APP_ID")
+                  versionCode Integer.parseInt(System.getenv("VERSION_CODE"))
+                  versionName System.getenv("VERSION_NAME")
+              }
+          }
+          EOF
+
+      - name: Assemble
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Verify APK contents
+        run: |
+          APK=android/app/build/outputs/apk/debug/app-debug.apk
+          BT="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
+          BADGING=$("$BT/aapt2" dump badging "$APK" | head -1)
+          echo "$BADGING"
+          echo "$BADGING" | grep -q "name='$APP_ID'"
+          echo "$BADGING" | grep -q "versionCode='$VERSION_CODE'"
+          echo "$BADGING" | grep -q "versionName='$VERSION_NAME'"
+          PLUGINS=$(unzip -p "$APK" assets/capacitor.plugins.json)
+          echo "$PLUGINS"
+          echo "$PLUGINS" | grep -q "Preferences"
+          echo "$PLUGINS" | grep -q "Share"
+          unzip -l "$APK" | grep -q "assets/public/src/storage/native.js"
+          unzip -p "$APK" assets/capacitor.config.json | grep -q '"androidScheme": "https"'
