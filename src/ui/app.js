@@ -36,9 +36,9 @@ function advanceSet(i){
  }else S.advanceSet(s,item(i),i);
  save();render()
 }
-function altOn(i){return state.activeMode==="kb"&&!!session().alternatives[i]}
-function selectedExercise(i,base){return altOn(i)&&base.alt?Object.assign({},base,base.alt):base}
-function setAlternative(i,on){if(state.activeMode!=="kb")return;session().alternatives[i]=!!on;save();render()}
+function choiceFor(i){if(state.activeMode!=="kb")return 0;const selected=session().alternatives[i];return selected===2?2:selected?1:0}
+function selectedExercise(i,base){const selected=choiceFor(i);return selected===2&&base.dumbbell?Object.assign({},base,base.dumbbell):selected===1&&base.alt?Object.assign({},base,base.alt):base}
+function setAlternative(i,choice){if(state.activeMode!=="kb")return;session().alternatives[i]=choice===2?2:choice===1;save();render()}
 // New calendar day: clear set progress and apply the inactivity HP rule.
 function refreshDay(){
  const today=todayKey(),reset=S.resetDailyProgress(state,workouts,today),hpChanged=applyHpDecay(state,today);
@@ -72,8 +72,9 @@ function stretchGuide(e){
  return '<div class="stretch-card"><div class="stretch-copy"><div><div class="stretch-kicker">RECOVERY / MOBILITY</div><div class="stretch-name">'+e.name+'</div><div class="stretch-note">Ήπια ένταση, αργή αναπνοή, χωρίς πόνο ή αναπηδήσεις.</div></div></div><div class="kb-map"><div class="legend"><b>Πράσινο</b> = κύριες περιοχές</div>'+muscleMap(e.targets)+'</div></div>';
 }
 
-function kbVisual(i,e,isAlt){
- if(isAlt)return '<div class="alt-visual"><div class="alt-visual-copy"><div><div class="alt-badge">ALTERNATIVE</div><div class="alt-visual-name">'+e.name+'</div><div class="alt-visual-note">Ίδιος βασικός στόχος, διαφορετική κίνηση. Ακολούθησε τις οδηγίες εκτέλεσης από κάτω.</div></div></div><div class="alt-demo"><img src="./assets/kettlebell/'+['sumo-squat','suitcase-march','one-arm-row','floor-press','skull-crusher','around-the-world','deadlift'][i]+'.svg" alt="'+e.name+': αρχική και τελική θέση" loading="lazy"></div><div class="kb-map"><div class="legend"><b>Πράσινο</b> = κύριοι μύες</div>'+muscleMap(e.targets)+'</div></div>';
+function kbVisual(i,e,choice){
+ if(choice===2)return '<div class="alt-visual"><div class="alt-visual-copy"><div><div class="alt-badge">DUMBBELL</div><div class="alt-visual-name">'+e.name+'</div><div class="alt-visual-note">Ρυθμιζόμενος αλτήρας: διάλεξε βάρος που ελέγχεις με ασφαλή λαβή. Ακολούθησε τις οδηγίες παρακάτω.</div></div></div><div class="kb-map"><div class="legend"><b>Πράσινο</b> = κύριοι μύες</div>'+muscleMap(e.targets)+'</div></div>';
+ if(choice===1)return '<div class="alt-visual"><div class="alt-visual-copy"><div><div class="alt-badge">ALTERNATIVE</div><div class="alt-visual-name">'+e.name+'</div><div class="alt-visual-note">Ίδιος βασικός στόχος, διαφορετική κίνηση. Ακολούθησε τις οδηγίες εκτέλεσης από κάτω.</div></div></div><div class="alt-demo"><img src="./assets/kettlebell/'+['sumo-squat','suitcase-march','one-arm-row','floor-press','skull-crusher','around-the-world','deadlift'][i]+'.svg" alt="'+e.name+': αρχική και τελική θέση" loading="lazy"></div><div class="kb-map"><div class="legend"><b>Πράσινο</b> = κύριοι μύες</div>'+muscleMap(e.targets)+'</div></div>';
  const x=[0,33.333,66.667,100,0,33.333,66.667], y=[0,0,0,0,100,100,100];
  return '<div class="kb-visual"><div class="kb-photo" style="background-position:'+x[i]+'% '+y[i]+'%"></div><div class="kb-map"><div class="legend"><b>Πράσινο</b> = κύριοι μύες</div>'+muscleMap(e.targets)+'</div></div><div class="visual-note">Οπτική αναφορά της άσκησης. Για σωστή τεχνική ακολούθησε τις οδηγίες εκτέλεσης από κάτω.</div>';
 }
@@ -87,17 +88,17 @@ function render(){
  const summary=document.getElementById("questSummary");summary.classList.toggle("wall",state.activeMode==="wall");summary.classList.toggle("stretch",state.activeMode==="stretch");document.getElementById("questModeLabel").textContent=state.activeMode==="wall"?"▥ WALL / POSTURE QUEST":state.activeMode==="stretch"?"◌ STRETCHING QUEST":"⚔ KETTLEBELL QUEST";document.getElementById("questProgress").textContent=s.done.length+"/"+w.items.length+" DONE";document.getElementById("dayTrack").innerHTML=Array.from({length:5},(_,i)=>'<span class="day-dot '+(i<Math.min(weekDays,WEEKLY_TARGET_DAYS)?'hit':'')+'"></span>').join("");
  list.innerHTML="";
  w.items.forEach((base,i)=>{
-  const isAlt=state.activeMode==="kb"&&altOn(i),e=selectedExercise(i,base);
+  const choice=choiceFor(i),e=selectedExercise(i,base);
   const v=val(i),wt=state.activeMode==="kb"?weight(i):null,sc=setCount(i),sp=setProgress(i),d=document.createElement("div");d.className="exercise "+(s.done.includes(i)?"done":"");
-  const shownLoad=wt!==null?wt+" kg":e.load;
+  const shownLoad=choice===2?"Ρυθμιζόμενος αλτήρας":wt!==null?wt+" kg":e.load;
   d.innerHTML='<div class="ex-head"><div><h3>'+(i+1)+'. '+e.name+'</h3><span class="dose">'+shownLoad+' · '+sc+' × '+v+e.suffix+'</span></div><button class="check" data-check="'+i+'">'+(s.done.includes(i)?("✓ "+sp+"/"+sc):("SET "+sp+"/"+sc))+'</button></div>'+
-  (state.activeMode==="kb"?kbVisual(i,e,isAlt):state.activeMode==="stretch"?stretchGuide(e):wallGuide(e))+
+  (state.activeMode==="kb"?kbVisual(i,e,choice):state.activeMode==="stretch"?stretchGuide(e):wallGuide(e))+
   '<div class="tags"><span class="tags-label">Δουλεύουν κυρίως:</span>'+e.muscles.map(m=>'<span class="tag">'+m+'</span>').join("")+'</div>'+
   '<div class="control-panel">'+
-  (state.activeMode==="kb"&&base.alt?'<div class="alt-picker"><span>ΑΣΚΗΣΗ</span><button class="alt-chip '+(!isAlt?'active':'')+'" data-alt="'+i+'" data-value="0">ΚΥΡΙΑ</button><button class="alt-chip '+(isAlt?'active':'')+'" data-alt="'+i+'" data-value="1">'+base.alt.name+'</button></div>':'')+
+  (state.activeMode==="kb"&&base.alt?'<div class="alt-picker"><span>ΑΣΚΗΣΗ</span><button class="alt-chip '+(choice===0?'active':'')+'" data-alt="'+i+'" data-value="0">KETTLEBELL</button><button class="alt-chip '+(choice===1?'active':'')+'" data-alt="'+i+'" data-value="1">ΕΝΑΛΛΑΚΤΙΚΗ KB</button><button class="alt-chip '+(choice===2?'active':'')+'" data-alt="'+i+'" data-value="2">ΑΛΤΗΡΑΣ</button></div>':'')+
   '<div class="repbox"><span>'+e.control+'</span><button class="repbtn" data-minus="'+i+'">−</button><input class="repinput" data-input="'+i+'" type="number" min="1" value="'+v+'"><button class="repbtn" data-plus="'+i+'">+</button></div>'+
   '<div class="set-picker"><span>ΦΟΡΕΣ</span>'+allowedSets.map(x=>'<button class="set-chip '+(x===sc?'active':'')+'" data-sets="'+i+'" data-value="'+x+'">'+x+'</button>').join("")+'</div><div class="set-progress-note">Ολοκλήρωση: '+sp+' / '+sc+' σετ</div>'+
-  (state.activeMode==="kb"?'<div class="weight-picker"><span>ΒΑΡΟΣ</span>'+allowedWeights.map(x=>'<button class="weight-chip '+(x===wt?'active':'')+'" data-weight="'+i+'" data-value="'+x+'">'+x+' KG</button>').join("")+'</div>':'')+'</div>'+
+  (state.activeMode==="kb"&&choice!==2?'<div class="weight-picker"><span>ΒΑΡΟΣ</span>'+allowedWeights.map(x=>'<button class="weight-chip '+(x===wt?'active':'')+'" data-weight="'+i+'" data-value="'+x+'">'+x+' KG</button>').join("")+'</div>':'')+'</div>'+
   (state.activeMode==='wall'?'<div class="mapTitle">MUSCLE MAP</div><div class="mapWrap"><div class="legend"><b>Πράσινο</b> = τι δουλεύει περισσότερο</div>'+muscleMap(e.targets)+'</div>':'')+
   '<div class="details"><div><b>Εκτέλεση:</b> '+e.cue+'</div><div><b>Να νιώθεις:</b> '+e.feel+'</div><div><b>Κύριο λάθος:</b> '+e.mistake+'</div></div>';
   list.appendChild(d)
@@ -106,7 +107,7 @@ function render(){
  document.querySelectorAll("[data-minus]").forEach(b=>b.onclick=()=>{let i=+b.dataset.minus;setVal(i,val(i)-current().items[i].step)});
  document.querySelectorAll("[data-plus]").forEach(b=>b.onclick=()=>{let i=+b.dataset.plus;setVal(i,val(i)+current().items[i].step)});
  document.querySelectorAll("[data-input]").forEach(x=>x.onchange=()=>setVal(+x.dataset.input,x.value));
- document.querySelectorAll("[data-alt]").forEach(b=>b.onclick=()=>setAlternative(+b.dataset.alt,+b.dataset.value===1));
+ document.querySelectorAll("[data-alt]").forEach(b=>b.onclick=()=>setAlternative(+b.dataset.alt,+b.dataset.value));
  document.querySelectorAll("[data-sets]").forEach(b=>b.onclick=()=>setSetCount(+b.dataset.sets,+b.dataset.value));
  document.querySelectorAll("[data-weight]").forEach(b=>b.onclick=()=>setWeight(+b.dataset.weight,+b.dataset.value));
  const {level,rem}=levelInfo(state.xp);document.getElementById("level").textContent=level;document.getElementById("xpText").textContent=rem;document.getElementById("xpbar").style.width=(rem/XP_PER_LEVEL*100)+"%";document.getElementById("dayCount").textContent=weekDays+"/"+WEEKLY_TARGET_DAYS;
