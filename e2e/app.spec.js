@@ -62,8 +62,8 @@ test("old soloState from current main is migrated with every setting intact", as
   await mode(page, "kb");
   await expect(card(page, 0).locator("[data-check]")).toHaveText("✓ 3/3");
   await expect(card(page, 0).locator(".weight-chip.active")).toHaveText("16 KG");
-  await expect(card(page, 2).locator("h3")).toHaveText("3. One-Arm Kettlebell Row");
-  await expect(card(page, 6).locator("h3")).toHaveText("7. Kettlebell Deadlift");
+  await expect(card(page, 2).locator("h3")).toHaveText("3. One-Arm Dumbbell Row");
+  await expect(card(page, 6).locator("h3")).toHaveText("7. Kettlebell Swing");
   await expect(card(page, 6).locator(".weight-chip.active")).toHaveText("32 KG");
   await expect(card(page, 6).locator("[data-check]")).toHaveText("SET 2/3");
   const s = await stored(page);
@@ -74,7 +74,7 @@ test("old soloState from current main is migrated with every setting intact", as
   expect(JSON.parse(backup)).toEqual(legacy.v_current);
 });
 
-test("kettlebell: reps, weight, sets, set progress and alternative persist after reload", async ({ page }) => {
+test("kettlebell: reps, weight, sets, set progress persist after reload", async ({ page }) => {
   await open(page, "2026-10-17", {});
   const c = card(page, 0);
   await c.locator("[data-plus]").click();
@@ -93,8 +93,8 @@ test("kettlebell: reps, weight, sets, set progress and alternative persist after
   await expect(c.locator("[data-check]")).toHaveText("✓ 3/3");
   await expect(c).toHaveClass(/done/);
   await expect(c.locator(".dose")).toHaveText("16 kg · 3 × 13");
-  await card(page, 1).locator('[data-alt="1"][data-value="1"]').click();
-  await expect(card(page, 1).locator("h3")).toHaveText("2. Suitcase March");
+  await expect(card(page, 1).locator("h3")).toHaveText("2. Dumbbell Suitcase March");
+  await expect(card(page, 1).locator(".weight-picker")).toHaveCount(0);
 
   await page.reload();
   await expect(c.locator("[data-input]")).toHaveValue("13");
@@ -102,8 +102,8 @@ test("kettlebell: reps, weight, sets, set progress and alternative persist after
   await expect(c.locator(".set-chip.active")).toHaveText("3");
   await expect(c.locator("[data-check]")).toHaveText("✓ 3/3");
   await expect(card(page, 1).locator("h3")).toHaveText("2. Suitcase March");
-  await card(page, 1).locator('[data-alt="1"][data-value="0"]').click();
-  await expect(card(page, 1).locator("h3")).toHaveText("2. Rotational Woodchop");
+  await expect(card(page, 1).locator("h3")).toHaveText("2. Dumbbell Suitcase March");
+  await expect(page.locator(".alt-picker")).toHaveCount(0);
 });
 
 test("wall and stretching: time +/- in steps of 5, sets 1-4", async ({ page }) => {
@@ -189,26 +189,43 @@ test("streak and HP: workout restarts inactivity, -10 HP on the 7th day after", 
   await expect(page.locator("#hpText")).toHaveText("90");
 });
 
-test("every kettlebell exercise: alternative toggle and 8/16/32 kg", async ({ page }) => {
+test("seven fixed full-body exercises, correct tools and preserved set settings", async ({ page }) => {
   await open(page, "2026-10-17", {});
-  const alts = ["Kettlebell Sumo Squat", "Suitcase March", "One-Arm Kettlebell Row", "Kettlebell Floor Press", "Kettlebell Skull Crusher", "Kettlebell Around-the-World", "Kettlebell Deadlift"];
-  for (let i = 0; i < 7; i++) {
+  const expected = [
+    "Goblet Squat",
+    "Dumbbell Suitcase March",
+    "One-Arm Dumbbell Row",
+    "One-Arm Dumbbell Floor Press",
+    "Dumbbell Triceps Extension",
+    "One-Arm Dumbbell Shoulder Press",
+    "Kettlebell Swing",
+  ];
+  await expect(page.locator(".alt-picker")).toHaveCount(0);
+  for (let i = 0; i < expected.length; i++) {
     const c = card(page, i);
-    const main = await c.locator("h3").textContent();
-    await c.locator(`[data-alt="${i}"][data-value="1"]`).click();
-    await expect(c.locator("h3")).toHaveText(`${i + 1}. ${alts[i]}`);
-    await expect(c.locator(".alt-visual")).toHaveCount(1);
-    for (const w of [8, 16, 32]) {
-      await c.locator(`[data-weight="${i}"][data-value="${w}"]`).click();
-      await expect(c.locator(".weight-chip.active")).toHaveText(`${w} KG`);
-      await expect(c.locator(".dose")).toContainText(`${w} kg`);
+    await expect(c.locator("h3")).toHaveText(`${i + 1}. ${expected[i]}`);
+    if (i === 0 || i === 6) {
+      await expect(c.locator(".weight-picker")).toHaveCount(1);
+      for (const w of [8, 16, 32]) {
+        await c.locator(`[data-weight="${i}"][data-value="${w}"]`).click();
+        await expect(c.locator(".weight-chip.active")).toHaveText(`${w} KG`);
+      }
+    } else {
+      await expect(c.locator(".weight-picker")).toHaveCount(0);
+      await expect(c.locator(".dose")).toContainText("Ρυθμιζόμενος αλτήρας");
     }
-    await c.locator(`[data-alt="${i}"][data-value="0"]`).click();
-    await expect(c.locator("h3")).toHaveText(main);
-    await expect(c.locator(".weight-chip.active")).toHaveText("32 KG");
+    await c.locator(`[data-sets="${i}"][data-value="3"]`).click();
+    await c.locator("[data-check]").click();
+    await expect(c.locator("[data-check]")).toHaveText("SET 1/3");
   }
   await page.reload();
-  for (let i = 0; i < 7; i++) await expect(card(page, i).locator(".weight-chip.active")).toHaveText("32 KG");
+  for (let i = 0; i < expected.length; i++) {
+    const c = card(page, i);
+    await expect(c.locator("h3")).toHaveText(`${i + 1}. ${expected[i]}`);
+    await expect(c.locator(".set-chip.active")).toHaveText("3");
+    await expect(c.locator("[data-check]")).toHaveText("SET 1/3");
+  }
+  for (const i of [0, 6]) await expect(card(page, i).locator(".weight-chip.active")).toHaveText("32 KG");
 });
 
 test("wall and stretching have no alternatives or weights, every exercise completes with its own set count", async ({ page }) => {
