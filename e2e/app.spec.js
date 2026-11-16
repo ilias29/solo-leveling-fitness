@@ -101,7 +101,6 @@ test("kettlebell: reps, weight, sets, set progress persist after reload", async 
   await expect(c.locator(".weight-chip.active")).toHaveText("16 KG");
   await expect(c.locator(".set-chip.active")).toHaveText("3");
   await expect(c.locator("[data-check]")).toHaveText("✓ 3/3");
-  await expect(card(page, 1).locator("h3")).toHaveText("2. Suitcase March");
   await expect(card(page, 1).locator("h3")).toHaveText("2. Dumbbell Suitcase March");
   await expect(page.locator(".alt-picker")).toHaveCount(0);
 });
