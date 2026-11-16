@@ -8,6 +8,7 @@ on:
   workflow_dispatch:
   push:
     tags: ["v*"]
+    branches: ["release-v2.1.1"]
 
 permissions:
   contents: write
@@ -172,7 +173,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if [ "$GITHUB_REF_TYPE" = "tag" ]; then TAG="$GITHUB_REF_NAME"; else TAG="v$VERSION_NAME-$VERSION_CODE"; fi
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then TAG="$GITHUB_REF_NAME"; else TAG="v$VERSION_NAME"; fi
           NOTES="Stable signed Android release $VERSION_NAME (versionCode $VERSION_CODE).
           Installs as an update over previous stable releases without losing data.
           Signing certificate SHA-256: $CERT_SHA256"
