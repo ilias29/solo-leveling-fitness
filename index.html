@@ -131,7 +131,7 @@ body{background:
 @media(max-width:480px){.survival{grid-template-columns:1fr 1fr}.hp-panel,.streak-panel{padding:9px}.hp-head,.streak-head{font-size:10px}.alt-picker{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.alt-chip{padding:9px 4px;font-size:10px}.alt-visual{grid-template-columns:44% 56%}}
 
 /* STRETCHING MODE V12 */
-.modebar{grid-template-columns:repeat(3,1fr)}
+.modebar{grid-template-columns:repeat(2,minmax(0,1fr))}
 .mode.stretch.active{border-color:#d7b4ff;background:linear-gradient(90deg,#3f255d,#243b67);box-shadow:0 0 20px rgba(182,124,255,.32),inset 0 0 16px rgba(182,124,255,.14)}
 .quest-summary.stretch{border-color:#8b61b7;background:linear-gradient(135deg,#1a1027,#101936);box-shadow:0 0 20px rgba(143,108,255,.22),inset 0 0 18px rgba(143,108,255,.12)}
 .stretch-card{margin:2px 14px 12px;display:grid;grid-template-columns:minmax(135px,.8fr) minmax(165px,1.2fr);gap:10px;border:1px solid #5b497b;border-radius:16px;overflow:hidden;background:linear-gradient(145deg,#120d21,#0a1326)}
@@ -168,7 +168,7 @@ body{background:
 </div>
 <div class="boss"><div class="bossline"><span>BOSS: 82 kg</span><span>START: 85 kg</span></div><div class="muted" style="margin-top:5px">Secondary objective: waist &lt; 98 cm</div></div></section>
 
-<div class="modebar"><button class="mode active" data-mode="kb">⚔ KETTLEBELL</button><button class="mode wall" data-mode="wall">▥ WALL</button><button class="mode stretch" data-mode="stretch">◌ STRETCHING</button></div><div class="quest-title"><h2 id="questTitle">DAILY QUEST · FULL BODY</h2><span class="muted" id="questMeta">8 / 16 / 32 KG</span></div><section class="quest-summary" id="questSummary"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><b id="questModeLabel">⚔ KETTLEBELL QUEST</b><span class="quest-count" id="questProgress">0/7</span></div><div class="day-track" id="dayTrack"></div><div class="quest-rule">Ολοκλήρωσε ΟΛΟ το επιλεγμένο quest → XP + 1 DAY. Κάθε mode δίνει XP μία φορά την ημέρα· η ημέρα μετρά μόνο μία φορά. DAYS = ημέρες προπόνησης αυτής της εβδομάδας (Δευ–Κυρ).</div></section>
+<div class="modebar"><button class="mode active" data-mode="kb">⚔ KETTLEBELL</button><button class="mode" data-mode="arnold">ARNOLD · BASIC 5</button><button class="mode wall" data-mode="wall">▥ WALL</button><button class="mode stretch" data-mode="stretch">◌ STRETCHING</button></div><div class="quest-title"><h2 id="questTitle">DAILY QUEST · FULL BODY</h2><span class="muted" id="questMeta">8 / 16 / 32 KG</span></div><section class="quest-summary" id="questSummary"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><b id="questModeLabel">⚔ KETTLEBELL QUEST</b><span class="quest-count" id="questProgress">0/7</span></div><div class="day-track" id="dayTrack"></div><div class="quest-rule">Ολοκλήρωσε ΟΛΟ το επιλεγμένο quest → XP + 1 DAY. Κάθε mode δίνει XP μία φορά την ημέρα· η ημέρα μετρά μόνο μία φορά. DAYS = ημέρες προπόνησης αυτής της εβδομάδας (Δευ–Κυρ).</div></section>
 <div id="list"></div>
 <button class="primary" id="complete">COMPLETE QUEST · +50 XP</button>
 <button class="reset" id="reset">Reset σημερινών sets</button><button class="primary" id="install" style="display:none;background:linear-gradient(90deg,#18a67d,#287bd7)">INSTALL APP</button><div class="notice" id="notice"></div>
