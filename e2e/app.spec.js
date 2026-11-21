@@ -460,3 +460,25 @@ test("no console errors on load", async ({ page }) => {
   for (const m of ["kb", "wall", "stretch"]) await mode(page, m);
   expect(errors).toEqual([]);
 });
+
+test("Arnold Basic 5 has independent sets, progress and persistence", async ({ page }) => {
+  await open(page, "2026-10-17", {});
+  await card(page, 0).locator('[data-sets="0"][data-value="4"]').click();
+  await card(page, 0).locator("[data-check]").click();
+  await mode(page, "arnold");
+  await expect(page.locator("#list .exercise")).toHaveCount(5);
+  await expect(page.locator("#questProgress")).toHaveText("0/5 DONE");
+  const names = ["Goblet Squat", "One-Arm Dumbbell Floor Press", "One-Arm Dumbbell Row", "Kettlebell Deadlift", "Dumbbell Suitcase March"];
+  for (let i=0;i<5;i++) await expect(card(page,i).locator("h3")).toHaveText(`${i+1}. ${names[i]}`);
+  await expect(card(page,0).locator("[data-check]")).toHaveText("SET 0/2");
+  await card(page,0).locator('[data-sets="0"][data-value="3"]').click();
+  await card(page,0).locator("[data-check]").click();
+  await page.reload();
+  await expect(page.locator('[data-mode="arnold"]')).toHaveClass(/active/);
+  await expect(card(page,0).locator("[data-check]")).toHaveText("SET 1/3");
+  await mode(page,"kb");
+  await expect(page.locator("#list .exercise")).toHaveCount(7);
+  await expect(card(page,0).locator("[data-check]")).toHaveText("SET 1/4");
+  await mode(page,"arnold");
+  await expect(card(page,0).locator("[data-check]")).toHaveText("SET 1/3");
+});

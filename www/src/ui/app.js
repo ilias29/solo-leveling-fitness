@@ -23,8 +23,9 @@ function session(){return state.sessions[state.activeMode]}
 function item(i){return current().items[i]}
 function val(i){return S.value(session(),item(i),i)}
 function setVal(i,v){S.changeValue(session(),item(i),i,v);save();render()}
-function weight(i){return state.activeMode==="kb"?S.weight(session(),i):null}
-function setWeight(i,v){if(state.activeMode!=="kb")return;S.changeWeight(session(),i,v);save();render()}
+function strengthMode(){return state.activeMode==="kb"||state.activeMode==="arnold"}
+function weight(i){return strengthMode()?S.weight(session(),i):null}
+function setWeight(i,v){if(!strengthMode())return;S.changeWeight(session(),i,v);save();render()}
 function setCount(i){return S.setCount(session(),item(i),i)}
 function setProgress(i){return S.setProgress(session(),item(i),i)}
 function setSetCount(i,v){S.changeSetCount(session(),item(i),i,v);save();render()}
@@ -75,6 +76,12 @@ function kbVisual(i,e){
  const x=[0,33.333,66.667,100,0,33.333,66.667], y=[0,0,0,0,100,100,100];
  return '<div class="kb-visual"><div class="kb-photo" style="background-position:'+x[i]+'% '+y[i]+'%"></div><div class="kb-map"><div class="legend"><b>Πράσινο</b> = κύριοι μύες</div>'+muscleMap(e.targets)+'</div></div><div class="visual-note">Για σωστή τεχνική ακολούθησε τις οδηγίες εκτέλεσης.</div>';
 }
+function arnoldVisual(e){
+ const pattern=e.pattern;
+ const diagram={PUSH:"floor-press",PULL:"one-arm-row",HINGE:"deadlift",CARRY:"suitcase-march"}[pattern];
+ const image=pattern==="SQUAT"?'<div class="kb-photo" style="background-position:0% 0%"></div>':diagram?'<div class="alt-demo"><img src="./assets/kettlebell/'+diagram+'.svg" alt="Ενδεικτικό διάγραμμα κίνησης: '+e.name+'" loading="lazy"></div>':"";
+ return '<div class="alt-visual"><div class="alt-visual-copy"><div><div class="alt-badge">'+pattern+'</div><div class="alt-visual-name">'+e.name+'</div><div class="alt-visual-note">Ενδεικτική απεικόνιση κίνησης · Ακολούθησε τις οδηγίες και χρησιμοποίησε το αναγραφόμενο όργανο.</div></div></div>'+image+'<div class="kb-map"><div class="legend"><b>Πράσινο</b> = κύριοι μύες</div>'+muscleMap(e.targets)+'</div></div>';
+}
 function render(){
  const w=current(),s=session(),list=document.getElementById("list");
  document.getElementById("questTitle").textContent=w.title;
@@ -82,20 +89,20 @@ function render(){
  const today=todayKey(),weekDays=daysThisWeek(state.questDays,today);
  document.getElementById("complete").textContent=xpClaimedToday(state,state.activeMode,today)?"COMPLETE QUEST · XP ΣΗΜΕΡΑ ✓":"COMPLETE QUEST · +"+w.xp+" XP";
  document.querySelectorAll("[data-mode]").forEach(b=>b.classList.toggle("active",b.dataset.mode===state.activeMode));
- const summary=document.getElementById("questSummary");summary.classList.toggle("wall",state.activeMode==="wall");summary.classList.toggle("stretch",state.activeMode==="stretch");document.getElementById("questModeLabel").textContent=state.activeMode==="wall"?"▥ WALL / POSTURE QUEST":state.activeMode==="stretch"?"◌ STRETCHING QUEST":"⚔ KETTLEBELL QUEST";document.getElementById("questProgress").textContent=s.done.length+"/"+w.items.length+" DONE";document.getElementById("dayTrack").innerHTML=Array.from({length:5},(_,i)=>'<span class="day-dot '+(i<Math.min(weekDays,WEEKLY_TARGET_DAYS)?'hit':'')+'"></span>').join("");
+ const summary=document.getElementById("questSummary");summary.classList.toggle("wall",state.activeMode==="wall");summary.classList.toggle("stretch",state.activeMode==="stretch");document.getElementById("questModeLabel").textContent=state.activeMode==="wall"?"▥ WALL / POSTURE QUEST":state.activeMode==="stretch"?"◌ STRETCHING QUEST":state.activeMode==="arnold"?"ARNOLD · BASIC 5":"⚔ KETTLEBELL QUEST";document.getElementById("questProgress").textContent=s.done.length+"/"+w.items.length+" DONE";document.getElementById("dayTrack").innerHTML=Array.from({length:5},(_,i)=>'<span class="day-dot '+(i<Math.min(weekDays,WEEKLY_TARGET_DAYS)?'hit':'')+'"></span>').join("");
  list.innerHTML="";
  w.items.forEach((base,i)=>{
   const e=selectedExercise(i,base);
-  const v=val(i),wt=state.activeMode==="kb"?weight(i):null,sc=setCount(i),sp=setProgress(i),d=document.createElement("div");d.className="exercise "+(s.done.includes(i)?"done":"");
+  const v=val(i),wt=strengthMode()?weight(i):null,sc=setCount(i),sp=setProgress(i),d=document.createElement("div");d.className="exercise "+(s.done.includes(i)?"done":"");
   const shownLoad=e.equipment==="dumbbell"?e.load:wt!==null?wt+" kg":e.load;
   d.innerHTML='<div class="ex-head"><div><h3>'+(i+1)+'. '+e.name+'</h3><span class="dose">'+shownLoad+' · '+sc+' × '+v+e.suffix+'</span></div><button class="check" data-check="'+i+'">'+(s.done.includes(i)?("✓ "+sp+"/"+sc):("SET "+sp+"/"+sc))+'</button></div>'+
-  (state.activeMode==="kb"?kbVisual(i,e):state.activeMode==="stretch"?stretchGuide(e):wallGuide(e))+
+  (state.activeMode==="arnold"?arnoldVisual(e):state.activeMode==="kb"?kbVisual(i,e):state.activeMode==="stretch"?stretchGuide(e):wallGuide(e))+
   '<div class="tags"><span class="tags-label">Δουλεύουν κυρίως:</span>'+e.muscles.map(m=>'<span class="tag">'+m+'</span>').join("")+'</div>'+
   '<div class="control-panel">'+
 
   '<div class="repbox"><span>'+e.control+'</span><button class="repbtn" data-minus="'+i+'">−</button><input class="repinput" data-input="'+i+'" type="number" min="1" value="'+v+'"><button class="repbtn" data-plus="'+i+'">+</button></div>'+
   '<div class="set-picker"><span>ΦΟΡΕΣ</span>'+allowedSets.map(x=>'<button class="set-chip '+(x===sc?'active':'')+'" data-sets="'+i+'" data-value="'+x+'">'+x+'</button>').join("")+'</div><div class="set-progress-note">Ολοκλήρωση: '+sp+' / '+sc+' σετ</div>'+
-  (state.activeMode==="kb"&&e.equipment!=="dumbbell"?'<div class="weight-picker"><span>ΒΑΡΟΣ</span>'+allowedWeights.map(x=>'<button class="weight-chip '+(x===wt?'active':'')+'" data-weight="'+i+'" data-value="'+x+'">'+x+' KG</button>').join("")+'</div>':'')+'</div>'+
+  (strengthMode()&&e.equipment!=="dumbbell"?'<div class="weight-picker"><span>ΒΑΡΟΣ</span>'+allowedWeights.map(x=>'<button class="weight-chip '+(x===wt?'active':'')+'" data-weight="'+i+'" data-value="'+x+'">'+x+' KG</button>').join("")+'</div>':'')+'</div>'+
   (state.activeMode==='wall'?'<div class="mapTitle">MUSCLE MAP</div><div class="mapWrap"><div class="legend"><b>Πράσινο</b> = τι δουλεύει περισσότερο</div>'+muscleMap(e.targets)+'</div>':'')+
   '<div class="details"><div><b>Εκτέλεση:</b> '+e.cue+'</div><div><b>Να νιώθεις:</b> '+e.feel+'</div><div><b>Κύριο λάθος:</b> '+e.mistake+'</div></div>';
   list.appendChild(d)

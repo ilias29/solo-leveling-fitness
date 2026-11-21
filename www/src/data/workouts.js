@@ -37,3 +37,16 @@ export const workouts={
     ]
   }
 };
+
+// Separate workout, independent saved session; inspired by the five movement patterns.
+const original = workouts.kb.items;
+workouts.arnold = {
+ title:"ARNOLD · BASIC 5",meta:"SQUAT · PUSH · PULL · HINGE · CARRY",xp:50,
+ items:[
+  {...original[0],pattern:"SQUAT"},
+  {...original[3],pattern:"PUSH"},
+  {...original[2],pattern:"PULL"},
+  {...original[6],name:"Kettlebell Deadlift",pattern:"HINGE",cue:"Το kettlebell ανάμεσα στα πέλματα. Στείλε τα ισχία πίσω, λύγισε ελαφρά τα γόνατα και κράτα ουδέτερη πλάτη. Σήκω ελεγχόμενα.",mistake:"Στρογγυλεύεις την πλάτη ή τραβάς με τα χέρια."},
+  {...original[1],pattern:"CARRY",value:10}
+ ]
+};
