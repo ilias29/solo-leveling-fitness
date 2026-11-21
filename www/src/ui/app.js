@@ -77,8 +77,10 @@ function kbVisual(i,e){
  return '<div class="kb-visual"><div class="kb-photo" style="background-position:'+x[i]+'% '+y[i]+'%"></div><div class="kb-map"><div class="legend"><b>Πράσινο</b> = κύριοι μύες</div>'+muscleMap(e.targets)+'</div></div><div class="visual-note">Για σωστή τεχνική ακολούθησε τις οδηγίες εκτέλεσης.</div>';
 }
 function arnoldVisual(e){
- const image=e.pattern==="HINGE"?'<div class="alt-demo"><img src="./assets/kettlebell/deadlift.svg" alt="Kettlebell Deadlift" loading="lazy"></div>':"";
- return '<div class="alt-visual"><div class="alt-visual-copy"><div><div class="alt-badge">'+e.pattern+'</div><div class="alt-visual-name">'+e.name+'</div><div class="alt-visual-note">Ελεγχόμενη τεχνική · Ακολούθησε τις οδηγίες.</div></div></div>'+image+'<div class="kb-map"><div class="legend"><b>Πράσινο</b> = κύριοι μύες</div>'+muscleMap(e.targets)+'</div></div>';
+ const pattern=e.pattern;
+ const diagram={PUSH:"floor-press",PULL:"one-arm-row",HINGE:"deadlift",CARRY:"suitcase-march"}[pattern];
+ const image=pattern==="SQUAT"?'<div class="kb-photo" style="background-position:0% 0%"></div>':diagram?'<div class="alt-demo"><img src="./assets/kettlebell/'+diagram+'.svg" alt="Ενδεικτικό διάγραμμα κίνησης: '+e.name+'" loading="lazy"></div>':"";
+ return '<div class="alt-visual"><div class="alt-visual-copy"><div><div class="alt-badge">'+pattern+'</div><div class="alt-visual-name">'+e.name+'</div><div class="alt-visual-note">Ενδεικτική απεικόνιση κίνησης · Ακολούθησε τις οδηγίες και χρησιμοποίησε το αναγραφόμενο όργανο.</div></div></div>'+image+'<div class="kb-map"><div class="legend"><b>Πράσινο</b> = κύριοι μύες</div>'+muscleMap(e.targets)+'</div></div>';
 }
 function render(){
  const w=current(),s=session(),list=document.getElementById("list");
