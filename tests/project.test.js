@@ -53,9 +53,13 @@ test("registered photos have credits, valid WebP files, and offline cache entrie
   const names = new Set(Object.values(workouts).flatMap(workout => workout.items.map(exercise => exercise.name)));
   for (const [name, guide] of Object.entries(photoGuides)) {
     assert.ok(names.has(name), name);
-    assert.ok(guide.author && guide.license, name);
-    assert.equal(new URL(guide.source).protocol, "https:");
-    assert.equal(new URL(guide.licenseUrl).protocol, "https:");
+    if (guide.generated) {
+      assert.equal(guide.labels.length, 2, name);
+    } else {
+      assert.ok(guide.author && guide.license, name);
+      assert.equal(new URL(guide.source).protocol, "https:");
+      assert.equal(new URL(guide.licenseUrl).protocol, "https:");
+    }
     for (const pose of ["start", "end"]) {
       const file = `assets/${guide.path}-${pose}.webp`;
       const image = readFileSync(file);

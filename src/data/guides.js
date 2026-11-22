@@ -19,6 +19,10 @@ function videoStills(slug, videoId, author, labels) {
   };
 }
 
+function generatedGuide(slug, start, end) {
+  return { path: `exercise-photos/${slug}`, generated: true, labels: [start, end] };
+}
+
 export const photoGuides = {
   "Goblet Squat": {
     path: "arnold/squat", author: "Taco Fleur / Cavemantraining",
@@ -39,18 +43,25 @@ export const photoGuides = {
     license: "Δημόσιος τομέας (ΗΠΑ)", licenseUrl: publicDomain,
     labels: ["Ισχία πίσω", "Όρθιος κορμός"]
   },
+  "Dumbbell Suitcase March": generatedGuide("suitcase-march", "Αλτήρας στο πλάι", "Σήκωσε το αντίθετο γόνατο"),
+  "Dumbbell Triceps Extension": generatedGuide("overhead-triceps", "Αλτήρας πάνω από το κεφάλι", "Λύγισε μόνο τους αγκώνες"),
+  "Wall Sit": generatedGuide("wall-sit", "Πλάτη στον τοίχο", "Κάθισμα σε άνετο βάθος"),
   "Wall Push-Up": {
     path: "exercise-photos/wall-push-up", author: "Ketut Subiyanto / Pexels",
     source: "https://www.pexels.com/video/a-man-doing-wall-push-ups-5034563/",
     ...pexelsLicense,
     labels: ["Χέρια τεντωμένα", "Αγκώνες λυγισμένοι"]
   },
+  "Wall-Supported Hip Abduction": generatedGuide("wall-hip-abduction", "Στήριξη με το κοντινό χέρι", "Εξωτερικό πόδι στο πλάι"),
+  "Wall Hip Hinge": generatedGuide("wall-hip-hinge", "Όρθια θέση μπροστά από τον τοίχο", "Γλουτοί πίσω στον τοίχο"),
+  "Wall Slide": generatedGuide("wall-slide", "Χέρια σε W", "Σύρε τα χέρια προς Y"),
   "Wall W Hold": {
     path: "exercise-photos/wall-w", author: "Koji Murofushi et al. / Frontiers in Psychology",
     source: "https://doi.org/10.3389/fpsyg.2025.1718718",
     license: "CC BY 4.0", licenseUrl: ccBy,
     labels: ["Στήσιμο σε W", "Κράτημα σε W"]
   },
+  "Chin Tuck at Wall": generatedGuide("wall-chin-tuck", "Βλέμμα ευθεία", "Πηγούνι οριζόντια πίσω"),
   "Cat-Cow": {
     path: "exercise-photos/cat-cow", author: "Mary O’Neill / U.S. National Park Service",
     source: commons + "Yoga_at_Your_Park_-_Bitilasana.jpg",
@@ -65,12 +76,14 @@ export const photoGuides = {
     labels: ["Στήσιμο στο ένα γόνατο", "Κορμός όρθιος"],
     note: "Στη φωτογραφία το κοντάρι προσφέρει στήριξη."
   },
+  "Hamstring Stretch": generatedGuide("standing-hamstring", "Μπροστινή φτέρνα στο πάτωμα", "Κλίση από τα ισχία"),
   "Figure-4 Glute Stretch": {
     path: "exercise-photos/figure-four", author: usmc,
     source: "https://www.dvidshub.net/video/754732/figure-4-stretch",
     license: "Δημόσιος τομέας (ΗΠΑ)", licenseUrl: publicDomain,
     labels: ["Αστράγαλος πάνω στο γόνατο", "Μηρός προς το στήθος"]
   },
+  "Doorway Chest Stretch": generatedGuide("doorway-chest", "Πήχης στην κάσα", "Στρέψε τον κορμό μακριά"),
   "Child's Pose": {
     path: "exercise-photos/child-pose", author: "Klaus Nielsen / Pexels",
     source: "https://www.pexels.com/photo/peaceful-black-woman-performing-vajrasana-for-meditation-6303440/",

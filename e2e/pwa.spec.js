@@ -23,9 +23,12 @@ test("PWA: manifest valid, service worker caches app, works offline", async ({ p
     const cards = page.locator("#list .exercise");
     await expect(cards).toHaveCount(workout.items.length);
     for (const [index, exercise] of workout.items.entries()) {
-      if (mode !== "arnold" && !photoGuides[exercise.name]) continue;
-      const photos = cards.nth(index).locator(".exercise-guide img");
+      const card = cards.nth(index);
+      const photos = card.locator(".exercise-guide img");
       await expect(photos).toHaveCount(2);
+      if (photoGuides[exercise.name]?.generated) {
+        await expect(card.getByText("Εικόνες επίδειξης με τεχνητή νοημοσύνη")).toBeVisible();
+      }
       for (const photo of await photos.all()) {
         await photo.scrollIntoViewIfNeeded();
         await expect.poll(() => photo.evaluate(img => img.naturalWidth)).toBeGreaterThan(0);
