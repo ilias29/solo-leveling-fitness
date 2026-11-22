@@ -45,6 +45,10 @@ public class ReleaseUpgradeTest {
                     verifyPhotosAndLayout();
                     click(FIRST_SET);
                     assertSavedProgress(3);
+                    awaitNativeMirror();
+                    // Finish instrumentation only after WebView has had time to flush its
+                    // batched localStorage writes. The runner kills the app process at exit.
+                    Thread.sleep(7000);
                     break;
                 case "restart":
                     assertSavedProgress(3);
@@ -74,17 +78,21 @@ public class ReleaseUpgradeTest {
         click(FIRST_SET);
         click(FIRST_SET);
         assertSavedProgress(2);
+        awaitNativeMirror();
+    }
+
+    private void awaitNativeMirror() throws Exception {
         evaluate("window.nativeMirrorVerified=false; Capacitor.nativePromise('Preferences','get',{key:'soloState'}).then(({value})=>{window.nativeMirrorVerified=value===localStorage.getItem('soloState')})");
         waitFor("window.nativeMirrorVerified === true");
     }
 
     private void assertSavedProgress(int arnoldSets) throws Exception {
-        assertTrue(evaluate("""
+        String stateCheck = evaluate("""
             (() => {
               const saved = JSON.parse(localStorage.getItem('soloState'));
               const full = saved.sessions.kb;
               const arnold = saved.sessions.arnold;
-              return saved.activeMode === 'arnold' &&
+              const valid = saved.activeMode === 'arnold' &&
                 full.sets[0] === 4 && full.setProgress[0] === 1 &&
                 full.values[0] === 13 && full.weights[0] === 16 &&
                 arnold.sets[0] === 3 && arnold.setProgress[0] === EXPECTED &&
@@ -93,8 +101,11 @@ public class ReleaseUpgradeTest {
                 saved.lastXpDate.kb === saved.questDays[0] &&
                 document.querySelector('#level').textContent === '1' &&
                 document.querySelector('#xpText').textContent === '50';
+              return valid || { mode: saved.activeMode, xp: saved.xp,
+                full, arnold, days: saved.questDays, lastXpDate: saved.lastXpDate };
             })()
-            """.replace("EXPECTED", String.valueOf(arnoldSets))).equals("true"));
+            """.replace("EXPECTED", String.valueOf(arnoldSets)));
+        assertEquals("Saved workout and progress: " + stateCheck, "true", stateCheck);
         String text = arnoldSets == 3 ? "✓ 3/3" : "SET 2/3";
         assertEquals("true", evaluate("document.querySelector(\"" + FIRST_SET + "\").textContent === '" + text + "'"));
     }
