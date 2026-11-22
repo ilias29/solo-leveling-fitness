@@ -87,7 +87,7 @@ function photoGuide(e, guide, pattern = "") {
   </figure>`).join("")}</div>
   ${guide.note ? `<p class="exercise-credit">${guide.note}</p>` : ""}
   <div class="exercise-credit"><a href="${guide.source}" target="_blank" rel="noopener">${guide.author}</a> ·
-   ${guide.endSource ? `<a href="${guide.endSource}" target="_blank" rel="noopener">Πηγή δεύτερης θέσης</a> ·` : ""}
+   ${guide.endSource ? `<a href="${guide.endSource}" target="_blank" rel="noopener">${guide.endAuthor ?? "Πηγή δεύτερης θέσης"}</a> ·` : ""}
    <a href="${guide.licenseUrl}" target="_blank" rel="noopener">${guide.license}</a> · ${guide.edit ?? "Προσαρμογή εικόνας"}</div>
  </section>`;
 }

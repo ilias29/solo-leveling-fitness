@@ -5,6 +5,7 @@ const publicDomain = "https://www.dvidshub.net/about/copyright";
 const ccBy = "https://creativecommons.org/licenses/by/4.0/";
 const ccBySa = "https://creativecommons.org/licenses/by-sa/4.0/";
 const usmc = "CPT Matthew Holfinger / U.S. Marine Corps";
+const pexelsLicense = { license: "Pexels License", licenseUrl: "https://www.pexels.com/license/" };
 
 function videoStills(slug, videoId, author, labels) {
   return {
@@ -41,7 +42,7 @@ export const photoGuides = {
   "Wall Push-Up": {
     path: "exercise-photos/wall-push-up", author: "Ketut Subiyanto / Pexels",
     source: "https://www.pexels.com/video/a-man-doing-wall-push-ups-5034563/",
-    license: "Pexels License", licenseUrl: "https://www.pexels.com/license/",
+    ...pexelsLicense,
     labels: ["Χέρια τεντωμένα", "Αγκώνες λυγισμένοι"]
   },
   "Wall W Hold": {
@@ -69,5 +70,20 @@ export const photoGuides = {
     source: "https://www.dvidshub.net/video/754732/figure-4-stretch",
     license: "Δημόσιος τομέας (ΗΠΑ)", licenseUrl: publicDomain,
     labels: ["Αστράγαλος πάνω στο γόνατο", "Μηρός προς το στήθος"]
+  },
+  "Child's Pose": {
+    path: "exercise-photos/child-pose", author: "Klaus Nielsen / Pexels",
+    source: "https://www.pexels.com/photo/peaceful-black-woman-performing-vajrasana-for-meditation-6303440/",
+    endAuthor: "Monstera Production / Pexels",
+    endSource: "https://www.pexels.com/photo/anonymous-woman-stretching-body-in-extended-child-s-yoga-pose-5331223/",
+    ...pexelsLicense,
+    labels: ["Κάθισμα προς τις φτέρνες", "Χέρια μπροστά · στήθος χαμηλά"]
+  },
+  "Supine Spinal Twist": {
+    path: "exercise-photos/spinal-twist", author: "olia danilevich / Pexels",
+    source: "https://www.pexels.com/video/women-doing-the-supine-spinal-twist-pose-9003587/",
+    ...pexelsLicense,
+    edit: "Καρέ βίντεο · περικοπή",
+    labels: ["Ανάσκελα · χέρια ανοιχτά", "Λυγισμένο γόνατο στην αντίθετη πλευρά"]
   }
 };
