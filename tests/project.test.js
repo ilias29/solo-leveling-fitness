@@ -2,6 +2,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { runInNewContext } from "node:vm";
+import { photoGuides } from "../src/data/guides.js";
+import { workouts } from "../src/data/workouts.js";
 import { APP_VERSION } from "../src/version.js";
 
 const json = f => JSON.parse(readFileSync(f, "utf8"));
@@ -41,4 +44,25 @@ test("no keystore or signing secret is committed", () => {
   assert.ok(!files.some(f => /\.(jks|keystore|p12)$/i.test(f)));
   const wf = readFileSync(".github/workflows/build-android-stable.yml", "utf8");
   assert.ok(!/storePassword\s+["']/.test(wf) && !/keyPassword\s+["']/.test(wf));
+});
+
+
+test("registered photos have credits, valid WebP files, and offline cache entries", () => {
+  const sw = readFileSync("sw.js", "utf8");
+  const cached = runInNewContext(sw + "\nASSETS", { self: { addEventListener() {} } });
+  const names = new Set(Object.values(workouts).flatMap(workout => workout.items.map(exercise => exercise.name)));
+  for (const [name, guide] of Object.entries(photoGuides)) {
+    assert.ok(names.has(name), name);
+    assert.ok(guide.author && guide.license, name);
+    assert.equal(new URL(guide.source).protocol, "https:");
+    assert.equal(new URL(guide.licenseUrl).protocol, "https:");
+    for (const pose of ["start", "end"]) {
+      const file = `assets/${guide.path}-${pose}.webp`;
+      const image = readFileSync(file);
+      assert.equal(image.toString("ascii", 0, 4), "RIFF", file);
+      assert.equal(image.toString("ascii", 8, 12), "WEBP", file);
+      assert.deepEqual(image, readFileSync(`www/${file}`), file);
+      assert.ok(cached.includes(`./${file}`), file);
+    }
+  }
 });

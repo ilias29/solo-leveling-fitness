@@ -1,5 +1,5 @@
 import { workouts } from "../data/workouts.js";
-import { wallGuides } from "../data/guides.js";
+import { photoGuides, wallGuides } from "../data/guides.js";
 import { todayKey } from "../logic/dates.js";
 import { levelInfo, XP_PER_LEVEL, xpClaimedToday, awardQuestXp } from "../logic/xp.js";
 import { applyHpDecay } from "../logic/hp.js";
@@ -76,16 +76,38 @@ function kbVisual(i,e){
  const x=[0,33.333,66.667,100,0,33.333,66.667], y=[0,0,0,0,100,100,100];
  return '<div class="kb-visual"><div class="kb-photo" style="background-position:'+x[i]+'% '+y[i]+'%"></div><div class="kb-map"><div class="legend"><b>Πράσινο</b> = κύριοι μύες</div>'+muscleMap(e.targets)+'</div></div><div class="visual-note">Για σωστή τεχνική ακολούθησε τις οδηγίες εκτέλεσης.</div>';
 }
-function arnoldVisual(e){
- const poses = [["start", "Αρχική θέση"], ["end", "Τελική θέση"]];
- return `<section class="arnold-guide" aria-label="${e.pattern}">
-  <div class="arnold-pattern">${e.pattern}</div>
-  <div class="arnold-positions">${poses.map(([file,label])=>`<figure>
-   <img src="./assets/arnold/${e.pattern.toLowerCase()}-${file}.webp" alt="${e.name} · ${label}" loading="lazy" decoding="async">
-   <figcaption>${label}</figcaption>
+function photoGuide(e, guide, pattern = "") {
+ const labels = guide.labels ?? ["Αρχική θέση", "Τελική θέση"];
+ const poses = ["start", "end"];
+ return `<section class="exercise-guide${pattern ? " arnold-guide" : ""}" aria-label="${pattern || e.name}">
+  ${pattern ? `<div class="arnold-pattern">${pattern}</div>` : ""}
+  <div class="exercise-positions">${poses.map((pose, index) => `<figure>
+   <img src="./assets/${guide.path}-${pose}.webp" alt="${e.name} · ${labels[index]}" loading="lazy" decoding="async">
+   <figcaption>${labels[index]}</figcaption>
   </figure>`).join("")}</div>
-  <div class="arnold-credit">Καρέ βίντεο · <a href="https://commons.wikimedia.org/wiki/File:${e.source}" target="_blank" rel="noopener">Taco Fleur / Cavemantraining</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a></div>
+  ${guide.note ? `<p class="exercise-credit">${guide.note}</p>` : ""}
+  <div class="exercise-credit"><a href="${guide.source}" target="_blank" rel="noopener">${guide.author}</a> ·
+   ${guide.endSource ? `<a href="${guide.endSource}" target="_blank" rel="noopener">Πηγή δεύτερης θέσης</a> ·` : ""}
+   <a href="${guide.licenseUrl}" target="_blank" rel="noopener">${guide.license}</a> · ${guide.edit ?? "Προσαρμογή εικόνας"}</div>
  </section>`;
+}
+
+function exerciseVisual(mode, i, e) {
+ if (mode === "arnold") {
+  return photoGuide(e, {
+   path: `arnold/${e.pattern.toLowerCase()}`,
+   source: `https://commons.wikimedia.org/wiki/File:${e.source}`,
+   author: "Taco Fleur / Cavemantraining",
+   license: "CC BY-SA 4.0",
+   licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/",
+   edit: "Καρέ βίντεο · περικοπή"
+  }, e.pattern);
+ }
+ const guide = photoGuides[e.name];
+ if (guide) return photoGuide(e, guide);
+ if (mode === "kb") return kbVisual(i,e);
+ if (mode === "stretch") return stretchGuide(e);
+ return wallGuide(e);
 }
 function render(){
  const w=current(),s=session(),list=document.getElementById("list");
@@ -101,7 +123,7 @@ function render(){
   const v=val(i),wt=strengthMode()?weight(i):null,sc=setCount(i),sp=setProgress(i),d=document.createElement("div");d.className="exercise "+(s.done.includes(i)?"done":"");
   const shownLoad=e.equipment==="dumbbell"?e.load:wt!==null?wt+" kg":e.load;
   d.innerHTML='<div class="ex-head"><div><h3>'+(i+1)+'. '+e.name+'</h3><span class="dose">'+shownLoad+' · '+sc+' × '+v+e.suffix+'</span></div><button class="check" data-check="'+i+'">'+(s.done.includes(i)?("✓ "+sp+"/"+sc):("SET "+sp+"/"+sc))+'</button></div>'+
-  (state.activeMode==="arnold"?arnoldVisual(e):state.activeMode==="kb"?kbVisual(i,e):state.activeMode==="stretch"?stretchGuide(e):wallGuide(e))+
+  exerciseVisual(state.activeMode,i,e)+
   '<div class="tags"><span class="tags-label">Δουλεύουν κυρίως:</span>'+e.muscles.map(m=>'<span class="tag">'+m+'</span>').join("")+'</div>'+
   '<div class="control-panel">'+
 
