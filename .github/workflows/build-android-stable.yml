@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
   push:
     tags: ["v*"]
-    branches: ["release-v2.1.2"]
+    branches: ["release-v2.1.3"]
 
 permissions:
   contents: write
@@ -20,6 +20,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 40
     env:
       APP_ID: com.ilias.sololevelingfitness
       APK: Solo-Leveling-Fitness.apk
@@ -63,6 +64,11 @@ jobs:
       - name: Unit tests
         run: npm test
 
+      - name: Browser tests
+        run: |
+          npx playwright install --with-deps chromium
+          npm run test:e2e
+
       - name: Build web app
         run: npm run build:www
 
@@ -83,6 +89,8 @@ jobs:
         run: |
           npx cap add android
           npx cap sync android
+          mkdir -p "android/app/src/androidTest/java/com/ilias/sololevelingfitness"
+          cp scripts/release-android/ReleaseUpgradeTest.java "android/app/src/androidTest/java/com/ilias/sololevelingfitness/"
 
       - name: Restore permanent signing keystore
         env:
@@ -96,6 +104,7 @@ jobs:
           cat >> android/app/build.gradle <<'EOF'
 
           android {
+              testBuildType "release"
               defaultConfig {
                   applicationId System.getenv("APP_ID")
                   versionCode Integer.parseInt(System.getenv("VERSION_CODE"))
@@ -125,8 +134,13 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleRelease
+          ./gradlew assembleRelease assembleReleaseAndroidTest
           cp app/build/outputs/apk/release/app-release.apk "../$APK"
+          BT="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
+          "$BT/apksigner" sign --ks app/solo-leveling-release.jks \
+            --ks-key-alias "$ANDROID_KEY_ALIAS" --ks-pass env:ANDROID_KEYSTORE_PASSWORD \
+            --key-pass env:ANDROID_KEY_PASSWORD --out ../release-upgrade-test.apk \
+            app/build/outputs/apk/androidTest/release/app-release-androidTest.apk
 
       - name: Remove keystore from runner
         if: always()
@@ -162,6 +176,42 @@ jobs:
             fi
           } >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Compare against the published 2.1.2 APK
+        run: |
+          curl --fail --silent --show-error --location --retry 3 \
+            "https://github.com/$GITHUB_REPOSITORY/releases/download/v2.1.2/Solo-Leveling-Fitness.apk" \
+            --output previous-stable.apk
+          echo "ae7d6e2ec8f551d9c0c12fc57dc45503524c7af527b0a5d7135858c76085742e  previous-stable.apk" | sha256sum --check
+          BT="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
+          BASE_CERT=$("$BT/apksigner" verify --print-certs previous-stable.apk | awk '/certificate SHA-256 digest/ {print $NF}')
+          test "$CERT_SHA256" = "$BASE_CERT"
+          test "$VERSION_CODE" -gt 29921531
+          PLUGINS=$(unzip -p "$APK" assets/capacitor.plugins.json)
+          grep -q Preferences <<< "$PLUGINS"
+          grep -q Share <<< "$PLUGINS"
+          for pattern in squat push pull hinge carry; do
+            for pose in start end; do
+              unzip -p "$APK" "assets/public/assets/arnold/$pattern-$pose.webp" > /dev/null
+            done
+          done
+
+      - name: Enable Android emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Test signed APK upgrade, offline use and restart on Android 15
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_2
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: bash scripts/release-android/test-release-upgrade.sh
+
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
         with:
@@ -175,7 +225,7 @@ jobs:
         run: |
           if [ "$GITHUB_REF_TYPE" = "tag" ]; then TAG="$GITHUB_REF_NAME"; else TAG="v$VERSION_NAME"; fi
           NOTES="Stable signed Android release $VERSION_NAME (versionCode $VERSION_CODE).
-          Installs as an update over previous stable releases without losing data.
+          Verified upgrading from v2.1.2 with workout data, offline exercise photos and persistence after restart.
           Signing certificate SHA-256: $CERT_SHA256"
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" "$APK" --clobber

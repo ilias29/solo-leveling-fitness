@@ -77,10 +77,15 @@ function kbVisual(i,e){
  return '<div class="kb-visual"><div class="kb-photo" style="background-position:'+x[i]+'% '+y[i]+'%"></div><div class="kb-map"><div class="legend"><b>Πράσινο</b> = κύριοι μύες</div>'+muscleMap(e.targets)+'</div></div><div class="visual-note">Για σωστή τεχνική ακολούθησε τις οδηγίες εκτέλεσης.</div>';
 }
 function arnoldVisual(e){
- const pattern=e.pattern;
- const diagram={PUSH:"floor-press",PULL:"one-arm-row",HINGE:"deadlift",CARRY:"suitcase-march"}[pattern];
- const image=pattern==="SQUAT"?'<div class="kb-photo" style="background-position:0% 0%"></div>':diagram?'<div class="alt-demo"><img src="./assets/kettlebell/'+diagram+'.svg" alt="Ενδεικτικό διάγραμμα κίνησης: '+e.name+'" loading="lazy"></div>':"";
- return '<div class="alt-visual"><div class="alt-visual-copy"><div><div class="alt-badge">'+pattern+'</div><div class="alt-visual-name">'+e.name+'</div><div class="alt-visual-note">Ενδεικτική απεικόνιση κίνησης · Ακολούθησε τις οδηγίες και χρησιμοποίησε το αναγραφόμενο όργανο.</div></div></div>'+image+'<div class="kb-map"><div class="legend"><b>Πράσινο</b> = κύριοι μύες</div>'+muscleMap(e.targets)+'</div></div>';
+ const poses = [["start", "Αρχική θέση"], ["end", "Τελική θέση"]];
+ return `<section class="arnold-guide" aria-label="${e.pattern}">
+  <div class="arnold-pattern">${e.pattern}</div>
+  <div class="arnold-positions">${poses.map(([file,label])=>`<figure>
+   <img src="./assets/arnold/${e.pattern.toLowerCase()}-${file}.webp" alt="${e.name} · ${label}" loading="lazy" decoding="async">
+   <figcaption>${label}</figcaption>
+  </figure>`).join("")}</div>
+  <div class="arnold-credit">Καρέ βίντεο · <a href="https://commons.wikimedia.org/wiki/File:${e.source}" target="_blank" rel="noopener">Taco Fleur / Cavemantraining</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a></div>
+ </section>`;
 }
 function render(){
  const w=current(),s=session(),list=document.getElementById("list");
@@ -89,7 +94,7 @@ function render(){
  const today=todayKey(),weekDays=daysThisWeek(state.questDays,today);
  document.getElementById("complete").textContent=xpClaimedToday(state,state.activeMode,today)?"COMPLETE QUEST · XP ΣΗΜΕΡΑ ✓":"COMPLETE QUEST · +"+w.xp+" XP";
  document.querySelectorAll("[data-mode]").forEach(b=>b.classList.toggle("active",b.dataset.mode===state.activeMode));
- const summary=document.getElementById("questSummary");summary.classList.toggle("wall",state.activeMode==="wall");summary.classList.toggle("stretch",state.activeMode==="stretch");document.getElementById("questModeLabel").textContent=state.activeMode==="wall"?"▥ WALL / POSTURE QUEST":state.activeMode==="stretch"?"◌ STRETCHING QUEST":state.activeMode==="arnold"?"ARNOLD · BASIC 5":"⚔ KETTLEBELL QUEST";document.getElementById("questProgress").textContent=s.done.length+"/"+w.items.length+" DONE";document.getElementById("dayTrack").innerHTML=Array.from({length:5},(_,i)=>'<span class="day-dot '+(i<Math.min(weekDays,WEEKLY_TARGET_DAYS)?'hit':'')+'"></span>').join("");
+ const summary=document.getElementById("questSummary");summary.classList.toggle("wall",state.activeMode==="wall");summary.classList.toggle("stretch",state.activeMode==="stretch");document.getElementById("questModeLabel").textContent=state.activeMode==="wall"?"▥ WALL / POSTURE QUEST":state.activeMode==="stretch"?"◌ STRETCHING QUEST":state.activeMode==="arnold"?"ARNOLD · BASIC 5":"⚔ FULL BODY QUEST";document.getElementById("questProgress").textContent=s.done.length+"/"+w.items.length+" DONE";document.getElementById("dayTrack").innerHTML=Array.from({length:5},(_,i)=>'<span class="day-dot '+(i<Math.min(weekDays,WEEKLY_TARGET_DAYS)?'hit':'')+'"></span>').join("");
  list.innerHTML="";
  w.items.forEach((base,i)=>{
   const e=selectedExercise(i,base);

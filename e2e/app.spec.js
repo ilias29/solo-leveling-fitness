@@ -445,7 +445,7 @@ test("corrupt soloState is preserved and the app still opens", async ({ page }) 
 
 test("no horizontal overflow in any mode", async ({ page }) => {
   await open(page, "2026-10-17", {});
-  for (const m of ["kb", "wall", "stretch"]) {
+  for (const m of ["kb", "arnold", "wall", "stretch"]) {
     await mode(page, m);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     expect(overflow, m).toBeLessThanOrEqual(0);
@@ -457,7 +457,7 @@ test("no console errors on load", async ({ page }) => {
   page.on("pageerror", e => errors.push(e.message));
   page.on("console", m => { if (m.type() === "error") errors.push(m.text()); });
   await open(page, "2026-10-17", legacy.v_current);
-  for (const m of ["kb", "wall", "stretch"]) await mode(page, m);
+  for (const m of ["kb", "arnold", "wall", "stretch"]) await mode(page, m);
   expect(errors).toEqual([]);
 });
 
@@ -468,7 +468,7 @@ test("Arnold Basic 5 has independent sets, progress and persistence", async ({ p
   await mode(page, "arnold");
   await expect(page.locator("#list .exercise")).toHaveCount(5);
   await expect(page.locator("#questProgress")).toHaveText("0/5 DONE");
-  const names = ["Goblet Squat", "One-Arm Dumbbell Floor Press", "One-Arm Dumbbell Row", "Kettlebell Deadlift", "Dumbbell Suitcase March"];
+  const names = ["Goblet Squat", "One-Arm Floor Press", "One-Arm Bent-Over Row", "Kettlebell Deadlift", "Suitcase Carry"];
   for (let i=0;i<5;i++) await expect(card(page,i).locator("h3")).toHaveText(`${i+1}. ${names[i]}`);
   await expect(card(page,0).locator("[data-check]")).toHaveText("SET 0/2");
   await card(page,0).locator('[data-sets="0"][data-value="3"]').click();
@@ -481,4 +481,21 @@ test("Arnold Basic 5 has independent sets, progress and persistence", async ({ p
   await expect(card(page,0).locator("[data-check]")).toHaveText("SET 1/4");
   await mode(page,"arnold");
   await expect(card(page,0).locator("[data-check]")).toHaveText("SET 1/3");
+});
+
+
+test("sticky program menu respects system insets and short screens can scroll", async ({ page }) => {
+  await open(page, "2026-10-17", {});
+  await page.evaluate(() => {
+    document.documentElement.style.setProperty("--safe-top", "30px");
+    window.scrollTo(0, 600);
+  });
+  const menu = page.locator(".modebar");
+  await expect.poll(async () => (await menu.boundingBox()).y).toBe(30);
+  await mode(page, "arnold");
+  await expect(page.locator(".arnold-guide img")).toHaveCount(10);
+  await page.setViewportSize({ width: 320, height: 400 });
+  await page.locator("#complete").scrollIntoViewIfNeeded();
+  await expect(page.locator("#complete")).toBeInViewport();
+  await expect(menu).not.toBeInViewport();
 });

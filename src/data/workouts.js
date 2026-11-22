@@ -38,15 +38,53 @@ export const workouts={
   }
 };
 
-// Separate workout, independent saved session; inspired by the five movement patterns.
+// Keep the five saved exercise indices in order. Each mode owns its session.
 const original = workouts.kb.items;
 workouts.arnold = {
- title:"ARNOLD · BASIC 5",meta:"SQUAT · PUSH · PULL · HINGE · CARRY",xp:50,
- items:[
-  {...original[0],pattern:"SQUAT"},
-  {...original[3],pattern:"PUSH"},
-  {...original[2],pattern:"PULL"},
-  {...original[6],name:"Kettlebell Deadlift",pattern:"HINGE",cue:"Το kettlebell ανάμεσα στα πέλματα. Στείλε τα ισχία πίσω, λύγισε ελαφρά τα γόνατα και κράτα ουδέτερη πλάτη. Σήκω ελεγχόμενα.",mistake:"Στρογγυλεύεις την πλάτη ή τραβάς με τα χέρια."},
-  {...original[1],pattern:"CARRY",value:10}
- ]
+  title: "ARNOLD · BASIC 5",
+  meta: "SQUAT · PUSH · PULL · HINGE · CARRY",
+  xp: 50,
+  items: [
+    {
+      ...original[0],
+      pattern: "SQUAT",
+      source: "Kettlebell_Goblet_Squat.webm",
+      cue: "Στάσου όρθιος με το kettlebell κοντά στο στήθος και τα πέλματα σταθερά. Λύγισε ισχία και γόνατα, κατέβα όσο ελέγχεις και πίεσε τα πέλματα για να σηκωθείς.",
+      mistake: "Γόνατα που κλείνουν προς τα μέσα ή φτέρνες που σηκώνονται."
+    },
+    {
+      ...original[3],
+      name: "One-Arm Floor Press",
+      pattern: "PUSH",
+      source: "Kettlebell_Chest_Press.webm",
+      cue: "Ξάπλωσε ανάσκελα με λυγισμένα γόνατα. Κράτα τον αλτήρα ή το kettlebell όπως στη φωτογραφία, με τον βραχίονα στο έδαφος και τον πήχη όρθιο. Πίεσε το βάρος κατακόρυφα πάνω από τον ώμο, κατέβασε ελεγχόμενα και άλλαξε πλευρά.",
+      mistake: "Καρπός που λυγίζει προς τα πίσω ή αγκώνας που ανοίγει υπερβολικά."
+    },
+    {
+      ...original[2],
+      name: "One-Arm Bent-Over Row",
+      pattern: "PULL",
+      source: "Kettlebell_Bent-over_Dead_Rows_(side_view).webm",
+      cue: "Με αλτήρα ή kettlebell, στείλε τα ισχία πίσω, λύγισε λίγο τα γόνατα και κράτα την πλάτη ουδέτερη. Από τεντωμένο χέρι, τράβα τον αγκώνα προς το ισχίο, κατέβασε αργά και άλλαξε πλευρά.",
+      mistake: "Στρίβεις ή τινάζεις τον κορμό για να σηκώσεις το βάρος."
+    },
+    {
+      ...original[6],
+      name: "Kettlebell Deadlift",
+      pattern: "HINGE",
+      source: "Kettlebell_Triceps_Push-up_Deadlift_Kettlebell_Combo.webm",
+      cue: "Βάλε το kettlebell ανάμεσα στα πέλματα. Στείλε τα ισχία πίσω, λύγισε λίγο τα γόνατα και πιάσε τη λαβή με τα δύο χέρια. Πίεσε τα πέλματα μέχρι να σταθείς όρθιος. Κατέβασε το βάρος στέλνοντας πάλι τα ισχία πίσω.",
+      mistake: "Στρογγυλεύεις την πλάτη, τραβάς με τα χέρια ή γέρνεις πίσω στην όρθια θέση."
+    },
+    {
+      ...original[1],
+      name: "Suitcase Carry",
+      pattern: "CARRY",
+      source: "Kettlebell_Farmer_Walks.webm",
+      value: 10,
+      control: "ΒΗΜΑΤΑ",
+      cue: "Στάσου όρθιος με αλτήρα ή kettlebell στο ένα χέρι, δίπλα στον μηρό. Κάνε μικρά σταθερά βήματα με τους ώμους και τη λεκάνη στο ίδιο ύψος. Αν ο χώρος είναι μικρός, βάδισε επιτόπου. Άλλαξε χέρι.",
+      mistake: "Γέρνεις στο πλάι, ανασηκώνεις τον ώμο ή αφήνεις το βάρος να αιωρείται."
+    }
+  ]
 };

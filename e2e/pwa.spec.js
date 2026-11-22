@@ -18,5 +18,12 @@ test("PWA: manifest valid, service worker caches app, works offline", async ({ p
   await expect(page.locator("#list .exercise")).toHaveCount(7);
   await page.click('[data-mode="wall"]');
   await expect(page.locator("#list .exercise h3").first()).toHaveText("1. Wall Sit");
+  await page.click('[data-mode="arnold"]');
+  const images = page.locator(".arnold-guide img");
+  await expect(images).toHaveCount(10);
+  for (const photo of await images.all()) {
+    await photo.scrollIntoViewIfNeeded();
+    await expect.poll(() => photo.evaluate(img => img.naturalWidth)).toBeGreaterThan(200);
+  }
   await context.setOffline(false);
 });

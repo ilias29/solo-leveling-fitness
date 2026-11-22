@@ -1,0 +1,12 @@
+Arnold Basic 5 exercise photographs
+
+The ten WebP files are cropped stills from original videos by Taco Fleur
+(Cavemantraining). The row stills also received a brightness adjustment.
+The stills are distributed under Creative Commons Attribution-ShareAlike
+4.0 International (https://creativecommons.org/licenses/by-sa/4.0/).
+
+squat: https://commons.wikimedia.org/wiki/File:Kettlebell_Goblet_Squat.webm
+push: https://commons.wikimedia.org/wiki/File:Kettlebell_Chest_Press.webm
+pull: https://commons.wikimedia.org/wiki/File:Kettlebell_Bent-over_Dead_Rows_(side_view).webm
+hinge: https://commons.wikimedia.org/wiki/File:Kettlebell_Triceps_Push-up_Deadlift_Kettlebell_Combo.webm
+carry: https://commons.wikimedia.org/wiki/File:Kettlebell_Farmer_Walks.webm
