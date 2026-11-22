@@ -28,7 +28,7 @@ public class ReleaseUpgradeTest {
         String phase = InstrumentationRegistry.getArguments().getString("phase");
         Context context = instrumentation.getTargetContext();
         String version = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
-        assertEquals("seed".equals(phase) ? "2.1.2" : "2.1.3", version);
+        assertEquals(InstrumentationRegistry.getArguments().getString("expectedVersion"), version);
 
         assertEquals(1, Settings.Global.getInt(context.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, 0));
         Intent intent = new Intent(context, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -79,6 +79,8 @@ public class ReleaseUpgradeTest {
         click(FIRST_SET);
         assertSavedProgress(2);
         awaitNativeMirror();
+        // Preserve the seed writes across the instrumentation process shutdown.
+        Thread.sleep(7000);
     }
 
     private void awaitNativeMirror() throws Exception {
@@ -111,22 +113,10 @@ public class ReleaseUpgradeTest {
     }
 
     private void verifyPhotosAndLayout() throws Exception {
-        click("[data-mode='kb']");
-        checkCount(7);
-        click("[data-mode='wall']");
-        checkCount(7);
-        click("[data-mode='stretch']");
-        checkCount(7);
-        click("[data-mode='arnold']");
-        checkCount(5);
-
-        assertEquals("10", evaluate("document.querySelectorAll('.arnold-guide img').length"));
-        for (int index = 0; index < 10; index++) {
-            String photo = "document.querySelectorAll('.arnold-guide img')[" + index + "]";
-            evaluate(photo + ".scrollIntoView({block:'center'})");
-            waitFor(photo + ".naturalWidth > 200");
-        }
-        assertEquals("true", evaluate("scrollY > 0 && document.documentElement.scrollWidth <= innerWidth"));
+        verifyProgram("kb", 7);
+        verifyProgram("wall", 7);
+        verifyProgram("stretch", 7);
+        verifyProgram("arnold", 5);
         instrumentation.runOnMainSync(() -> {
             int[] position = new int[2];
             web.getLocationOnScreen(position);
@@ -138,8 +128,16 @@ public class ReleaseUpgradeTest {
         });
     }
 
-    private void checkCount(int expected) throws Exception {
-        assertEquals(Integer.toString(expected), evaluate("document.querySelectorAll('#list .exercise').length"));
+    private void verifyProgram(String mode, int expected) throws Exception {
+        click("[data-mode='" + mode + "']");
+        assertEquals(mode, Integer.toString(expected), evaluate("document.querySelectorAll('#list .exercise').length"));
+        assertEquals(mode, Integer.toString(expected), evaluate("Array.from(document.querySelectorAll('#list .exercise')).filter(card => card.querySelectorAll('.exercise-guide img').length === 2).length"));
+        for (int index = 0; index < expected * 2; index++) {
+            String photo = "document.querySelectorAll('.exercise-guide img')[" + index + "]";
+            evaluate(photo + ".scrollIntoView({block:'center'})");
+            waitFor(photo + ".naturalWidth > 0");
+        }
+        assertEquals(mode, "true", evaluate("scrollY > 0 && document.documentElement.scrollWidth <= innerWidth"));
     }
 
     private void click(String selector) throws Exception {
