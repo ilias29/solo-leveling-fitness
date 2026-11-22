@@ -6,7 +6,7 @@ export const SCHEMA_VERSION = 1;
 // Workout days that must always remain in the history.
 export const SEED_DAYS = ["2026-10-14", "2026-10-15", "2026-10-16"];
 
-const MODES = ["kb", "wall", "stretch"];
+const MODES = ["kb", "wall", "stretch", "arnold"];
 
 function toNum(v, fallback) {
   const n = typeof v === "string" && v.trim() !== "" ? Number(v) : v;
