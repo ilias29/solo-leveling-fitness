@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>SYSTEM // Solo Fitness</title><meta name="theme-color" content="#050813"><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icon-192.png"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
 <style>
-:root{--bg:#050813;--panel:#0b1225;--line:#244b87;--text:#eaf4ff;--muted:#8da5c6;--glow:#54b9ff;--violet:#8f6cff;--good:#67f0c2}
+:root{--safe-top:env(safe-area-inset-top,0px);--bg:#050813;--panel:#0b1225;--line:#244b87;--text:#eaf4ff;--muted:#8da5c6;--glow:#54b9ff;--violet:#8f6cff;--good:#67f0c2}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#101a38 0,#050813 42%);color:var(--text);font-family:system-ui,-apple-system,sans-serif;min-height:100vh}
 .app{max-width:620px;margin:auto;padding:24px 16px 80px}.top{display:flex;justify-content:space-between;align-items:center}.sys{letter-spacing:.22em;color:var(--glow);font-weight:900}.rank{border:1px solid var(--line);padding:6px 10px;border-radius:9px;color:#cfe8ff}
 .card{margin-top:16px;padding:18px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,rgba(18,32,68,.92),rgba(7,12,28,.95));box-shadow:0 0 30px #1262a52b}
@@ -30,10 +30,9 @@ button{border:0;border-radius:11px;padding:10px 13px;font-weight:800}.check{back
 
 /* v4 quest-card redesign */
 body{background:radial-gradient(circle at 50% -10%,#162451 0,#070b19 35%,#030611 72%);background-attachment:fixed}
-.app{max-width:760px;padding:18px 14px 90px}
+.app{max-width:760px;padding:calc(18px + var(--safe-top)) max(14px,env(safe-area-inset-right)) calc(90px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))}
 .top{padding:4px 2px 10px}.sys{font-size:13px;text-shadow:0 0 14px #54b9ff}.rank{background:#080e20;box-shadow:inset 0 0 14px #254a8444}
 .card{border-color:#31558f;background:linear-gradient(145deg,#101c3d,#080d1e);box-shadow:0 0 28px #1262a533,inset 0 1px #6cbaff18}
-.modebar{position:sticky;top:0;z-index:20;padding:10px 0;background:linear-gradient(#050813f5,#050813d9,#05081300)}
 .mode{min-height:52px;font-size:13px;letter-spacing:.03em}.mode.active{box-shadow:0 0 20px #318ed566,inset 0 0 16px #54b9ff18}.mode.wall.active{box-shadow:0 0 20px #8f6cff55,inset 0 0 16px #8f6cff22}
 .quest-title{margin-top:16px}.quest-title h2{font-size:20px;letter-spacing:.025em}
 .quest-summary{border-color:#2f73bd;box-shadow:0 0 20px #1878d52b,inset 0 0 18px #1374c617}.quest-summary.wall{border-color:#7255db;box-shadow:0 0 20px #7255db33,inset 0 0 18px #7255db18}
@@ -58,7 +57,7 @@ body{background:
 .app{max-width:760px;padding:20px 14px 92px}
 .top{padding:4px 4px 10px}.sys{font-size:13px;text-shadow:0 0 14px rgba(84,185,255,.55)}
 .card{border-color:#2d5793;background:linear-gradient(145deg,rgba(15,28,62,.96),rgba(6,11,25,.98));box-shadow:0 10px 40px rgba(0,0,0,.34),0 0 36px rgba(36,127,255,.10)}
-.modebar{position:sticky;top:0;z-index:8;padding:10px 0 8px;background:linear-gradient(180deg,rgba(5,8,19,.96) 75%,rgba(5,8,19,0));backdrop-filter:blur(8px)}
+.modebar{position:sticky;top:var(--safe-top);z-index:8;padding:10px 0 8px;background:linear-gradient(180deg,rgba(5,8,19,.96) 75%,rgba(5,8,19,0));backdrop-filter:blur(8px)}
 .mode{font-size:13px;letter-spacing:.06em;border-radius:14px;min-height:48px}
 .quest-title{margin-top:16px}.quest-title h2{font-size:15px;letter-spacing:.08em}
 .exercise{position:relative;overflow:hidden;padding:0;margin:14px 0;border-radius:20px;border:1px solid #234674;background:linear-gradient(160deg,#0d1930 0%,#070d1b 62%,#050914 100%);box-shadow:0 10px 28px rgba(0,0,0,.28)}
@@ -118,19 +117,20 @@ body{background:
 .hp-track{height:9px;background:#1b1220;border-radius:99px;overflow:hidden;margin-top:8px}
 .hp-fill{height:100%;width:100%;background:linear-gradient(90deg,#ff4969,#ff9470);transition:.3s}
 .hp-note{grid-column:1/-1;font-size:11px;color:#8499b7;text-align:center;margin-top:-2px}
-.alt-picker{display:grid;grid-template-columns:auto 1fr 1.35fr;gap:7px;align-items:center;margin-top:10px}
-.alt-picker>span{font-size:12px;color:var(--muted);font-weight:800;margin-right:2px}
+.alt-picker{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;align-items:center;margin-top:10px}
+.alt-picker>span{grid-column:1/-1;font-size:12px;color:var(--muted);font-weight:800;margin-right:2px}
 .alt-chip{padding:10px 6px;border:1px solid #2a507f;background:#09172a;color:#9bb8db;border-radius:10px;font-size:11px}
 .alt-chip.active{color:#eafff8;border-color:#67f0c2;background:linear-gradient(180deg,#176152,#103b34);box-shadow:0 0 16px rgba(103,240,194,.18)}
 .alt-visual{margin:2px 14px 12px;display:grid;grid-template-columns:minmax(150px,.9fr) minmax(170px,1.1fr);gap:10px;border:1px solid #355777;border-radius:16px;overflow:hidden;background:linear-gradient(145deg,#071222,#09162a)}
+.alt-demo{display:flex;align-items:center;background:#e9ebec}.alt-demo img{width:100%;height:auto;display:block}.alt-visual{grid-template-columns:minmax(105px,.7fr) minmax(160px,1.25fr) minmax(115px,.9fr)}@media(max-width:650px){.alt-visual{grid-template-columns:1fr!important}.alt-demo img{max-height:440px;object-fit:contain}}
 .alt-visual-copy{display:grid;place-items:center;text-align:center;padding:18px;background:radial-gradient(circle at center,rgba(103,240,194,.10),transparent 65%)}
 .alt-badge{font-size:10px;letter-spacing:.15em;color:#67f0c2;font-weight:900}
 .alt-visual-name{font-size:16px;font-weight:900;margin-top:8px}
 .alt-visual-note{font-size:11px;color:#8da5c6;line-height:1.45;margin-top:7px}
-@media(max-width:480px){.survival{grid-template-columns:1fr 1fr}.hp-panel,.streak-panel{padding:9px}.hp-head,.streak-head{font-size:10px}.alt-picker{grid-template-columns:auto 1fr 1.25fr;gap:5px}.alt-chip{padding:9px 4px;font-size:10px}.alt-visual{grid-template-columns:44% 56%}}
+@media(max-width:480px){.survival{grid-template-columns:1fr 1fr}.hp-panel,.streak-panel{padding:9px}.hp-head,.streak-head{font-size:10px}.alt-picker{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.alt-chip{padding:9px 4px;font-size:10px}.alt-visual{grid-template-columns:44% 56%}}
 
 /* STRETCHING MODE V12 */
-.modebar{grid-template-columns:repeat(3,1fr)}
+.modebar{grid-template-columns:repeat(2,minmax(0,1fr))}
 .mode.stretch.active{border-color:#d7b4ff;background:linear-gradient(90deg,#3f255d,#243b67);box-shadow:0 0 20px rgba(182,124,255,.32),inset 0 0 16px rgba(182,124,255,.14)}
 .quest-summary.stretch{border-color:#8b61b7;background:linear-gradient(135deg,#1a1027,#101936);box-shadow:0 0 20px rgba(143,108,255,.22),inset 0 0 18px rgba(143,108,255,.12)}
 .stretch-card{margin:2px 14px 12px;display:grid;grid-template-columns:minmax(135px,.8fr) minmax(165px,1.2fr);gap:10px;border:1px solid #5b497b;border-radius:16px;overflow:hidden;background:linear-gradient(145deg,#120d21,#0a1326)}
@@ -139,6 +139,16 @@ body{background:
 .stretch-name{font-size:16px;font-weight:900;margin-top:8px}
 .stretch-note{font-size:11px;color:#a79bbd;line-height:1.45;margin-top:7px}
 @media(max-width:500px){.mode{font-size:11px;padding:10px 5px}.stretch-card{grid-template-columns:44% 56%;gap:6px}}
+
+.exercise-guide{margin:0 0 12px}
+.arnold-pattern{margin:0 0 6px;color:var(--good);font-size:12px;font-weight:800}
+.exercise-positions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.exercise-positions figure{min-width:0;margin:0}
+.exercise-positions img{display:block;width:100%;aspect-ratio:4/3;object-fit:contain;background:#050813;border-radius:8px}
+.exercise-positions figcaption{padding:5px 0;color:#cfe8ff;font-size:12px;font-weight:700}
+.exercise-credit{font-size:11px;color:var(--muted)}
+.exercise-credit a{color:inherit}
+@media(max-height:420px){.modebar{position:static}}
 
 /* REAL SET TRACKING V14 */
 .check{min-width:78px}
@@ -155,6 +165,11 @@ body{background:
 .backup-status{font-size:12px;color:var(--good);min-height:16px;word-break:break-word}
 .top-right{display:flex;gap:8px;align-items:center}.settings-btn{width:36px;height:36px;padding:0;border:1px solid var(--line);background:#080e20;color:#cfe8ff;font-size:18px;border-radius:9px}
 .app-version{margin-top:10px;font-size:11px;color:#6f86a8;text-align:right}
+.health-panel h2{margin:0 0 8px;font-size:17px}
+.health-panel dl{margin:0 0 8px;font-size:13px}
+.health-panel dl div{display:flex;justify-content:space-between;gap:10px;padding:6px 0}
+.health-panel dd{margin:0;text-align:right;color:#cfe8ff}
+.health-panel .backup-btn[hidden]{display:none}
 </style></head>
 <body><main class="app">
 <div class="top"><div class="sys">SYSTEM</div><div class="top-right"><div class="rank">RANK E</div><button class="settings-btn" id="settingsBtn" aria-label="Ρυθμίσεις">⚙</button></div></div>
@@ -167,7 +182,14 @@ body{background:
 </div>
 <div class="boss"><div class="bossline"><span>BOSS: 82 kg</span><span>START: 85 kg</span></div><div class="muted" style="margin-top:5px">Secondary objective: waist &lt; 98 cm</div></div></section>
 
-<div class="modebar"><button class="mode active" data-mode="kb">⚔ KETTLEBELL</button><button class="mode wall" data-mode="wall">▥ WALL</button><button class="mode stretch" data-mode="stretch">◌ STRETCHING</button></div><div class="quest-title"><h2 id="questTitle">DAILY QUEST · FULL BODY</h2><span class="muted" id="questMeta">8 / 16 / 32 KG</span></div><section class="quest-summary" id="questSummary"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><b id="questModeLabel">⚔ KETTLEBELL QUEST</b><span class="quest-count" id="questProgress">0/7</span></div><div class="day-track" id="dayTrack"></div><div class="quest-rule">Ολοκλήρωσε ΟΛΟ το επιλεγμένο quest → XP + 1 DAY. Κάθε mode δίνει XP μία φορά την ημέρα· η ημέρα μετρά μόνο μία φορά. DAYS = ημέρες προπόνησης αυτής της εβδομάδας (Δευ–Κυρ).</div></section>
+<section class="card health-panel" id="healthPanel" hidden aria-labelledby="healthHeading">
+<h2 id="healthHeading">Σήμερα</h2>
+<dl id="healthMetrics" hidden><div><dt>Βήματα σήμερα</dt><dd id="healthSteps"></dd></div><div><dt>Ύπνος · τελευταίες 24 ώρες</dt><dd id="healthSleep"></dd></div></dl>
+<p class="backup-help" id="healthStatus" role="status"></p>
+<button class="backup-btn" id="healthAccess" type="button">Σύνδεση με Health Connect</button>
+</section>
+
+<div class="modebar"><button class="mode active" data-mode="kb">⚔ FULL BODY</button><button class="mode" data-mode="arnold">ARNOLD · BASIC 5</button><button class="mode wall" data-mode="wall">▥ WALL</button><button class="mode stretch" data-mode="stretch">◌ STRETCHING</button></div><div class="quest-title"><h2 id="questTitle">DAILY QUEST · FULL BODY</h2><span class="muted" id="questMeta">8 / 16 / 32 KG</span></div><section class="quest-summary" id="questSummary"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><b id="questModeLabel">⚔ FULL BODY QUEST</b><span class="quest-count" id="questProgress">0/7</span></div><div class="day-track" id="dayTrack"></div><div class="quest-rule">Ολοκλήρωσε ΟΛΟ το επιλεγμένο quest → XP + 1 DAY. Κάθε mode δίνει XP μία φορά την ημέρα· η ημέρα μετρά μόνο μία φορά. DAYS = ημέρες προπόνησης αυτής της εβδομάδας (Δευ–Κυρ).</div></section>
 <div id="list"></div>
 <button class="primary" id="complete">COMPLETE QUEST · +50 XP</button>
 <button class="reset" id="reset">Reset σημερινών sets</button><button class="primary" id="install" style="display:none;background:linear-gradient(90deg,#18a67d,#287bd7)">INSTALL APP</button><div class="notice" id="notice"></div>

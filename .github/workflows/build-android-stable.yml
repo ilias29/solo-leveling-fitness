@@ -8,6 +8,7 @@ on:
   workflow_dispatch:
   push:
     tags: ["v*"]
+    branches: ["release-v2.1.4"]
 
 permissions:
   contents: write
@@ -19,6 +20,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 40
     env:
       APP_ID: com.ilias.sololevelingfitness
       APK: Solo-Leveling-Fitness.apk
@@ -62,6 +64,11 @@ jobs:
       - name: Unit tests
         run: npm test
 
+      - name: Browser tests
+        run: |
+          npx playwright install --with-deps chromium
+          npm run test:e2e
+
       - name: Build web app
         run: npm run build:www
 
@@ -82,6 +89,9 @@ jobs:
         run: |
           npx cap add android
           npx cap sync android
+          node scripts/prepare-health-connect.mjs
+          mkdir -p "android/app/src/androidTest/java/com/ilias/sololevelingfitness"
+          cp scripts/release-android/ReleaseUpgradeTest.java "android/app/src/androidTest/java/com/ilias/sololevelingfitness/"
 
       - name: Restore permanent signing keystore
         env:
@@ -95,6 +105,7 @@ jobs:
           cat >> android/app/build.gradle <<'EOF'
 
           android {
+              testBuildType "release"
               defaultConfig {
                   applicationId System.getenv("APP_ID")
                   versionCode Integer.parseInt(System.getenv("VERSION_CODE"))
@@ -124,8 +135,13 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleRelease
+          ./gradlew assembleRelease assembleReleaseAndroidTest
           cp app/build/outputs/apk/release/app-release.apk "../$APK"
+          BT="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
+          "$BT/apksigner" sign --ks app/solo-leveling-release.jks \
+            --ks-key-alias "$ANDROID_KEY_ALIAS" --ks-pass env:ANDROID_KEYSTORE_PASSWORD \
+            --key-pass env:ANDROID_KEY_PASSWORD --out ../release-upgrade-test.apk \
+            app/build/outputs/apk/androidTest/release/app-release-androidTest.apk
 
       - name: Remove keystore from runner
         if: always()
@@ -161,6 +177,49 @@ jobs:
             fi
           } >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Compare against the published 2.1.2 and 2.1.3 APKs
+        run: |
+          for baseline in 2.1.2 2.1.3; do
+            curl --fail --silent --show-error --location --retry 3 \
+              "https://github.com/$GITHUB_REPOSITORY/releases/download/v$baseline/Solo-Leveling-Fitness.apk" \
+              --output "previous-$baseline.apk"
+          done
+          sha256sum --check <<'EOF'
+          ae7d6e2ec8f551d9c0c12fc57dc45503524c7af527b0a5d7135858c76085742e  previous-2.1.2.apk
+          7ced829cb7e15a41c28c95f7e80211208b70a357a3321b706f07d6d60945abcc  previous-2.1.3.apk
+          EOF
+          BT="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
+          for baseline in 2.1.2 2.1.3; do
+            BASE_CERT=$("$BT/apksigner" verify --print-certs "previous-$baseline.apk" | awk '/certificate SHA-256 digest/ {print $NF}')
+            test "$CERT_SHA256" = "$BASE_CERT"
+            BASE_BADGING=$("$BT/aapt2" dump badging "previous-$baseline.apk" | sed -n '1p')
+            BASE_CODE=$(sed -n "s/.*versionCode='\([0-9][0-9]*\)'.*/\1/p" <<< "$BASE_BADGING")
+            test "$VERSION_CODE" -gt "$BASE_CODE"
+          done
+          PLUGINS=$(unzip -p "$APK" assets/capacitor.plugins.json)
+          grep -q Preferences <<< "$PLUGINS"
+          grep -q Share <<< "$PLUGINS"
+          for image in www/assets/{arnold,exercise-photos}/*.webp; do
+            unzip -p "$APK" "assets/public/${image#www/}" | cmp "$image" -
+          done
+
+      - name: Enable Android emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Test signed APK upgrade, offline use and restart on Android 15
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_2
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: bash scripts/release-android/test-release-upgrade.sh
+
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
         with:
@@ -172,14 +231,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if [ "$GITHUB_REF_TYPE" = "tag" ]; then TAG="$GITHUB_REF_NAME"; else TAG="v$VERSION_NAME-$VERSION_CODE"; fi
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then TAG="$GITHUB_REF_NAME"; else TAG="v$VERSION_NAME"; fi
           NOTES="Stable signed Android release $VERSION_NAME (versionCode $VERSION_CODE).
-          Installs as an update over previous stable releases without losing data.
+          Verified upgrading from v2.1.2 and v2.1.3 with workout data and persistence after restart. All 26 exercises have two offline demonstration images.
           Signing certificate SHA-256: $CERT_SHA256"
-          if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" "$APK" --clobber
-          else
-            gh release create "$TAG" "$APK" --target "$GITHUB_SHA" \
-              --title "Solo Leveling Fitness $VERSION_NAME ($VERSION_CODE)" \
-              --notes "$NOTES" --latest
-          fi
+          gh release create "$TAG" "$APK" --target "$GITHUB_SHA" \
+            --title "Solo Leveling Fitness $VERSION_NAME ($VERSION_CODE)" \
+            --notes "$NOTES" --latest

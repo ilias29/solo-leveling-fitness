@@ -28,7 +28,7 @@ export function normalizeSessions(state, workouts) {
     for (const k of ["values", "weights", "sets", "alternatives", "setProgress"]) if (!isObj(s[k])) s[k] = {};
     w.items.forEach((e, i) => {
       if (!Number.isFinite(+s.values[i])) s.values[i] = e.value;
-      if (mode === "kb" && !Number.isFinite(+s.weights[i])) s.weights[i] = parseFloat(e.load) || 8;
+      if ((mode === "kb" || mode === "arnold") && !Number.isFinite(+s.weights[i])) s.weights[i] = parseFloat(e.load) || 8;
       if (!Number.isFinite(+s.sets[i])) s.sets[i] = clampSets(e.sets);
       const target = clampSets(parseInt(s.sets[i]) || parseInt(e.sets));
       if (!Number.isFinite(+s.setProgress[i])) s.setProgress[i] = s.done.includes(i) ? target : 0;

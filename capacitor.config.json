@@ -3,6 +3,9 @@
   "appName": "Solo Leveling Fitness",
   "webDir": "www",
   "bundledWebRuntime": false,
+  "android": {
+    "adjustMarginsForEdgeToEdge": "auto"
+  },
   "server": {
     "androidScheme": "https",
     "hostname": "localhost"

@@ -1,14 +1,15 @@
 export const workouts={
   kb:{
-    title:"DAILY QUEST · FULL BODY",meta:"WEIGHTS",xp:50,
+    title:"DAILY QUEST · FULL BODY",meta:"7 EXERCISES · KETTLEBELL + DUMBBELL",xp:50,
     items:[
-      {name:"Goblet Squat",sets:2,value:12,suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"8 kg",muscles:["Τετρακέφαλοι","Γλουτοί","Κορμός"],targets:["quads","glutes","core"],cue:"Κράτα το kettlebell στο στήθος. Ισχία πίσω και κάτω, γόνατα προς τα δάχτυλα.",feel:"Τετρακέφαλοι, γλουτοί και κορμός.",mistake:"Γόνατα που κλείνουν προς τα μέσα.",alt:{name:"Kettlebell Sumo Squat",suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",muscles:["Τετρακέφαλοι","Γλουτοί","Προσαγωγοί","Κορμός"],targets:["quads","glutes","core"],cue:"Πιο ανοιχτή στάση, δάχτυλα ελαφρά έξω. Κράτα το kettlebell χαμηλά και κάθισε ελεγχόμενα με γόνατα στην κατεύθυνση των δαχτύλων.",feel:"Γλουτοί, μηροί και προσαγωγοί.",mistake:"Γόνατα προς τα μέσα ή υπερβολικά ανοιχτή στάση."}},
-      {name:"Rotational Woodchop",sets:2,value:8,suffix:" / πλευρά",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"8 kg",muscles:["Πλάγιοι κοιλιακοί","Κορμός","Γλουτοί","Ώμοι"],targets:["obliques","core","glutes","shoulders"],cue:"Περιστροφή θώρακα και ισχίων μαζί, κορμός σφιχτός.",feel:"Πλάγιοι κοιλιακοί, γλουτοί και κορμός.",mistake:"Απότομη περιστροφή μόνο από τη μέση.",alt:{name:"Suitcase March",suffix:" / πλευρά",control:"ΕΠΑΝΑΛΗΨΕΙΣ",muscles:["Πλάγιοι κοιλιακοί","Κορμός","Γλουτοί"],targets:["obliques","core","glutes"],cue:"Κράτα το kettlebell στο ένα χέρι δίπλα στο σώμα και κάνε αργά βήματα επιτόπου χωρίς να γέρνεις προς το βάρος.",feel:"Πλάγιοι κοιλιακοί και κορμός να κρατούν τον κορμό ίσιο.",mistake:"Γέρνεις στο πλάι ή σηκώνεις τον ώμο προς το αυτί."}},
-      {name:"Split-Stance Row",sets:2,value:10,suffix:" / πλευρά",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"8 kg",muscles:["Πλάτη","Πλατύς ραχιαίος","Πίσω ώμος","Δικέφαλος"],targets:["lats","upperback","rearshoulders","biceps"],cue:"Μικρό hip hinge, ουδέτερη πλάτη, τράβα τον αγκώνα προς πλευρά/ισχίο.",feel:"Πλάτη και πίσω ώμος.",mistake:"Στρίψιμο κορμού ή σήκωμα ώμου.",alt:{name:"One-Arm Kettlebell Row",suffix:" / πλευρά",control:"ΕΠΑΝΑΛΗΨΕΙΣ",muscles:["Πλάτη","Πλατύς ραχιαίος","Πίσω ώμος","Δικέφαλος"],targets:["lats","upperback","rearshoulders","biceps"],cue:"Στήριξε το ελεύθερο χέρι σε σταθερή επιφάνεια ή στο μηρό, κράτα την πλάτη ουδέτερη και τράβα τον αγκώνα προς το ισχίο.",feel:"Πλάτη, πίσω ώμος και δικέφαλος.",mistake:"Στρέφεις τον κορμό για να σηκώσεις το βάρος."}},
-      {name:"Standing Chest Press",sets:2,value:10,suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"8 kg",muscles:["Στήθος","Πρόσθιοι ώμοι","Τρικέφαλοι","Κορμός"],targets:["chest","frontshoulders","triceps","core"],cue:"Με δύο χέρια στο ύψος στήθους, πίεσε οριζόντια μπροστά και επέστρεψε αργά.",feel:"Στήθος, ώμοι και τρικέφαλοι.",mistake:"Γέρνεις προς τα πίσω.",alt:{name:"Kettlebell Floor Press",suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",muscles:["Στήθος","Πρόσθιοι ώμοι","Τρικέφαλοι"],targets:["chest","frontshoulders","triceps"],cue:"Ξάπλωσε ανάσκελα, κράτα το kettlebell σταθερά και πίεσε προς τα πάνω. Κατέβασε ελεγχόμενα μέχρι ο βραχίονας να ακουμπήσει απαλά στο πάτωμα.",feel:"Στήθος και τρικέφαλοι.",mistake:"Ανοίγεις υπερβολικά τον αγκώνα ή αφήνεις το βάρος να πέφτει γρήγορα."}},
-      {name:"Triceps Extension",sets:2,value:10,suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"8 kg",muscles:["Τρικέφαλοι","Κορμός"],targets:["triceps","core"],cue:"Kettlebell πίσω από το κεφάλι, έκταση αγκώνων, κορμός σταθερός.",feel:"Τρικέφαλοι.",mistake:"Υπερέκταση μέσης.",alt:{name:"Kettlebell Skull Crusher",suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",muscles:["Τρικέφαλοι"],targets:["triceps"],cue:"Ξάπλωσε ανάσκελα, κράτα το kettlebell πάνω από το στήθος και λύγισε μόνο τους αγκώνες ώστε να κατέβει ελεγχόμενα προς τα πίσω. Έκτεινε ξανά.",feel:"Τρικέφαλοι.",mistake:"Μετακινείς τους ώμους ή αφήνεις τους αγκώνες να ανοίγουν πολύ."}},
-      {name:"Halo",sets:2,value:6,suffix:" / κατεύθυνση",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"8 kg",muscles:["Ώμοι","Άνω πλάτη","Κορμός"],targets:["shoulders","upperback","core"],cue:"Αργά και κοντά γύρω από το κεφάλι, κορμός και κεφάλι σταθερά.",feel:"Ώμοι, άνω πλάτη και κορμός.",mistake:"Μετακινείς κεφάλι ή μέση για να περάσει το βάρος.",alt:{name:"Kettlebell Around-the-World",suffix:" / κατεύθυνση",control:"ΕΠΑΝΑΛΗΨΕΙΣ",muscles:["Ώμοι","Κορμός","Λαβή"],targets:["shoulders","core"],cue:"Πέρνα το kettlebell αργά γύρω από τη μέση αλλάζοντας χέρι μπροστά και πίσω. Κράτα πλευρά και λεκάνη σταθερά.",feel:"Ώμοι, λαβή και κορμός να σταθεροποιούν.",mistake:"Στρέφεις όλο τον κορμό ή αφήνεις το βάρος να απομακρύνεται πολύ από το σώμα."}},
-      {name:"Kettlebell Swing",sets:2,value:12,suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",step:1,load:"8 kg",muscles:["Γλουτοί","Οπίσθιοι μηριαίοι","Κορμός"],targets:["glutes","hamstrings","core"],cue:"Hip hinge, δυνατή έκταση ισχίων και σφίξιμο γλουτών. Τα χέρια απλώς οδηγούν.",feel:"Γλουτοί, οπίσθιοι μηριαίοι και κορμός.",mistake:"Squat ή σήκωμα με ώμους.",alt:{name:"Kettlebell Deadlift",suffix:"",control:"ΕΠΑΝΑΛΗΨΕΙΣ",muscles:["Γλουτοί","Οπίσθιοι μηριαίοι","Κορμός"],targets:["glutes","hamstrings","core"],cue:"Kettlebell ανάμεσα στα πέλματα. Στείλε ισχία πίσω, κράτα ουδέτερη πλάτη και σήκω πιέζοντας το έδαφος και σφίγγοντας γλουτούς.",feel:"Γλουτοί και πίσω μηροί, όχι μέση.",mistake:"Στρογγυλεύεις την πλάτη ή το μετατρέπεις σε βαθύ squat."}}
+      {"name":"Goblet Squat","sets":2,"value":12,"suffix":"","control":"ΕΠΑΝΑΛΗΨΕΙΣ","step":1,"load":"8 kg","equipment":"kettlebell","muscles":["Τετρακέφαλοι","Γλουτοί","Κορμός"],"targets":["quads","glutes","core"],"cue":"Κράτα το kettlebell στο στήθος. Κατέβα με έλεγχο και γόνατα στην κατεύθυνση των δαχτύλων.","feel":"Γλουτούς, τετρακέφαλους και κορμό.","mistake":"Γόνατα που κλείνουν προς τα μέσα."},
+      {"name":"Dumbbell Suitcase March","sets":2,"value":8,"suffix":" / πλευρά","control":"ΕΠΑΝΑΛΗΨΕΙΣ","step":1,"load":"Ρυθμιζόμενος αλτήρας","equipment":"dumbbell","muscles":["Πλάγιοι κοιλιακοί","Κορμός","Γλουτοί"],"targets":["obliques","core","glutes"],"cue":"Κράτα τον αλτήρα χαμηλά στο ένα χέρι. Βάδισε αργά επιτόπου με ώμους στο ίδιο ύψος και άλλαξε πλευρά.","feel":"Πλάγιους κοιλιακούς και σταθεροποίηση κορμού.","mistake":"Γέρνεις προς τον αλτήρα."},
+      {"name":"One-Arm Dumbbell Row","sets":2,"value":10,"suffix":" / πλευρά","control":"ΕΠΑΝΑΛΗΨΕΙΣ","step":1,"load":"Ρυθμιζόμενος αλτήρας","equipment":"dumbbell","muscles":["Πλάτη","Πίσω ώμος","Δικέφαλος"],"targets":["lats","upperback","rearshoulders","biceps"],"cue":"Στήριξε το ελεύθερο χέρι σε σταθερή επιφάνεια, κράτα την πλάτη ουδέτερη και τράβα τον αγκώνα προς το ισχίο.","feel":"Πλάτη, πίσω ώμο και δικέφαλο.","mistake":"Περιστρέφεις τον κορμό αντί να τραβάς με την πλάτη."},
+      {"name":"One-Arm Dumbbell Floor Press","sets":2,"value":10,"suffix":" / πλευρά","control":"ΕΠΑΝΑΛΗΨΕΙΣ","step":1,"load":"Ρυθμιζόμενος αλτήρας","equipment":"dumbbell","muscles":["Στήθος","Τρικέφαλοι","Ώμοι"],"targets":["chest","frontshoulders","triceps"],"cue":"Ξάπλωσε ανάσκελα, γόνατα λυγισμένα. Πίεσε τον αλτήρα πάνω από τον ώμο και κατέβασε ελεγχόμενα μέχρι ο βραχίονας να αγγίξει το πάτωμα.","feel":"Στήθος και τρικέφαλο.","mistake":"Ανοίγεις υπερβολικά τον αγκώνα ή λυγίζεις τον καρπό."},
+      {"name":"Dumbbell Triceps Extension","sets":2,"value":10,"suffix":"","control":"ΕΠΑΝΑΛΗΨΕΙΣ","step":1,"load":"Ρυθμιζόμενος αλτήρας","equipment":"dumbbell","muscles":["Τρικέφαλοι","Κορμός"],"targets":["triceps","core"],"cue":"Με ασφαλή λαβή και βάρος που ελέγχεις, σήκωσε τον αλτήρα πάνω από το κεφάλι και λύγισε αργά τους αγκώνες. Απόφυγε την κίνηση αν η λαβή είναι ασταθής.","feel":"Τρικέφαλους.","mistake":"Λυγίζεις τη μέση ή αφήνεις τον αλτήρα να πέφτει πίσω."},
+      {"name":"One-Arm Dumbbell Shoulder Press","sets":2,"value":8,"suffix":" / πλευρά","control":"ΕΠΑΝΑΛΗΨΕΙΣ","step":1,"load":"Ρυθμιζόμενος αλτήρας","equipment":"dumbbell","muscles":["Ώμοι","Τρικέφαλοι","Κορμός"],"targets":["shoulders","triceps","core"],"cue":"Κράτα τον αλτήρα δίπλα στον ώμο, σφίξε τον κορμό και πίεσε πάνω χωρίς να γέρνεις. Επανάλαβε στην άλλη πλευρά.","feel":"Ώμο και τρικέφαλο.","mistake":"Καμπυλώνεις τη μέση για να σηκώσεις το βάρος."},
+      {"name":"Kettlebell Swing","sets":2,"value":12,"suffix":"","control":"ΕΠΑΝΑΛΗΨΕΙΣ","step":1,"load":"8 kg","equipment":"kettlebell","muscles":["Γλουτοί","Οπίσθιοι μηριαίοι","Κορμός"],"targets":["glutes","hamstrings","core"],"cue":"Με σωστή τεχνική hip hinge, στείλε τα ισχία πίσω και έκτεινέ τα δυναμικά. Τα χέρια δεν σηκώνουν το βάρος. Αν δεν έχεις μάθει την τεχνική, κάνε ελεγχόμενο kettlebell deadlift.","feel":"Γλουτούς και οπίσθιους μηριαίους.","mistake":"Το μετατρέπεις σε squat ή σηκώνεις με τους ώμους."}
+
     ]
   },
   wall:{
@@ -35,4 +36,55 @@ export const workouts={
       {name:"Supine Spinal Twist",sets:1,value:30,suffix:" sec / πλευρά",control:"ΧΡΟΝΟΣ",step:5,load:"Σώμα",muscles:["Μέση","Πλάγιοι κοιλιακοί","Άνω πλάτη"],targets:["obliques","upperback","core"],cue:"Ξάπλωσε ανάσκελα, φέρε ένα γόνατο προς το στήθος και άφησέ το να περάσει απαλά προς την αντίθετη πλευρά. Κράτα τους ώμους χαλαρούς.",feel:"Ήπιο τέντωμα σε κορμό, γλουτό και πλάτη.",mistake:"Πιέζεις το γόνατο προς το πάτωμα ενώ ο ώμος σηκώνεται ή υπάρχει πόνος."}
     ]
   }
+};
+
+// Keep the five saved exercise indices in order. Each mode owns its session.
+const original = workouts.kb.items;
+workouts.arnold = {
+  title: "ARNOLD · BASIC 5",
+  meta: "SQUAT · PUSH · PULL · HINGE · CARRY",
+  xp: 50,
+  items: [
+    {
+      ...original[0],
+      pattern: "SQUAT",
+      source: "Kettlebell_Goblet_Squat.webm",
+      cue: "Στάσου όρθιος με το kettlebell κοντά στο στήθος και τα πέλματα σταθερά. Λύγισε ισχία και γόνατα, κατέβα όσο ελέγχεις και πίεσε τα πέλματα για να σηκωθείς.",
+      mistake: "Γόνατα που κλείνουν προς τα μέσα ή φτέρνες που σηκώνονται."
+    },
+    {
+      ...original[3],
+      name: "One-Arm Floor Press",
+      pattern: "PUSH",
+      source: "Kettlebell_Chest_Press.webm",
+      cue: "Ξάπλωσε ανάσκελα με λυγισμένα γόνατα. Κράτα τον αλτήρα ή το kettlebell όπως στη φωτογραφία, με τον βραχίονα στο έδαφος και τον πήχη όρθιο. Πίεσε το βάρος κατακόρυφα πάνω από τον ώμο, κατέβασε ελεγχόμενα και άλλαξε πλευρά.",
+      mistake: "Καρπός που λυγίζει προς τα πίσω ή αγκώνας που ανοίγει υπερβολικά."
+    },
+    {
+      ...original[2],
+      name: "One-Arm Bent-Over Row",
+      pattern: "PULL",
+      source: "Kettlebell_Bent-over_Dead_Rows_(side_view).webm",
+      cue: "Με αλτήρα ή kettlebell, στείλε τα ισχία πίσω, λύγισε λίγο τα γόνατα και κράτα την πλάτη ουδέτερη. Από τεντωμένο χέρι, τράβα τον αγκώνα προς το ισχίο, κατέβασε αργά και άλλαξε πλευρά.",
+      mistake: "Στρίβεις ή τινάζεις τον κορμό για να σηκώσεις το βάρος."
+    },
+    {
+      ...original[6],
+      name: "Kettlebell Deadlift",
+      pattern: "HINGE",
+      source: "Kettlebell_Triceps_Push-up_Deadlift_Kettlebell_Combo.webm",
+      cue: "Βάλε το kettlebell ανάμεσα στα πέλματα. Στείλε τα ισχία πίσω, λύγισε λίγο τα γόνατα και πιάσε τη λαβή με τα δύο χέρια. Πίεσε τα πέλματα μέχρι να σταθείς όρθιος. Κατέβασε το βάρος στέλνοντας πάλι τα ισχία πίσω.",
+      mistake: "Στρογγυλεύεις την πλάτη, τραβάς με τα χέρια ή γέρνεις πίσω στην όρθια θέση."
+    },
+    {
+      ...original[1],
+      name: "Suitcase Carry",
+      pattern: "CARRY",
+      source: "Kettlebell_Farmer_Walks.webm",
+      value: 10,
+      control: "ΒΗΜΑΤΑ",
+      cue: "Στάσου όρθιος με αλτήρα ή kettlebell στο ένα χέρι, δίπλα στον μηρό. Κάνε μικρά σταθερά βήματα με τους ώμους και τη λεκάνη στο ίδιο ύψος. Αν ο χώρος είναι μικρός, βάδισε επιτόπου. Άλλαξε χέρι.",
+      mistake: "Γέρνεις στο πλάι, ανασηκώνεις τον ώμο ή αφήνεις το βάρος να αιωρείται."
+    }
+  ]
 };
