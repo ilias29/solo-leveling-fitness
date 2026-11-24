@@ -71,6 +71,7 @@ jobs:
           echo "VERSION_NAME=$(node -p "require('./package.json').version")" >> "$GITHUB_ENV"
           npx cap add android
           npx cap sync android
+          node scripts/prepare-health-connect.mjs
 
       - name: Inject version (same block as the stable workflow, without signing)
         run: |

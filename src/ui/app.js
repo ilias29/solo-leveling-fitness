@@ -8,6 +8,9 @@ import * as S from "../state/state.js";
 import { loadRaw, saveState, backupBeforeImport, CORRUPT_KEY, PRE_IMPORT_KEY } from "../storage/storage.js";
 import { buildExport, parseImport, summarize } from "../backup/backup.js";
 import { isNative as nativePlatform, restoreFromNative, mirrorToNative, shareText } from "../storage/native.js";
+import { initHealthConnect } from "./health-connect.js";
+
+initHealthConnect();
 import { APP_VERSION } from "../version.js";
 
 const store=window.localStorage;

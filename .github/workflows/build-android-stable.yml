@@ -89,6 +89,7 @@ jobs:
         run: |
           npx cap add android
           npx cap sync android
+          node scripts/prepare-health-connect.mjs
           mkdir -p "android/app/src/androidTest/java/com/ilias/sololevelingfitness"
           cp scripts/release-android/ReleaseUpgradeTest.java "android/app/src/androidTest/java/com/ilias/sololevelingfitness/"
 

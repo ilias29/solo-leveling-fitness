@@ -165,6 +165,11 @@ body{background:
 .backup-status{font-size:12px;color:var(--good);min-height:16px;word-break:break-word}
 .top-right{display:flex;gap:8px;align-items:center}.settings-btn{width:36px;height:36px;padding:0;border:1px solid var(--line);background:#080e20;color:#cfe8ff;font-size:18px;border-radius:9px}
 .app-version{margin-top:10px;font-size:11px;color:#6f86a8;text-align:right}
+.health-panel h2{margin:0 0 8px;font-size:17px}
+.health-panel dl{margin:0 0 8px;font-size:13px}
+.health-panel dl div{display:flex;justify-content:space-between;gap:10px;padding:6px 0}
+.health-panel dd{margin:0;text-align:right;color:#cfe8ff}
+.health-panel .backup-btn[hidden]{display:none}
 </style></head>
 <body><main class="app">
 <div class="top"><div class="sys">SYSTEM</div><div class="top-right"><div class="rank">RANK E</div><button class="settings-btn" id="settingsBtn" aria-label="Ρυθμίσεις">⚙</button></div></div>
@@ -176,6 +181,13 @@ body{background:
   <div class="hp-note" id="hpNote">Αν περάσουν 7 ημέρες χωρίς ολοκληρωμένο quest, χάνεις 10 HP.</div>
 </div>
 <div class="boss"><div class="bossline"><span>BOSS: 82 kg</span><span>START: 85 kg</span></div><div class="muted" style="margin-top:5px">Secondary objective: waist &lt; 98 cm</div></div></section>
+
+<section class="card health-panel" id="healthPanel" hidden aria-labelledby="healthHeading">
+<h2 id="healthHeading">Σήμερα</h2>
+<dl id="healthMetrics" hidden><div><dt>Βήματα σήμερα</dt><dd id="healthSteps"></dd></div><div><dt>Ύπνος · τελευταίες 24 ώρες</dt><dd id="healthSleep"></dd></div></dl>
+<p class="backup-help" id="healthStatus" role="status"></p>
+<button class="backup-btn" id="healthAccess" type="button">Σύνδεση με Health Connect</button>
+</section>
 
 <div class="modebar"><button class="mode active" data-mode="kb">⚔ FULL BODY</button><button class="mode" data-mode="arnold">ARNOLD · BASIC 5</button><button class="mode wall" data-mode="wall">▥ WALL</button><button class="mode stretch" data-mode="stretch">◌ STRETCHING</button></div><div class="quest-title"><h2 id="questTitle">DAILY QUEST · FULL BODY</h2><span class="muted" id="questMeta">8 / 16 / 32 KG</span></div><section class="quest-summary" id="questSummary"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><b id="questModeLabel">⚔ FULL BODY QUEST</b><span class="quest-count" id="questProgress">0/7</span></div><div class="day-track" id="dayTrack"></div><div class="quest-rule">Ολοκλήρωσε ΟΛΟ το επιλεγμένο quest → XP + 1 DAY. Κάθε mode δίνει XP μία φορά την ημέρα· η ημέρα μετρά μόνο μία φορά. DAYS = ημέρες προπόνησης αυτής της εβδομάδας (Δευ–Κυρ).</div></section>
 <div id="list"></div>

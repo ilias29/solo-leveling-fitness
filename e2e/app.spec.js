@@ -499,3 +499,33 @@ test("sticky program menu respects system insets and short screens can scroll", 
   await expect(page.locator("#complete")).toBeInViewport();
   await expect(menu).not.toBeInViewport();
 });
+
+test("Health Connect shows available values with partial permission and clears revoked values", async ({ page }) => {
+  await page.addInitScript(() => {
+    window.healthSample = {
+      available: true,
+      steps: { status: "denied" },
+      sleep: { status: "missing" }
+    };
+    window.Capacitor = {
+      getPlatform: () => "android",
+      isPluginAvailable: name => name === "HealthMetrics",
+      nativePromise: async (name, action) => {
+        if (action === "connect") window.healthSample.steps = { status: "ready", value: 123 };
+        return structuredClone(window.healthSample);
+      }
+    };
+  });
+  await open(page);
+  await expect(page.locator("#healthSleep")).toHaveText("Δεν υπάρχουν καταχωρίσεις");
+  await expect(page.locator("#healthSteps")).toHaveText("Χρειάζεται άδεια");
+  await page.locator("#healthAccess").click();
+  await expect(page.locator("#healthSteps")).toHaveText("123");
+  await expect(page.locator("#healthAccess")).toBeHidden();
+  await page.evaluate(() => {
+    window.healthSample.steps = { status: "denied" };
+    document.dispatchEvent(new Event("visibilitychange"));
+  });
+  await expect(page.locator("#healthSteps")).toHaveText("Χρειάζεται άδεια");
+  await expect(page.locator("#healthAccess")).toBeVisible();
+});
