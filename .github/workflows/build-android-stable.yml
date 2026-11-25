@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
   push:
     tags: ["v*"]
-    branches: ["release-v2.1.4"]
+    branches: ["release-v2.1.5"]
 
 permissions:
   contents: write
@@ -177,9 +177,9 @@ jobs:
             fi
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Compare against the published 2.1.2 and 2.1.3 APKs
+      - name: Compare against the published 2.1.2, 2.1.3 and 2.1.4 APKs
         run: |
-          for baseline in 2.1.2 2.1.3; do
+          for baseline in 2.1.2 2.1.3 2.1.4; do
             curl --fail --silent --show-error --location --retry 3 \
               "https://github.com/$GITHUB_REPOSITORY/releases/download/v$baseline/Solo-Leveling-Fitness.apk" \
               --output "previous-$baseline.apk"
@@ -187,9 +187,10 @@ jobs:
           sha256sum --check <<'EOF'
           ae7d6e2ec8f551d9c0c12fc57dc45503524c7af527b0a5d7135858c76085742e  previous-2.1.2.apk
           7ced829cb7e15a41c28c95f7e80211208b70a357a3321b706f07d6d60945abcc  previous-2.1.3.apk
+          1978455dce5bd909e46a995957604bac13112ceb08d2bf801989639f52429a07  previous-2.1.4.apk
           EOF
           BT="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
-          for baseline in 2.1.2 2.1.3; do
+          for baseline in 2.1.2 2.1.3 2.1.4; do
             BASE_CERT=$("$BT/apksigner" verify --print-certs "previous-$baseline.apk" | awk '/certificate SHA-256 digest/ {print $NF}')
             test "$CERT_SHA256" = "$BASE_CERT"
             BASE_BADGING=$("$BT/aapt2" dump badging "previous-$baseline.apk" | sed -n '1p')
@@ -233,7 +234,7 @@ jobs:
         run: |
           if [ "$GITHUB_REF_TYPE" = "tag" ]; then TAG="$GITHUB_REF_NAME"; else TAG="v$VERSION_NAME"; fi
           NOTES="Stable signed Android release $VERSION_NAME (versionCode $VERSION_CODE).
-          Verified upgrading from v2.1.2 and v2.1.3 with workout data and persistence after restart. All 26 exercises have two offline demonstration images.
+          Adds optional Health Connect access for steps and sleep on Android 14 and later. Verified updating from v2.1.4 with workout data and persistence after restart.
           Signing certificate SHA-256: $CERT_SHA256"
           gh release create "$TAG" "$APK" --target "$GITHUB_SHA" \
             --title "Solo Leveling Fitness $VERSION_NAME ($VERSION_CODE)" \

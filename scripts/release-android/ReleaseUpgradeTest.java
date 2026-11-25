@@ -53,12 +53,33 @@ public class ReleaseUpgradeTest {
                 case "restart":
                     assertSavedProgress(3);
                     break;
+                case "health":
+                    assertSavedProgress(3);
+                    verifyHealthConnect();
+                    break;
                 default:
                     throw new AssertionError("Unknown phase: " + phase);
             }
         } finally {
             instrumentation.runOnMainSync(activity::finish);
         }
+    }
+
+    private void verifyHealthConnect() throws Exception {
+        assertEquals("true", evaluate("Capacitor.isPluginAvailable('HealthMetrics')"));
+        evaluate("""
+            window.healthProbe = null;
+            Capacitor.nativePromise('HealthMetrics', 'readSummary', {})
+                .then(data => { window.healthProbe = data; })
+                .catch(error => { window.healthProbe = { error: String(error) }; });
+            """);
+        waitFor("window.healthProbe !== null");
+        assertEquals("true", evaluate("""
+            window.healthProbe.available === true && ['steps','sleep'].every(name =>
+                ['missing','ready'].includes(window.healthProbe[name]?.status))
+                || window.healthProbe
+            """));
+        waitFor("!document.getElementById('healthMetrics').hidden");
     }
 
     private void seedPreviousRelease() throws Exception {

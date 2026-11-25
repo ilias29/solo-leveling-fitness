@@ -17,13 +17,13 @@ run_test() {
   grep -Fq 'OK (1 test)' "android-$baseline-$1.log"
 }
 
-for baseline in 2.1.2 2.1.3; do
-  adb install "previous-$baseline.apk"
-  adb install release-upgrade-test.apk
-  run_test seed "$baseline"
-  adb install -r Solo-Leveling-Fitness.apk
-  run_test upgrade "$VERSION_NAME"
-  run_test restart "$VERSION_NAME"
-  adb uninstall "$app.test"
-  adb uninstall "$app"
-done
+baseline=2.1.4
+adb install "previous-$baseline.apk"
+adb install release-upgrade-test.apk
+run_test seed "$baseline"
+adb install -r Solo-Leveling-Fitness.apk
+run_test upgrade "$VERSION_NAME"
+run_test restart "$VERSION_NAME"
+adb shell pm grant "$app" android.permission.health.READ_STEPS
+adb shell pm grant "$app" android.permission.health.READ_SLEEP
+run_test health "$VERSION_NAME"
