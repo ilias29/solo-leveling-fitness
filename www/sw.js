@@ -1,4 +1,4 @@
-const CACHE="solo-fitness-v26";
+const CACHE="solo-fitness-v27";
 const ASSETS=["./assets/kettlebell/sumo-squat.svg","./assets/kettlebell/suitcase-march.svg","./assets/kettlebell/one-arm-row.svg","./assets/kettlebell/floor-press.svg","./assets/kettlebell/skull-crusher.svg","./assets/kettlebell/around-the-world.svg","./assets/kettlebell/deadlift.svg","./","./index.html","./manifest.webmanifest","./icon-192.png","./icon-512.png","./assets/wall/wall-sit.webp","./assets/wall/wall-squat.webp","./assets/wall/hip-abduction.webp","./assets/wall/hip-hinge.webp","./assets/wall/wall-slide.webp","./assets/wall/wall-w-hold.webp","./assets/wall/chin-tuck.webp",
  "./src/ui/app.js","./src/ui/health-connect.js","./src/data/workouts.js","./src/data/guides.js","./src/logic/dates.js","./src/logic/xp.js","./src/logic/hp.js","./src/logic/streak.js","./src/state/state.js","./src/state/migrations.js","./src/storage/storage.js","./src/backup/backup.js","./src/storage/native.js","./src/version.js"];
 for(const pattern of ["squat","push","pull","hinge","carry"]){
@@ -6,7 +6,7 @@ for(const pattern of ["squat","push","pull","hinge","carry"]){
 }
 for (const slug of [
  "cat-cow", "child-pose", "doorway-chest", "dumbbell-floor-press", "dumbbell-row",
- "dumbbell-shoulder-press", "figure-four", "hip-flexor", "overhead-triceps", "spinal-twist",
+ "dumbbell-shoulder-press", "figure-four", "hip-flexor", "kettlebell-supported-row", "kettlebell-overhead-press", "overhead-triceps", "spinal-twist",
  "standing-hamstring", "suitcase-march", "swing", "wall-chin-tuck", "wall-hip-abduction",
  "wall-hip-hinge", "wall-push-up", "wall-sit", "wall-slide", "wall-w"
 ]) {

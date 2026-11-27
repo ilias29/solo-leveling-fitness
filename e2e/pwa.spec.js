@@ -19,6 +19,7 @@ test("PWA: manifest valid, service worker caches app, works offline", async ({ p
   await page.reload();
   await expect(page.locator("#list .exercise")).toHaveCount(7);
   for (const [mode, workout] of Object.entries(workouts)) {
+    if (mode === "arnoldOneBell") await page.click('[data-mode="arnold"]');
     await page.click(`[data-mode="${mode}"]`);
     const cards = page.locator("#list .exercise");
     await expect(cards).toHaveCount(workout.items.length);

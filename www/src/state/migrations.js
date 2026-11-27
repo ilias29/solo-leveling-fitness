@@ -1,12 +1,12 @@
 import { MAX_HP } from "../logic/hp.js";
 import { isDayKey } from "../logic/dates.js";
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 // Workout days that must always remain in the history.
 export const SEED_DAYS = ["2026-10-14", "2026-10-15", "2026-10-16"];
 
-const MODES = ["kb", "wall", "stretch", "arnold"];
+const MODES = ["kb", "wall", "stretch", "arnold", "arnoldOneBell"];
 
 function toNum(v, fallback) {
   const n = typeof v === "string" && v.trim() !== "" ? Number(v) : v;
@@ -26,7 +26,7 @@ function migrateLegacy(state) {
   state.questDays = Array.isArray(state.questDays) ? state.questDays : [];
   if (!isObj(state.sessions)) state.sessions = {};
   if (!isObj(state.sessions.kb)) state.sessions.kb = { done: Array.isArray(state.done) ? state.done : [], values: isObj(state.reps) ? state.reps : {} };
-  for (const m of MODES) if (!isObj(state.sessions[m])) state.sessions[m] = { done: [], values: {} };
+  for (const m of ["kb", "wall", "stretch", "arnold"]) if (!isObj(state.sessions[m])) state.sessions[m] = { done: [], values: {} };
   state.activeMode = MODES.includes(state.activeMode) ? state.activeMode : "kb";
   return state;
 }
@@ -39,6 +39,10 @@ const steps = {
     state.lastXpDate = isObj(state.lastXpDate) ? state.lastXpDate : {};
     state.sessionDate = isDayKey(state.sessionDate) ? state.sessionDate : today;
     if (!fresh) state.questDays = [...new Set([...state.questDays, ...SEED_DAYS])];
+  },
+  // v1 -> v2: One-Bell starts independently from Basic 5.
+  2(state) {
+    if (!isObj(state.sessions.arnoldOneBell)) state.sessions.arnoldOneBell = { done: [], values: {} };
   }
 };
 

@@ -24,6 +24,13 @@ function generatedGuide(slug, start, end) {
 }
 
 export const photoGuides = {
+  "One-Arm Kettlebell Overhead Press": generatedGuide("kettlebell-overhead-press", "Kettlebell στον ώμο", "Βάρος κατακόρυφα πάνω από τον ώμο"),
+  "Supported One-Arm Kettlebell Row": {
+    path: "exercise-photos/kettlebell-supported-row", author: usmc,
+    source: "https://www.dvidshub.net/video/679697/kettlebell-row-single-arm",
+    license: "Δημόσιος τομέας (ΗΠΑ)", licenseUrl: publicDomain,
+    labels: ["Χέρι χαμηλά", "Αγκώνας προς το ισχίο"]
+  },
   "Goblet Squat": {
     path: "arnold/squat", author: "Taco Fleur / Cavemantraining",
     source: commons + "Kettlebell_Goblet_Squat.webm", license: "CC BY-SA 4.0", licenseUrl: ccBySa

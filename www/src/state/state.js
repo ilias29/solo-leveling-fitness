@@ -8,7 +8,7 @@ const clampSets = v => Math.max(1, Math.min(4, parseInt(v) || 1));
 const isObj = v => !!v && typeof v === "object" && !Array.isArray(v);
 
 export function maxValue(item) {
-  return item.control === "ΧΡΟΝΟΣ" ? 180 : 50;
+  return item.maxValue ?? (item.control === "ΧΡΟΝΟΣ" ? 180 : 50);
 }
 
 export function normalizeWeight(v) {
@@ -22,13 +22,14 @@ export function normalizeWeight(v) {
 export function normalizeSessions(state, workouts) {
   if (!isObj(state.lastXpDate)) state.lastXpDate = {};
   for (const [mode, w] of Object.entries(workouts)) {
+    if (!isObj(state.sessions[mode])) state.sessions[mode] = {};
     const s = state.sessions[mode];
     const n = w.items.length;
     s.done = Array.isArray(s.done) ? [...new Set(s.done.map(Number).filter(i => Number.isInteger(i) && i >= 0 && i < n))] : [];
     for (const k of ["values", "weights", "sets", "alternatives", "setProgress"]) if (!isObj(s[k])) s[k] = {};
     w.items.forEach((e, i) => {
       if (!Number.isFinite(+s.values[i])) s.values[i] = e.value;
-      if ((mode === "kb" || mode === "arnold") && !Number.isFinite(+s.weights[i])) s.weights[i] = parseFloat(e.load) || 8;
+      if ((e.equipment === "kettlebell" || e.equipment === "dumbbell") && !Number.isFinite(+s.weights[i])) s.weights[i] = parseFloat(e.load) || 8;
       if (!Number.isFinite(+s.sets[i])) s.sets[i] = clampSets(e.sets);
       const target = clampSets(parseInt(s.sets[i]) || parseInt(e.sets));
       if (!Number.isFinite(+s.setProgress[i])) s.setProgress[i] = s.done.includes(i) ? target : 0;

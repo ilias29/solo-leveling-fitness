@@ -88,3 +88,34 @@ workouts.arnold = {
     }
   ]
 };
+
+workouts.arnoldOneBell = {
+  title: "ARNOLD · ONE-BELL",
+  meta: "1 KETTLEBELL · 2–3 ΠΡΟΠΟΝΗΣΕΙΣ / ΕΒΔΟΜΑΔΑ",
+  xp: workouts.arnold.xp,
+  xpMode: "arnold",
+  items: [
+    { ...original[6], sets: 3, value: 10, pattern: "HINGE" },
+    { ...workouts.arnold.items[0], sets: 3, value: 10 },
+    {
+      ...original[5],
+      name: "One-Arm Kettlebell Overhead Press",
+      equipment: "kettlebell", load: "8 kg", sets: 3, value: 8, pattern: "PUSH",
+      suffix: " / χέρι",
+      cue: "Κράτα το kettlebell δίπλα στον ώμο, με ίσιο καρπό. Πίεσε κατακόρυφα πάνω από τον ώμο χωρίς ώθηση από τα πόδια. Κατέβασε με έλεγχο και άλλαξε χέρι."
+    },
+    {
+      ...original[2],
+      name: "Supported One-Arm Kettlebell Row",
+      equipment: "kettlebell", load: "8 kg", sets: 3, value: 8, pattern: "PULL",
+      suffix: " / χέρι",
+      cue: "Στήριξε το ελεύθερο χέρι σε σταθερό πάγκο ή καρέκλα. Κράτα ουδέτερη πλάτη, τράβα τον αγκώνα προς το ισχίο και κατέβασε το kettlebell αργά. Άλλαξε χέρι."
+    },
+    {
+      ...workouts.arnold.items[4],
+      equipment: "kettlebell", load: "8 kg", sets: 3, value: 30, pattern: "CARRY",
+      suffix: " μ. / πλευρά", control: "ΜΕΤΡΑ", maxValue: 300, step: 5,
+      cue: "Περπάτα όρθιος με το kettlebell στη μία πλευρά. Κάνε 30 μέτρα με κάθε χέρι ανά σετ. Σε μικρό χώρο μέτρα τη συνολική απόσταση με διαδρομές μπρος-πίσω."
+    }
+  ]
+};

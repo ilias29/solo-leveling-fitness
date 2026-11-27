@@ -67,7 +67,7 @@ test("old soloState from current main is migrated with every setting intact", as
   await expect(card(page, 6).locator(".weight-chip.active")).toHaveText("32 KG");
   await expect(card(page, 6).locator("[data-check]")).toHaveText("SET 2/3");
   const s = await stored(page);
-  expect(s.schemaVersion).toBe(1);
+  expect(s.schemaVersion).toBe(2);
   expect(s.xp).toBe(650);
   expect(s.questDays).toEqual(["2026-10-14", "2026-10-15", "2026-10-16"]);
   const backup = await page.evaluate(() => localStorage.getItem("soloState.backup.v0"));
@@ -528,4 +528,30 @@ test("Health Connect shows available values with partial permission and clears r
   });
   await expect(page.locator("#healthSteps")).toHaveText("Χρειάζεται άδεια");
   await expect(page.locator("#healthAccess")).toBeVisible();
+});
+
+test("Arnold One-Bell has independent progress and shares daily Arnold XP", async ({ page }) => {
+  await open(page);
+  await mode(page, "arnold");
+  await card(page, 0).locator("[data-check]").click();
+  await mode(page, "arnoldOneBell");
+  await expect(page.locator("#questTitle")).toHaveText("ARNOLD · ONE-BELL");
+  await expect(page.locator("#list .exercise")).toHaveCount(5);
+  await expect(card(page, 0).locator("[data-check]")).toHaveText("SET 0/3");
+  await expect(card(page, 4).locator(".dose")).toContainText("30 μ. / πλευρά");
+  await card(page, 4).locator("[data-plus]").click();
+  await expect(card(page, 4).locator("[data-input]")).toHaveValue("35");
+  await card(page, 0).locator("[data-check]").click();
+  await page.reload();
+  await expect(card(page, 0).locator("[data-check]")).toHaveText("SET 1/3");
+  await expect(card(page, 4).locator("[data-input]")).toHaveValue("35");
+  for (let i = 0; i < 5; i++) {
+    const button = card(page, i).locator("[data-check]");
+    for (let j = i === 0 ? 1 : 0; j < 3; j++) await button.click();
+  }
+  await page.locator("#complete").click();
+  await page.locator('[data-arnold-version="arnold"]').click();
+  await expect(card(page, 0).locator("[data-check]")).toHaveText("SET 1/2");
+  await expect(page.locator("#complete")).toContainText("XP ΣΗΜΕΡΑ");
+  expect((await stored(page)).xp).toBe(50);
 });

@@ -26,7 +26,7 @@ function session(){return state.sessions[state.activeMode]}
 function item(i){return current().items[i]}
 function val(i){return S.value(session(),item(i),i)}
 function setVal(i,v){S.changeValue(session(),item(i),i,v);save();render()}
-function strengthMode(){return state.activeMode==="kb"||state.activeMode==="arnold"}
+function strengthMode(){return ["kb", "arnold", "arnoldOneBell"].includes(state.activeMode)}
 function weight(i){return strengthMode()?S.weight(session(),i):null}
 function setWeight(i,v){if(!strengthMode())return;S.changeWeight(session(),i,v);save();render()}
 function setCount(i){return S.setCount(session(),item(i),i)}
@@ -96,7 +96,7 @@ function photoGuide(e, guide, pattern = "") {
 }
 
 function exerciseVisual(mode, i, e) {
- if (mode === "arnold") {
+ if (mode === "arnold" || (mode === "arnoldOneBell" && ["SQUAT", "CARRY"].includes(e.pattern))) {
   return photoGuide(e, {
    path: `arnold/${e.pattern.toLowerCase()}`,
    source: `https://commons.wikimedia.org/wiki/File:${e.source}`,
@@ -107,7 +107,7 @@ function exerciseVisual(mode, i, e) {
   }, e.pattern);
  }
  const guide = photoGuides[e.name];
- if (guide) return photoGuide(e, guide);
+ if (guide) return photoGuide(e, guide, e.pattern);
  if (mode === "kb") return kbVisual(i,e);
  if (mode === "stretch") return stretchGuide(e);
  return wallGuide(e);
@@ -117,9 +117,19 @@ function render(){
  document.getElementById("questTitle").textContent=w.title;
  document.getElementById("questMeta").textContent=w.meta;
  const today=todayKey(),weekDays=daysThisWeek(state.questDays,today);
- document.getElementById("complete").textContent=xpClaimedToday(state,state.activeMode,today)?"COMPLETE QUEST · XP ΣΗΜΕΡΑ ✓":"COMPLETE QUEST · +"+w.xp+" XP";
- document.querySelectorAll("[data-mode]").forEach(b=>b.classList.toggle("active",b.dataset.mode===state.activeMode));
- const summary=document.getElementById("questSummary");summary.classList.toggle("wall",state.activeMode==="wall");summary.classList.toggle("stretch",state.activeMode==="stretch");document.getElementById("questModeLabel").textContent=state.activeMode==="wall"?"▥ WALL / POSTURE QUEST":state.activeMode==="stretch"?"◌ STRETCHING QUEST":state.activeMode==="arnold"?"ARNOLD · BASIC 5":"⚔ FULL BODY QUEST";document.getElementById("questProgress").textContent=s.done.length+"/"+w.items.length+" DONE";document.getElementById("dayTrack").innerHTML=Array.from({length:5},(_,i)=>'<span class="day-dot '+(i<Math.min(weekDays,WEEKLY_TARGET_DAYS)?'hit':'')+'"></span>').join("");
+ document.getElementById("complete").textContent=xpClaimedToday(state,w.xpMode ?? state.activeMode,today)?"COMPLETE QUEST · XP ΣΗΜΕΡΑ ✓":"COMPLETE QUEST · +"+w.xp+" XP";
+ const arnoldMode = state.activeMode === "arnold" || state.activeMode === "arnoldOneBell";
+ document.getElementById("arnoldVersions").hidden = !arnoldMode;
+ document.querySelectorAll("[data-mode]").forEach(b => {
+   const selected = b.dataset.mode === state.activeMode || (arnoldMode && b.dataset.mode === "arnold");
+   b.classList.toggle("active", selected);
+ });
+ document.querySelectorAll("[data-arnold-version]").forEach(b => {
+   const selected = b.dataset.arnoldVersion === state.activeMode;
+   b.classList.toggle("active", selected);
+   b.setAttribute("aria-pressed", String(selected));
+ });
+ const summary=document.getElementById("questSummary");summary.classList.toggle("wall",state.activeMode==="wall");summary.classList.toggle("stretch",state.activeMode==="stretch");document.getElementById("questModeLabel").textContent=state.activeMode==="wall"?"▥ WALL / POSTURE QUEST":state.activeMode==="stretch"?"◌ STRETCHING QUEST":arnoldMode?w.title:"⚔ FULL BODY QUEST";document.getElementById("questProgress").textContent=s.done.length+"/"+w.items.length+" DONE";document.getElementById("dayTrack").innerHTML=Array.from({length:5},(_,i)=>'<span class="day-dot '+(i<Math.min(weekDays,WEEKLY_TARGET_DAYS)?'hit':'')+'"></span>').join("");
  list.innerHTML="";
  w.items.forEach((base,i)=>{
   const e=selectedExercise(i,base);
@@ -148,12 +158,12 @@ function render(){
  if(hp)hp.textContent=state.hp;if(bar)bar.style.width=state.hp+"%";if(st)st.textContent=currentStreak(state.questDays,today);
  if(note){const last=latestWorkoutDay(state.questDays);note.textContent=last?"Τελευταία προπόνηση: "+last+" · στις 7 ημέρες αδράνειας χάνεις 10 HP":"Αν περάσουν 7 ημέρες χωρίς ολοκληρωμένο quest, χάνεις 10 HP."}
 }
-document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{state.activeMode=b.dataset.mode;save();notice("");render()});
+document.querySelectorAll("[data-mode], [data-arnold-version]").forEach(b=>b.onclick=()=>{state.activeMode=b.dataset.arnoldVersion ?? b.dataset.mode;save();notice("");render()});
 document.getElementById("complete").onclick=()=>{
  refreshDay();
  const w=current(),s=session(),today=todayKey();
  if(s.done.length<w.items.length){notice("QUEST INCOMPLETE");return}
- const gained=awardQuestXp(state,state.activeMode,w.xp,today);
+ const gained=awardQuestXp(state,w.xpMode ?? state.activeMode,w.xp,today);
  recordWorkoutDay(state,today);S.clearProgress(s);save();render();
  notice((gained?"QUEST COMPLETE · +"+gained+" XP":"QUEST COMPLETE · XP ΗΔΗ ΣΗΜΕΡΑ")+" · STREAK "+currentStreak(state.questDays,today));
 };

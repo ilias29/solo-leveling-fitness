@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { migrate, SCHEMA_VERSION, SEED_DAYS } from "../src/state/migrations.js";
 import { prepareState } from "../src/state/state.js";
 import { workouts } from "../src/data/workouts.js";
-import { legacy, clone } from "./fixtures.js";
+import { legacy, clone, v215Arnold } from "./fixtures.js";
 
 const TODAY = "2026-10-17";
 
@@ -133,4 +133,16 @@ test("progress of a previous day is cleared, settings and history are kept", () 
   assert.deepEqual(next.sessions.kb.weights, first.sessions.kb.weights);
   assert.deepEqual(next.questDays, first.questDays);
   assert.equal(next.xp, first.xp);
+});
+
+test("v2.1.5 Arnold progress survives the One-Bell migration", () => {
+  const saved = prepareState(clone(v215Arnold), workouts, "2026-10-17");
+  assert.equal(saved.schemaVersion, 2);
+  assert.equal(saved.sessions.arnold.setProgress[0], 2);
+  assert.equal(saved.sessions.arnold.values[0], 14);
+  assert.equal(saved.sessions.arnold.sets[0], 4);
+  assert.deepEqual(saved.sessions.arnoldOneBell.values, { 0: 10, 1: 10, 2: 8, 3: 8, 4: 30 });
+  assert.deepEqual(Object.values(saved.sessions.arnoldOneBell.sets), [3, 3, 3, 3, 3]);
+  assert.equal(saved.sessions.arnoldOneBell.setProgress[0], 0);
+  assert.deepEqual(saved.lastXpDate, { arnold: "2026-10-17" });
 });

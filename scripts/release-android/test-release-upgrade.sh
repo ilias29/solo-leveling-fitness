@@ -17,7 +17,7 @@ run_test() {
   grep -Fq 'OK (1 test)' "android-$baseline-$1.log"
 }
 
-baseline=2.1.4
+baseline=2.1.5
 adb install "previous-$baseline.apk"
 adb install release-upgrade-test.apk
 run_test seed "$baseline"

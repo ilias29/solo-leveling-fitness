@@ -18,7 +18,7 @@ test("pre-migration data is copied once to the v0 backup key, untouched", () => 
   assert.equal(store.getItem(BACKUP_V0_KEY), raw, "backup unchanged after save");
   loadRaw(store);
   assert.equal(store.getItem(BACKUP_V0_KEY), raw, "not overwritten on next load");
-  assert.equal(JSON.parse(store.getItem(STATE_KEY)).schemaVersion, 1);
+  assert.equal(JSON.parse(store.getItem(STATE_KEY)).schemaVersion, 2);
 });
 
 test("unparseable soloState is preserved in a separate key, never silently lost", () => {

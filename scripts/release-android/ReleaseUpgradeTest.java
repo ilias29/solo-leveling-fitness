@@ -138,6 +138,8 @@ public class ReleaseUpgradeTest {
         verifyProgram("wall", 7);
         verifyProgram("stretch", 7);
         verifyProgram("arnold", 5);
+        verifyProgram("arnoldOneBell", 5);
+        verifyProgram("arnold", 5);
         instrumentation.runOnMainSync(() -> {
             int[] position = new int[2];
             web.getLocationOnScreen(position);

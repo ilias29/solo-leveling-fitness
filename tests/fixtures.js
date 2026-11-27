@@ -41,3 +41,9 @@ export function memoryStorage(initial = {}) {
 }
 
 export const clone = o => JSON.parse(JSON.stringify(o));
+
+export const v215Arnold = {
+  schemaVersion: 1, xp: 50, activeMode: "arnold", sessionDate: "2026-10-17",
+  questDays: ["2026-10-17"], lastXpDate: { arnold: "2026-10-17" },
+  sessions: { arnold: { done: [], values: { 0: 14 }, sets: { 0: 4 }, setProgress: { 0: 2 } } }
+};

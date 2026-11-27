@@ -141,6 +141,8 @@ body{background:
 @media(max-width:500px){.mode{font-size:11px;padding:10px 5px}.stretch-card{grid-template-columns:44% 56%;gap:6px}}
 
 .exercise-guide{margin:0 0 12px}
+.arnold-versions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 12px}
+.arnold-versions[hidden]{display:none}
 .arnold-pattern{margin:0 0 6px;color:var(--good);font-size:12px;font-weight:800}
 .exercise-positions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .exercise-positions figure{min-width:0;margin:0}
@@ -189,7 +191,11 @@ body{background:
 <button class="backup-btn" id="healthAccess" type="button">Σύνδεση με Health Connect</button>
 </section>
 
-<div class="modebar"><button class="mode active" data-mode="kb">⚔ FULL BODY</button><button class="mode" data-mode="arnold">ARNOLD · BASIC 5</button><button class="mode wall" data-mode="wall">▥ WALL</button><button class="mode stretch" data-mode="stretch">◌ STRETCHING</button></div><div class="quest-title"><h2 id="questTitle">DAILY QUEST · FULL BODY</h2><span class="muted" id="questMeta">8 / 16 / 32 KG</span></div><section class="quest-summary" id="questSummary"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><b id="questModeLabel">⚔ FULL BODY QUEST</b><span class="quest-count" id="questProgress">0/7</span></div><div class="day-track" id="dayTrack"></div><div class="quest-rule">Ολοκλήρωσε ΟΛΟ το επιλεγμένο quest → XP + 1 DAY. Κάθε mode δίνει XP μία φορά την ημέρα· η ημέρα μετρά μόνο μία φορά. DAYS = ημέρες προπόνησης αυτής της εβδομάδας (Δευ–Κυρ).</div></section>
+<div class="modebar"><button class="mode active" data-mode="kb">⚔ FULL BODY</button><button class="mode" data-mode="arnold">ARNOLD · BASIC 5</button><button class="mode wall" data-mode="wall">▥ WALL</button><button class="mode stretch" data-mode="stretch">◌ STRETCHING</button></div>
+<div class="arnold-versions" id="arnoldVersions" role="group" aria-label="Εκδοχή Arnold" hidden>
+<button type="button" class="mode" data-arnold-version="arnold">BASIC 5</button>
+<button type="button" class="mode" data-mode="arnoldOneBell" data-arnold-version="arnoldOneBell">ONE-BELL</button>
+</div><div class="quest-title"><h2 id="questTitle">DAILY QUEST · FULL BODY</h2><span class="muted" id="questMeta">8 / 16 / 32 KG</span></div><section class="quest-summary" id="questSummary"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><b id="questModeLabel">⚔ FULL BODY QUEST</b><span class="quest-count" id="questProgress">0/7</span></div><div class="day-track" id="dayTrack"></div><div class="quest-rule">Ολοκλήρωσε ΟΛΟ το επιλεγμένο quest → XP + 1 DAY. Κάθε πρόγραμμα δίνει XP μία φορά την ημέρα. Οι δύο εκδοχές Arnold μοιράζονται τα ημερήσια XP. DAYS = ημέρες προπόνησης αυτής της εβδομάδας (Δευ–Κυρ).</div></section>
 <div id="list"></div>
 <button class="primary" id="complete">COMPLETE QUEST · +50 XP</button>
 <button class="reset" id="reset">Reset σημερινών sets</button><button class="primary" id="install" style="display:none;background:linear-gradient(90deg,#18a67d,#287bd7)">INSTALL APP</button><div class="notice" id="notice"></div>
